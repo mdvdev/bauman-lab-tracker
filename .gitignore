@@ -174,5 +174,5 @@ cython_debug/
 .pypirc
 
 # custom
-credentials.json
+parser/credentials.json
 .DS_Store
