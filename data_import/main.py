@@ -1,39 +1,19 @@
 import psycopg2
 import csv
+from psycopg2.extensions import cursor
 
 
 DB_HOST = 'localhost'
 DB_NAME = 'eu_students'
 DB_USER = 'postgres'
 DB_PASSWORD = '0801'
+IMPORT_FILE_NAME = 'eu_students.csv'
 
 
-try:
-    connection = psycopg2.connect(
-        host=DB_HOST,
-        database=DB_NAME,
-        user=DB_USER,
-        password=DB_PASSWORD,
-        port=5433
-    )
-    connection.autocommit = True
-    cursor = connection.cursor()
-
-    create_table_query = '''
-    CREATE TABLE IF NOT EXISTS students (
-        id SERIAL PRIMARY KEY,
-        full_name VARCHAR(255),
-        record_book_id VARCHAR(50),
-        group_id VARCHAR(50),
-        specialty_id VARCHAR(50)
-    )
-    '''
-    cursor.execute(create_table_query)
-    print("Таблица создана или уже существует.")
-
-    with open('eu_students.csv', 'r', encoding='utf-8') as file:
+def init_database(cursor: cursor):
+    with open(IMPORT_FILE_NAME, 'r', encoding='utf-8') as file:
         reader = csv.reader(file)
-        next(reader)
+        next(reader)  # Skip the header row.
 
         for row in reader:
             full_name, record_book_id, group_id, specialty_id = row
@@ -43,17 +23,44 @@ try:
             )
             VALUES (%s, %s, %s, %s)
             '''
-            cursor.execute(
-                insert_query,
-                (full_name, record_book_id, group_id, specialty_id)
+
+        cursor.execute(
+            insert_query,
+            (full_name, record_book_id, group_id, specialty_id)
+        )
+
+
+def main():
+    try:
+        with psycopg2.connect(
+            host=DB_HOST,
+            database=DB_NAME,
+            user=DB_USER,
+            password=DB_PASSWORD,
+            port=5433,
+        ) as connection, connection.cursor() as cursor:
+            connection.autocommit = True
+
+            create_table_query = '''
+            CREATE TABLE IF NOT EXISTS students (
+                id SERIAL PRIMARY KEY,
+                full_name VARCHAR(255),
+                record_book_id VARCHAR(50),
+                group_id VARCHAR(50),
+                specialty_id VARCHAR(50)
             )
+            '''
+            cursor.execute(create_table_query)
+            print("Table created successfully or already exists.")
+            init_database(cursor)
 
-    print("Данные успешно загружены из CSV.")
+        print("Data successfully loaded from CSV.")
 
-except Exception as error:
-    print(f"Ошибка: {error}")
-finally:
-    if connection:
-        cursor.close()
-        connection.close()
-        print("Соединение с базой данных закрыто.")
+    except Exception as error:
+        print(f"An error occured: {error}")
+
+    print("Connection to database is closed.")
+
+
+if __name__ == '__main__':
+    main()
