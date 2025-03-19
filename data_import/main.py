@@ -1,10 +1,12 @@
 import psycopg2
 import csv
 
+
 DB_HOST = 'localhost'
 DB_NAME = 'eu_students'
 DB_USER = 'postgres'
 DB_PASSWORD = '0801'
+
 
 try:
     connection = psycopg2.connect(
@@ -36,10 +38,15 @@ try:
         for row in reader:
             full_name, record_book_id, group_id, specialty_id = row
             insert_query = '''
-            INSERT INTO students (full_name, record_book_id, group_id, specialty_id)
+            INSERT INTO students (
+                full_name, record_book_id, group_id, specialty_id
+            )
             VALUES (%s, %s, %s, %s)
             '''
-            cursor.execute(insert_query, (full_name, record_book_id, group_id, specialty_id))
+            cursor.execute(
+                insert_query,
+                (full_name, record_book_id, group_id, specialty_id)
+            )
 
     print("Данные успешно загружены из CSV.")
 

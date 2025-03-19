@@ -1,0 +1,2 @@
+psycopg2==2.9.10
+types-psycopg2==2.9.21.20250318
