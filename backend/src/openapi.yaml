@@ -900,8 +900,12 @@ components:
           type: string
           format: date-time
           readOnly: true
+        photo:
+          type: string
+          format: uri
+          nullable: true
+          example: "https://example.com/path/to/photo.jpg"
           
-
     CourseCreate:
       type: object
       required: [name, queueMode]
@@ -917,6 +921,12 @@ components:
           type: string
           enum: [democratic, oligarchic, anarchic]
           example: "democratic"
+        photo:
+          type: string
+          format: binary
+          nullable: true
+          description: "Фото курса в формате Base64"
+          example: "/9j/4AAQSkZJRgABAQEAAAAAAAD/2wBDAAoHBwkICgsJEBwVGxwYHBwsJDh0dIy8sLC4qL3c3N0TCwD3AwtxgDsd0o4g73VWhu6KlgOS9JlAbxEq1eMeaGpDTKN7oPbPV0PfsEjChgT3JsbWoYG/pVREopVBAEPp7Z2FFPxl8="
 
     CourseUpdate:
       type: object
@@ -932,6 +942,12 @@ components:
           type: string
           enum: [democratic, oligarchic, anarchic]
           example: "oligarchic"
+        photo:
+          type: string
+          format: binary
+          nullable: true
+          description: "Фото курса в формате Base64"
+          example: "/9j/4AAQSkZJRgABAQEAAAAAAAD/2wBDAAoHBwkICgsJEBwVGxwYHBwsJDh0dIy8sLC4qL3c3N0TCwD3AwtxgDsd0o4g73VWhu6KlgOS9JlAbxEq1eMeaGpDTKN7oPbPV0PfsEjChgT3JsbWoYG/pVREopVBAEPp7Z2FFPxl8="
       minProperties: 1
       additionalProperties: false
     
