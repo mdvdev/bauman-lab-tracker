@@ -243,6 +243,53 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
 
+  /courses/{courseId}/students:
+    get:
+      tags: [Courses]
+      summary: Получить список студентов данного курса
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/courseId'
+      responses:
+        '200':
+          description: Список курсов
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CourseStudent'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: Доступ запрещен (не студент курса)
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /courses/{courseId}/students/{userId}:
+    patch:
+      tags: [Courses]
+      summary: Изменить статус студента в курсе (для преподавателя)
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/courseId'
+        - $ref: '#/components/parameters/userId'
+      responses:
+        '200':
+          description: Студент курса
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseStudent'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: Доступ запрещен (не студент курса)
+        '404':
+          $ref: '#/components/responses/NotFound'
+
   # Лабораторные работы
   /courses/{courseId}/labs:
     get:
@@ -887,6 +934,25 @@ components:
           example: "oligarchic"
       minProperties: 1
       additionalProperties: false
+    
+    CourseStudent:
+      type: object
+      properties:
+        studentId:
+          type: string
+          format: uuid
+          description: "Уникальный идентификатор студента"
+        score:
+          type: integer
+          description: "Балл студента"
+        enrollmentDate:
+          type: string
+          format: date-time
+          description: "Дата регистрации студента на курс"
+        status:
+          type: string
+          enum: [in_progress, completed, failed]
+          description: "Статус студента в курсе"
 
     # Лабораторные работы
     Lab:
