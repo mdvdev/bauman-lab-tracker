@@ -638,7 +638,6 @@ paths:
         '401':
           $ref: '#/components/responses/Unauthorized'
 
-  /notifications/read:
     patch:
       tags: [Notifications]
       summary: Пометить уведомления как прочитанные
@@ -784,6 +783,8 @@ components:
           type: string
         lastName:
           type: string
+        patronymic:
+          type: string
         telegram:
           type: string
           nullable: true
@@ -803,7 +804,6 @@ components:
           nullable: true
           example: "https://example.com/path/to/photo.jpg"
           
-
     UserRegister:
       type: object
       required: [email, password, firstName, lastName]
@@ -823,6 +823,9 @@ components:
         lastName:
           type: string
           example: "Иванов"
+        patronymic:
+          type: string
+          example: "Иванович"
 
     UserLogin:
       type: object
@@ -846,6 +849,9 @@ components:
         lastName:
           type: string
           example: "Иванов"
+        patronymic:
+          type: string
+          example: "Иванович"
         telegram:
           type: string
           pattern: '^@[a-zA-Z0-9_]{5,32}$'
