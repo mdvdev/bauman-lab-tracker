@@ -11,13 +11,40 @@ namespace LabTracker.Infrastructure.Services;
 public class TokenService : ITokenService
 {
     private readonly IConfiguration _config;
+    private readonly IUserRepository _userRepository;
     
-    public TokenService(IConfiguration config)
+    public TokenService(IConfiguration config, IUserRepository userRepository)
     {
         _config = config ?? throw new ArgumentNullException(nameof(config), "Configuration cannot be null.");
+        _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository), "UserRepository cannot be null.");
     }
 
     public (string, string) GenerateTokens(string username)
+    {
+        var accessToken = GenerateAccessToken();
+        var refreshToken = GenerateRefreshToken();
+
+        // TODO: Add refreshToken to storage.
+        
+        return (accessToken, refreshToken);
+    }
+
+    public string RefreshAccessToken(string refreshToken)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void RevokeRefreshToken(string username)
+    {
+        throw new NotImplementedException();
+    }
+
+    private string GenerateRefreshToken()
+    {
+        return Guid.NewGuid().ToString("N");
+    }
+
+    private string GenerateAccessToken()
     {
         var key = Encoding.UTF8.GetBytes(
             _config["Jwt:Key"] ?? throw new ConfigurationErrorsException("Jwt:Key"));
@@ -40,15 +67,6 @@ public class TokenService : ITokenService
         var accessToken = tokenHandler.CreateToken(accessTokenDescriptor);
         var accessTokenString = tokenHandler.WriteToken(accessToken);
         
-        var refreshToken = Guid.NewGuid().ToString("N");
-
-        // TODO: Add refreshToken to storage.
-        
-        return (accessTokenString, refreshToken);
-    }
-
-    public void RevokeRefreshToken(string username)
-    {
-        throw new NotImplementedException();
+        return accessTokenString;
     }
 }

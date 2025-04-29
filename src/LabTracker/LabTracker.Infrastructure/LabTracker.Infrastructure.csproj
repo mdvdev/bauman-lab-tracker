@@ -8,6 +8,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\LabTracker.Application\LabTracker.Application.csproj" />
+      <ProjectReference Include="..\LabTracker.Domain\LabTracker.Domain.csproj" />
     </ItemGroup>
 
     <ItemGroup>
@@ -15,6 +16,10 @@
       <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.4" />
       <PackageReference Include="Microsoft.Extensions.Configuration" Version="10.0.0-preview.3.25171.5" />
       <PackageReference Include="System.Configuration.ConfigurationManager" Version="10.0.0-preview.3.25171.5" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Persistence\Repositories\" />
     </ItemGroup>
 
 </Project>
