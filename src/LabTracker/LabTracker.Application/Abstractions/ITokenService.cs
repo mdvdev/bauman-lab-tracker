@@ -1,10 +1,10 @@
-﻿namespace LabTracker.Application.Abstractions;
+﻿using LabTracker.Domain.ValueObjects;
+
+namespace LabTracker.Application.Abstractions;
 
 public interface ITokenService
 {
-    (string, string) GenerateTokens(string username);
-    
-    string RefreshAccessToken(string refreshToken);
-    
-    void RevokeRefreshToken(string username);
+    (string, string) GenerateTokens(Guid userId, Role role);
+    string GenerateAccessToken(Guid userId, Role role);
+    string GenerateRefreshToken();
 }

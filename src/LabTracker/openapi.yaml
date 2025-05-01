@@ -87,6 +87,24 @@ paths:
                 $ref: '#/components/schemas/Error'
               example:
                 error: "Invalid credentials"
+                
+  /auth/refresh:
+    get:
+      tags: [Auth]
+      summary: Обновление access token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshRequest' 
+      responses:
+        '200':
+          description: Успешное обновление access token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RefreshResponse'
 
   # Пользователи
   /users/me:
@@ -798,7 +816,7 @@ components:
           type: string
           format: date-time
           readOnly: true
-        photo:
+        photoUri:
           type: string
           format: uri
           nullable: true
@@ -876,7 +894,21 @@ components:
           example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
         user:
           $ref: '#/components/schemas/User'
-
+          
+    RefreshRequest:
+      type: object
+      properties: 
+        refreshToken:
+          type: string
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+          
+    RefreshResponse:
+      type: object
+      properties:
+        accessToken:
+          type: string
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."      
+    
     # Курсы
     Course:
       type: object

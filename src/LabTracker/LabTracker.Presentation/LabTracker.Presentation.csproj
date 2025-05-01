@@ -4,12 +4,17 @@
         <TargetFramework>net9.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
-        <RootNamespace>LabTracker.Api</RootNamespace>
+        <RootNamespace>LabTracker.Presentation</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.4"/>
+        <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="8.1.1" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\LabTracker.Infrastructure\LabTracker.Infrastructure.csproj" />
     </ItemGroup>
 
 </Project>
