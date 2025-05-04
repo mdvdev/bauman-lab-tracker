@@ -10,17 +10,12 @@ public partial record Name
 
     public Name(string value)
     {
-        if (string.IsNullOrWhiteSpace(value))
-        {
-            throw new ArgumentNullException(nameof(value), "Name cannot be null or empty.");
-        }
+        Value = value ?? throw new ArgumentNullException(nameof(value), "Name cannot be null or empty.");
 
         if (!IsValid(value))
         {
             throw new ArgumentException($"Name '{value}' is invalid.", nameof(value));
         }
-        
-        Value = value;
     }
 
     private bool IsValid(string value)

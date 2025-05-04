@@ -8,8 +8,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LabTracker.Application", "L
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LabTracker.Infrastructure", "LabTracker.Infrastructure\LabTracker.Infrastructure.csproj", "{FE613BCA-0172-4CCE-9073-3EBE2472DF70}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LabTracker.Infrastructure.Tests", "LabTracker.Infrastructure.Tests\LabTracker.Infrastructure.Tests.csproj", "{94280F29-694E-4D04-907F-C482AE777046}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -32,9 +30,5 @@ Global
 		{FE613BCA-0172-4CCE-9073-3EBE2472DF70}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FE613BCA-0172-4CCE-9073-3EBE2472DF70}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FE613BCA-0172-4CCE-9073-3EBE2472DF70}.Release|Any CPU.Build.0 = Release|Any CPU
-		{94280F29-694E-4D04-907F-C482AE777046}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{94280F29-694E-4D04-907F-C482AE777046}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{94280F29-694E-4D04-907F-C482AE777046}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{94280F29-694E-4D04-907F-C482AE777046}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
