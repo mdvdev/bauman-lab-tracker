@@ -6,10 +6,13 @@ using LabTracker.Domain.ValueObjects;
 using LabTracker.Infrastructure.Identity;
 using LabTracker.Infrastructure.Persistence;
 using LabTracker.Infrastructure.Persistence.Repositories;
+using LabTracker.Infrastructure.Services;
 using LabTracker.Presentation;
 using LabTracker.Presentation.Dtos;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -34,8 +37,10 @@ builder.Services.AddAuthentication();
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy(nameof(Role.Administrator), policy => { policy.RequireRole(nameof(Role.Administrator)); });
-
     options.AddPolicy(nameof(Role.Teacher), policy => { policy.RequireRole(nameof(Role.Teacher)); });
+    options.FallbackPolicy = new AuthorizationPolicyBuilder()
+        .RequireAuthenticatedUser()
+        .Build();
 });
 
 builder.Services.AddEndpointsApiExplorer();
@@ -54,17 +59,17 @@ builder.Services.AddScoped<ICourseMemberRepository, CourseMemberRepository>();
 
 // Add our services.
 builder.Services.AddScoped<ICourseService, CourseService>();
-
+builder.Services.AddScoped<IFileService, FileService>();
 
 var app = builder.Build();
 
 
-app.UseProblemDetails();
-app.UseRouting();
-app.UseHttpsRedirection();
-app.UseAuthentication();
-app.UseAuthorization();
-
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    await IdentitySeeder.SeedRolesAsync(services);
+    //await IdentitySeeder.SeedAdminAsync(services);
+}
 
 if (app.Environment.IsDevelopment())
 {
@@ -73,12 +78,23 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-using (var scope = app.Services.CreateScope())
+app.UseStaticFiles();
+
+app.UseProblemDetails();
+app.UseRouting();
+app.UseHttpsRedirection();
+
+app.UseAuthentication();
+app.UseAuthorization();
+
+app.UseStaticFiles(new StaticFileOptions
 {
-    var services = scope.ServiceProvider;
-    await IdentitySeeder.SeedRolesAsync(services);
-    //await IdentitySeeder.SeedAdminAsync(services);
-}
+    FileProvider = new PhysicalFileProvider(
+        Path.Combine(builder.Environment.ContentRootPath, "StaticFiles")),
+    RequestPath = "/StaticFiles"
+});
+
+app.UseMiddleware<CurrentUserMiddleware>();
 
 // TODO: Add email service.
 
@@ -96,25 +112,22 @@ auth.MapCustomizedIdentityApi<User>();
 
 
 auth.MapPost("/logout", async (SignInManager<User> signInManager) =>
-    {
-        await signInManager.SignOutAsync();
-        return Results.Ok();
-    })
-    .RequireAuthorization();
+{
+    await signInManager.SignOutAsync();
+    return Results.Ok();
+});
 
 
-auth.MapPatch("/update-password", async (
-        HttpContext context, UserManager<User> userManager, UpdateUserPasswordDto dto) =>
-    {
-        var user = await userManager.GetUserAsync(context.User);
+auth.MapPatch("/password", async (
+    HttpContext context, UserManager<User> userManager, UpdateUserPasswordDto dto) =>
+{
+    if (context.Items[ContextKeys.CurrentUser] is not User user)
+        return Results.NotFound();
 
-        if (user is null) return Results.Unauthorized();
+    var result = await userManager.ChangePasswordAsync(user, dto.CurrentPassword, dto.NewPassword);
 
-        var result = await userManager.ChangePasswordAsync(user, dto.CurrentPassword, dto.NewPassword);
-
-        return !result.Succeeded ? Results.BadRequest() : Results.Ok();
-    })
-    .RequireAuthorization();
+    return !result.Succeeded ? Results.BadRequest() : Results.Ok();
+});
 
 
 var users = api
@@ -123,64 +136,80 @@ var users = api
 
 
 users.MapGet("/", async (UserManager<User> userManager) =>
+{
+    var userList = await userManager.Users.ToListAsync();
+    var result = new List<UserDto>();
+    foreach (var user in userList)
     {
-        var userList = await userManager.Users.ToListAsync();
+        var rolesString = await userManager.GetRolesAsync(user);
+        var roles = rolesString.Select(Enum.Parse<Role>).ToList();
+        result.Add(UserDto.Create(user, roles));
+    }
 
-        var result = new List<UserDto>();
-        foreach (var user in userList)
-        {
-            var rolesString = await userManager.GetRolesAsync(user);
-            var roles = rolesString.Select(Enum.Parse<Role>).ToList();
-            result.Add(UserDto.Create(user, roles));
-        }
-
-        return Results.Ok(result);
-    })
-    .RequireAuthorization(nameof(Role.Administrator));
+    return Results.Ok(result);
+}).RequireAuthorization(nameof(Role.Administrator));
 
 
 users.MapGet("/me", async (
-        HttpContext context, UserManager<User> userManager) =>
-    {
-        var user = await userManager.GetUserAsync(context.User);
+    HttpContext context, UserManager<User> userManager) =>
+{
+    if (context.Items[ContextKeys.CurrentUser] is not User user)
+        return Results.NotFound();
 
-        if (user is null) return Results.NotFound();
+    var rolesString = await userManager.GetRolesAsync(user);
+    var roles = rolesString.Select(Enum.Parse<Role>).ToList();
 
-        var rolesString = await userManager.GetRolesAsync(user);
-        var roles = rolesString.Select(Enum.Parse<Role>).ToList();
-
-        return Results.Ok(UserDto.Create(user, roles));
-    })
-    .RequireAuthorization();
+    return Results.Ok(UserDto.Create(user, roles));
+});
 
 
 users.MapPatch("/me", async (
-        HttpContext context, UserManager<User> userManager, UpdateUserDto dto) =>
+    HttpContext context, UserManager<User> userManager, UpdateUserProfileDto dto) =>
+{
+    if (dto.FirstName is null &&
+        dto.LastName is null &&
+        dto.Patronymic is null &&
+        dto.TelegramUsername is null)
     {
-        if (dto.FirstName is null &&
-            dto.LastName is null &&
-            dto.Patronymic is null &&
-            dto.TelegramUsername is null &&
-            dto.PhotoUri is null)
-        {
-            return Results.BadRequest("At least one field must be provided.");
-        }
+        return Results.BadRequest("At least one field must be provided.");
+    }
 
-        var user = await userManager.GetUserAsync(context.User);
+    if (context.Items[ContextKeys.CurrentUser] is not User user)
+        return Results.NotFound();
 
-        if (user is null) return Results.NotFound();
+    user.FirstName = dto.FirstName != null ? new Name(dto.FirstName) : user.FirstName;
+    user.LastName = dto.LastName != null ? new Name(dto.LastName) : user.LastName;
+    user.Patronymic = dto.Patronymic != null ? new Name(dto.Patronymic) : user.Patronymic;
+    user.TelegramUsername = dto.TelegramUsername ?? user.TelegramUsername;
 
-        user.FirstName = dto.FirstName != null ? new Name(dto.FirstName) : user.FirstName;
-        user.LastName = dto.LastName != null ? new Name(dto.LastName) : user.LastName;
-        user.Patronymic = dto.Patronymic != null ? new Name(dto.Patronymic) : user.Patronymic;
-        user.TelegramUsername = dto.TelegramUsername ?? user.TelegramUsername;
-        user.PhotoUri = dto.PhotoUri ?? user.PhotoUri;
+    await userManager.UpdateAsync(user);
 
+    return Results.Ok();
+});
+
+
+users.MapPatch("/me/photo", async (
+    HttpContext context, UserManager<User> userManager, IFileService fileService, IFormFile file) =>
+{
+    try
+    {
+        var filePath = await fileService.SaveImageAsync(file,
+            "StaticFiles/Images/ProfilePhotos/",
+            Path.GetFileNameWithoutExtension(file.FileName));
+
+        if (context.Items[ContextKeys.CurrentUser] is not User user)
+            return Results.NotFound();
+
+        user.PhotoUri = filePath;
         await userManager.UpdateAsync(user);
 
         return Results.Ok();
-    })
-    .RequireAuthorization();
+    }
+    catch (InvalidOperationException e)
+    {
+        return Results.BadRequest(e.Message);
+    }
+}).DisableAntiforgery();
 
 
 var courses = api
@@ -189,21 +218,21 @@ var courses = api
 
 
 courses.MapGet("/", async (
-        HttpContext context, UserManager<User> userManager, ICourseService courseService) =>
-    {
-        var user = await userManager.GetUserAsync(context.User);
-        if (user is null) return Results.NotFound();
+    HttpContext context, ICourseService courseService) =>
+{
+    if (context.Items[ContextKeys.CurrentUser] is not User user)
+        return Results.NotFound();
 
-        var courseMembers = await courseService.GetMemberCoursesAsync(user.Id);
-        return Results.Ok(courseMembers
-            .Select(cm => new { cm.Course, cm.AssignedAt })
-            .ToList());
-    })
-    .RequireAuthorization();
+    var courseMembers = await courseService.GetMemberCoursesAsync(user.Id);
+    return Results.Ok(courseMembers
+        .Select(cm => new { cm.Course, cm.AssignedAt })
+        .ToList());
+});
 
 
+// TODO: Implement this method.
 courses.MapPost("/", async (
-        HttpContext context, UserManager<User> userManager, ICourseService courseService) =>
+        HttpContext context, ICourseService courseService) =>
     {
     })
     .RequireAuthorization(nameof(Role.Teacher), nameof(Role.Administrator));

@@ -100,7 +100,7 @@ public static class IdentityApiEndpointRouteBuilderExtensions
             await userManager.AddToRoleAsync(user, nameof(Role.Student));
             await SendConfirmationEmailAsync(user, userManager, context, email);
             return TypedResults.Ok();
-        });
+        }).AllowAnonymous();
 
         routeGroup.MapPost("/login", async Task<Results<Ok<AccessTokenResponse>, EmptyHttpResult, ProblemHttpResult>>
         ([FromBody] LoginRequest login, [FromQuery] bool? useCookies, [FromQuery] bool? useSessionCookies,
@@ -137,7 +137,7 @@ public static class IdentityApiEndpointRouteBuilderExtensions
 
             // The signInManager already produced the needed response in the form of a cookie or bearer token.
             return TypedResults.Empty;
-        });
+        }).AllowAnonymous();
 
         routeGroup.MapPost("/refresh",
             async Task<Results<Ok<AccessTokenResponse>, UnauthorizedHttpResult, SignInHttpResult, ChallengeHttpResult>>

@@ -5,6 +5,7 @@
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <RootNamespace>LabTracker.Presentation</RootNamespace>
+        <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     </PropertyGroup>
 
     <ItemGroup>
@@ -20,6 +21,12 @@
 
     <ItemGroup>
       <ProjectReference Include="..\LabTracker.Infrastructure\LabTracker.Infrastructure.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="StaticFiles\Images\" />
+      <Folder Include="StaticFiles\Images\ProfilePhotos\" />
+      <Folder Include="wwwroot\Images\" />
     </ItemGroup>
 
 </Project>
