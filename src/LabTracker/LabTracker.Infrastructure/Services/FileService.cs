@@ -29,4 +29,10 @@ public class FileService : IFileService
         
         return filePath;
     }
+
+    public void DeleteImage(string fileName)
+    {
+        ArgumentNullException.ThrowIfNull(fileName);
+        File.Delete(fileName);
+    }
 }

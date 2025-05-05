@@ -81,6 +81,9 @@ public static class UserEndpoints
                 if (context.Items[ContextKeys.CurrentUser] is not User user)
                     return Results.NotFound();
 
+                if (user.PhotoUri is not null)
+                    fileService.DeleteImage(user.PhotoUri.TrimStart('/'));
+
                 user.PhotoUri = "/" + filePath;
                 await userManager.UpdateAsync(user);
 
