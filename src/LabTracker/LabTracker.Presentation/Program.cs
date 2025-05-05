@@ -193,14 +193,15 @@ users.MapPatch("/me/photo", async (
 {
     try
     {
+        const string saveDirectory = "StaticFiles/Images/ProfilePhotos";
         var filePath = await fileService.SaveImageAsync(file,
-            "StaticFiles/Images/ProfilePhotos/",
+            saveDirectory,
             Path.GetFileNameWithoutExtension(file.FileName));
 
         if (context.Items[ContextKeys.CurrentUser] is not User user)
             return Results.NotFound();
 
-        user.PhotoUri = filePath;
+        user.PhotoUri = "/" + filePath;
         await userManager.UpdateAsync(user);
 
         return Results.Ok();
