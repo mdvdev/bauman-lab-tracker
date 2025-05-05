@@ -9,6 +9,7 @@ using LabTracker.Infrastructure.Persistence.Repositories;
 using LabTracker.Infrastructure.Services;
 using LabTracker.Presentation;
 using LabTracker.Presentation.Dtos;
+using LabTracker.Presentation.Endpoints;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -102,141 +103,10 @@ var api = app
     .MapGroup("/api")
     .WithTags("Api");
 
+api.MapAuthEndpoints();
 
-var auth = api
-    .MapGroup("/auth")
-    .WithTags("Auth");
+api.MapUserEndpoints();
 
-
-auth.MapCustomizedIdentityApi<User>();
-
-
-auth.MapPost("/logout", async (SignInManager<User> signInManager) =>
-{
-    await signInManager.SignOutAsync();
-    return Results.Ok();
-});
-
-
-auth.MapPatch("/password", async (
-    HttpContext context, UserManager<User> userManager, UpdateUserPasswordDto dto) =>
-{
-    if (context.Items[ContextKeys.CurrentUser] is not User user)
-        return Results.NotFound();
-
-    var result = await userManager.ChangePasswordAsync(user, dto.CurrentPassword, dto.NewPassword);
-
-    return !result.Succeeded ? Results.BadRequest() : Results.Ok();
-});
-
-
-var users = api
-    .MapGroup("/users")
-    .WithTags("Users");
-
-
-users.MapGet("/", async (UserManager<User> userManager) =>
-{
-    var userList = await userManager.Users.ToListAsync();
-    var result = new List<UserDto>();
-    foreach (var user in userList)
-    {
-        var rolesString = await userManager.GetRolesAsync(user);
-        var roles = rolesString.Select(Enum.Parse<Role>).ToList();
-        result.Add(UserDto.Create(user, roles));
-    }
-
-    return Results.Ok(result);
-}).RequireAuthorization(nameof(Role.Administrator));
-
-
-users.MapGet("/me", async (
-    HttpContext context, UserManager<User> userManager) =>
-{
-    if (context.Items[ContextKeys.CurrentUser] is not User user)
-        return Results.NotFound();
-
-    var rolesString = await userManager.GetRolesAsync(user);
-    var roles = rolesString.Select(Enum.Parse<Role>).ToList();
-
-    return Results.Ok(UserDto.Create(user, roles));
-});
-
-
-users.MapPatch("/me", async (
-    HttpContext context, UserManager<User> userManager, UpdateUserProfileDto dto) =>
-{
-    if (dto.FirstName is null &&
-        dto.LastName is null &&
-        dto.Patronymic is null &&
-        dto.TelegramUsername is null)
-    {
-        return Results.BadRequest("At least one field must be provided.");
-    }
-
-    if (context.Items[ContextKeys.CurrentUser] is not User user)
-        return Results.NotFound();
-
-    user.FirstName = dto.FirstName != null ? new Name(dto.FirstName) : user.FirstName;
-    user.LastName = dto.LastName != null ? new Name(dto.LastName) : user.LastName;
-    user.Patronymic = dto.Patronymic != null ? new Name(dto.Patronymic) : user.Patronymic;
-    user.TelegramUsername = dto.TelegramUsername ?? user.TelegramUsername;
-
-    await userManager.UpdateAsync(user);
-
-    return Results.Ok();
-});
-
-
-users.MapPatch("/me/photo", async (
-    HttpContext context, UserManager<User> userManager, IFileService fileService, IFormFile file) =>
-{
-    try
-    {
-        const string saveDirectory = "StaticFiles/Images/ProfilePhotos";
-        var filePath = await fileService.SaveImageAsync(file,
-            saveDirectory,
-            Path.GetFileNameWithoutExtension(file.FileName));
-
-        if (context.Items[ContextKeys.CurrentUser] is not User user)
-            return Results.NotFound();
-
-        user.PhotoUri = "/" + filePath;
-        await userManager.UpdateAsync(user);
-
-        return Results.Ok();
-    }
-    catch (InvalidOperationException e)
-    {
-        return Results.BadRequest(e.Message);
-    }
-}).DisableAntiforgery();
-
-
-var courses = api
-    .MapGroup("/courses")
-    .WithTags("Courses");
-
-
-courses.MapGet("/", async (
-    HttpContext context, ICourseService courseService) =>
-{
-    if (context.Items[ContextKeys.CurrentUser] is not User user)
-        return Results.NotFound();
-
-    var courseMembers = await courseService.GetMemberCoursesAsync(user.Id);
-    return Results.Ok(courseMembers
-        .Select(cm => new { cm.Course, cm.AssignedAt })
-        .ToList());
-});
-
-
-// TODO: Implement this method.
-courses.MapPost("/", async (
-        HttpContext context, ICourseService courseService) =>
-    {
-    })
-    .RequireAuthorization(nameof(Role.Teacher), nameof(Role.Administrator));
-
+api.MapCourseEndpoints();
 
 app.Run();
