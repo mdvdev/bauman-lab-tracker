@@ -1,6 +1,10 @@
 using Hellang.Middleware.ProblemDetails;
+using LabTracker.Application;
 using LabTracker.Application.Contracts;
+using LabTracker.Application.Contracts.Labs;
 using LabTracker.Application.Courses;
+using LabTracker.Application.Labs;
+using LabTracker.Application.Notifications;
 using LabTracker.Domain.Entities;
 using LabTracker.Domain.ValueObjects;
 using LabTracker.Infrastructure.Identity;
@@ -57,10 +61,15 @@ builder.Services.AddIdentityApiEndpoints<User>()
 // Add repositories.
 builder.Services.AddScoped<ICourseRepository, CourseRepository>();
 builder.Services.AddScoped<ICourseMemberRepository, CourseMemberRepository>();
+builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
+builder.Services.AddScoped<ILabRepository, LabRepository>();
 
 // Add our services.
 builder.Services.AddScoped<ICourseService, CourseService>();
 builder.Services.AddScoped<IFileService, FileService>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddScoped<ILabService, LabService>();
+
 
 var app = builder.Build();
 
@@ -108,5 +117,9 @@ api.MapAuthEndpoints();
 api.MapUserEndpoints();
 
 api.MapCourseEndpoints();
+
+app.MapNotificationEndpoints();
+
+app.MapLabEndpoints();
 
 app.Run();
