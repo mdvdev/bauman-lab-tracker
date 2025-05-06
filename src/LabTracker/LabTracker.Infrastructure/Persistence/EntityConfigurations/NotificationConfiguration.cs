@@ -29,7 +29,13 @@ public class NotificationConfiguration : IEntityTypeConfiguration<Notification>
 
         builder.Property(n => n.CreatedAt)
             .IsRequired();
+        
+        builder.HasOne(n => n.User)
+            .WithMany() 
+            .HasForeignKey(n => n.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasIndex(n => n.UserId);
+        
     }
 }

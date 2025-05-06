@@ -10,42 +10,16 @@ public static class LabEndpoints
 {
     public static IEndpointRouteBuilder MapLabEndpoints(this IEndpointRouteBuilder endpoints)
     {
-        var labGroup = endpoints.MapGroup("/api/courses/{courseId}/labs")
+        var labGroup = endpoints.MapGroup("labs")
             .WithTags("Labs")
             .WithOpenApi();
 
         labGroup.MapGet("/", async (Guid courseId, ILabService labService) =>
-            {
-                var labs = await labService.GetLabsByCourseIdAsync(courseId);
-                return Results.Ok(labs);
-            })
-            .RequireAuthorization(policy => policy
-                .RequireRole(nameof(Role.Teacher), nameof(Role.Student), nameof(Role.Administrator)))
-            .Produces<List<Lab>>(StatusCodes.Status200OK)
-            .Produces(StatusCodes.Status401Unauthorized)
-            .Produces(StatusCodes.Status403Forbidden)
-            .Produces(StatusCodes.Status404NotFound)
-            .WithSummary("Получить список лабораторных работ (участник курса)")
-            .WithOpenApi(operation => {
-                operation.Security = new List<OpenApiSecurityRequirement>
-                {
-                    new()
-                    {
-                        {
-                            new OpenApiSecurityScheme
-                            {
-                                Reference = new OpenApiReference
-                                {
-                                    Type = ReferenceType.SecurityScheme,
-                                    Id = "Bearer"
-                                }
-                            },
-                            Array.Empty<string>()
-                        }
-                    }
-                };
-                return operation;
-            });
+        {
+            var labs = await labService.GetLabsByCourseIdAsync(courseId);
+            return Results.Ok(labs);
+        });
+
 
         labGroup.MapPost("/", async (Guid courseId, CreateLabRequest request, ILabService labService) =>
             {
@@ -61,7 +35,7 @@ public static class LabEndpoints
                         request.Deadline,
                         request.Score,
                         request.ScoreAfterDeadline);
-                    
+
                     return Results.Created($"/api/courses/{courseId}/labs/{lab.Id}", lab);
                 }
                 catch (KeyNotFoundException ex)
@@ -69,51 +43,7 @@ public static class LabEndpoints
                     return Results.NotFound(ex.Message);
                 }
             })
-            .RequireAuthorization(policy => policy
-                .RequireRole(nameof(Role.Teacher), nameof(Role.Administrator)))
-            .Produces<Lab>(StatusCodes.Status201Created)
-            .Produces(StatusCodes.Status400BadRequest)
-            .Produces(StatusCodes.Status401Unauthorized)
-            .Produces(StatusCodes.Status403Forbidden)
-            .Produces(StatusCodes.Status404NotFound)
-            .WithSummary("Создать лабораторную работу (преподаватель курса)")
-            .WithOpenApi(operation => {
-                operation.Security = new List<OpenApiSecurityRequirement>
-                {
-                    new()
-                    {
-                        {
-                            new OpenApiSecurityScheme
-                            {
-                                Reference = new OpenApiReference
-                                {
-                                    Type = ReferenceType.SecurityScheme,
-                                    Id = "Bearer"
-                                }
-                            },
-                            Array.Empty<string>()
-                        }
-                    }
-                };
-                operation.RequestBody = new OpenApiRequestBody
-                {
-                    Content =
-                    {
-                        ["application/json"] = new OpenApiMediaType
-                        {
-                            Schema = new OpenApiSchema
-                            {
-                                Reference = new OpenApiReference
-                                {
-                                    Type = ReferenceType.Schema,
-                                    Id = "LabCreate"
-                                }
-                            }
-                        }
-                    }
-                };
-                return operation;
-            });
+            .WithSummary("Создать лабораторную работу (преподаватель курса)");
 
         var labItemGroup = labGroup.MapGroup("/{labId}")
             .WithOpenApi();
@@ -123,35 +53,7 @@ public static class LabEndpoints
                 var lab = await labService.GetLabByIdAsync(labId);
                 return lab is not null ? Results.Ok(lab) : Results.NotFound();
             })
-            .RequireAuthorization(policy => policy
-                .RequireRole(nameof(Role.Teacher), nameof(Role.Student), nameof(Role.Administrator)))
-            .Produces<Lab>(StatusCodes.Status200OK)
-            .Produces(StatusCodes.Status401Unauthorized)
-            .Produces(StatusCodes.Status403Forbidden)
-            .Produces(StatusCodes.Status404NotFound)
-            .WithSummary("Получить лабораторную работу (участник курса)")
-            .WithOpenApi(operation => {
-                operation.Security = new List<OpenApiSecurityRequirement>
-                {
-                    new()
-                    {
-                        {
-                            new OpenApiSecurityScheme
-                            {
-                                Reference = new OpenApiReference
-                                {
-                                    Type = ReferenceType.SecurityScheme,
-                                    Id = "Bearer"
-                                }
-                            },
-                            Array.Empty<string>()
-                        }
-                    }
-                };
-                operation.Parameters[0].Description = "ID курса";
-                operation.Parameters[1].Description = "ID лабораторной работы";
-                return operation;
-            });
+            .WithSummary("Получить лабораторную работу (участник курса)");
 
         labItemGroup.MapPatch("/", async (Guid labId, UpdateLabRequest request, ILabService labService) =>
             {
@@ -176,51 +78,7 @@ public static class LabEndpoints
                     return Results.NotFound(ex.Message);
                 }
             })
-            .RequireAuthorization(policy => policy
-                .RequireRole(nameof(Role.Teacher), nameof(Role.Administrator)))
-            .Produces<Lab>(StatusCodes.Status200OK)
-            .Produces(StatusCodes.Status400BadRequest)
-            .Produces(StatusCodes.Status401Unauthorized)
-            .Produces(StatusCodes.Status403Forbidden)
-            .Produces(StatusCodes.Status404NotFound)
-            .WithSummary("Обновить лабораторную работу (преподаватель курса)")
-            .WithOpenApi(operation => {
-                operation.Security = new List<OpenApiSecurityRequirement>
-                {
-                    new()
-                    {
-                        {
-                            new OpenApiSecurityScheme
-                            {
-                                Reference = new OpenApiReference
-                                {
-                                    Type = ReferenceType.SecurityScheme,
-                                    Id = "Bearer"
-                                }
-                            },
-                            Array.Empty<string>()
-                        }
-                    }
-                };
-                operation.RequestBody = new OpenApiRequestBody
-                {
-                    Content =
-                    {
-                        ["application/json"] = new OpenApiMediaType
-                        {
-                            Schema = new OpenApiSchema
-                            {
-                                Reference = new OpenApiReference
-                                {
-                                    Type = ReferenceType.Schema,
-                                    Id = "LabUpdate"
-                                }
-                            }
-                        }
-                    }
-                };
-                return operation;
-            });
+            .WithSummary("Обновить лабораторную работу (преподаватель курса)");
 
         return endpoints;
     }

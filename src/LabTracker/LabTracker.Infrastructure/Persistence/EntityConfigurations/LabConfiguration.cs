@@ -28,9 +28,9 @@ namespace LabTracker.Infrastructure.Persistence.EntityConfigurations
 
             builder.Property(l => l.ScoreAfterDeadline)
                 .IsRequired();
-
-            builder.HasOne<Course>()
-                .WithMany()
+            
+            builder.HasOne(l => l.Course)
+                .WithMany() 
                 .HasForeignKey(l => l.CourseId)
                 .OnDelete(DeleteBehavior.Cascade);
         }

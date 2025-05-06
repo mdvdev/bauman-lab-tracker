@@ -54,13 +54,21 @@ public static class NotificationEndpoints
 
             try
             {
-                var notification = await notificationService.CreateNotificationAsync(
+                await notificationService.CreateNotificationAsync(
                     request.UserId,
                     request.Title,
                     request.Message,
                     notificationType,
                     request.RelatedEntityId,
                     request.RelatedEntityType);
+                
+                var notification = new Notification {
+                    UserId = request.UserId,
+                    Title = request.Title,
+                    Message = request.Message,
+                    Type = notificationType,
+                    RelatedEntityId = request.RelatedEntityId,
+                    RelatedEntityType = request.RelatedEntityType};
 
                 return Results.Created($"/notifications/{notification.Id}", ToDto(notification));
             }
@@ -148,5 +156,6 @@ public static class NotificationEndpoints
         notification.CreatedAt,
         notification.ReadAt,
         notification.RelatedEntityId,
-        notification.RelatedEntityType);
+        notification.RelatedEntityType,
+        UserDto.Create(notification.User, new List<Role>()));
 }

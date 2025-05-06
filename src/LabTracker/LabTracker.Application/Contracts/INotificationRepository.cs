@@ -4,9 +4,13 @@ using System.Threading.Tasks;
 
 namespace LabTracker.Application.Contracts;
 
-public interface INotificationRepository
+public interface INotificationRepository: ICrudRepository<Notification, Guid>
 {
-    Task<Notification> CreateAsync(Notification notification);
+    Task CreateAsync(Notification notification);
+    Task UpdateAsync(Notification notification);
+    Task<IEnumerable<Notification>> GetAllAsync();
+    Task<Notification> GetByIdAsync(Guid id);
+    Task DeleteAsync(Guid id);
     Task CreateBatchAsync(IEnumerable<Notification> notifications);
     Task<(IEnumerable<Notification> Items, int TotalCount, int UnreadCount)> GetUserNotificationsAsync(
         Guid userId, 

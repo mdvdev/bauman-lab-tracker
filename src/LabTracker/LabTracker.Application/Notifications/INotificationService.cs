@@ -5,7 +5,7 @@ namespace LabTracker.Application.Contracts;
 
 public interface INotificationService
 {
-    Task<Notification> CreateNotificationAsync(
+    Task CreateNotificationAsync(
         Guid userId,
         string title,
         string message,

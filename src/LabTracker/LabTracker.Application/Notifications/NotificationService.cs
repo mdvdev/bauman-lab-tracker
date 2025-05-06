@@ -13,7 +13,7 @@ public class NotificationService : INotificationService
         _notificationRepository = notificationRepository;
     }
     
-    public async Task<Notification> CreateNotificationAsync(
+    public async Task CreateNotificationAsync(
         Guid userId,
         string title,
         string message,
@@ -31,7 +31,7 @@ public class NotificationService : INotificationService
             RelatedEntityType = relatedEntityType
         };
 
-        return await _notificationRepository.CreateAsync(notification);
+        await _notificationRepository.CreateAsync(notification);
     }
 
     public async Task CreateNotificationsBatchAsync(

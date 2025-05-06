@@ -2,6 +2,7 @@ using LabTracker.Application.Contracts;
 using LabTracker.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
+using System.Linq.Expressions;
 
 namespace LabTracker.Infrastructure.Persistence.Repositories;
 
@@ -14,11 +15,55 @@ public class NotificationRepository : INotificationRepository
         _context = context;
     }
     
-    public async Task<Notification> CreateAsync(Notification notification)
+    public async Task CreateAsync(Notification notification)
     {
         await _context.Notifications.AddAsync(notification);
         await _context.SaveChangesAsync();
+    }
+
+    public async Task UpdateAsync(Notification notification)
+    {
+        var notificationToUpdate = await _context.Notifications.FindAsync(notification.Id);
+        if (notificationToUpdate is null)
+        {
+            throw new KeyNotFoundException($"Notification with {notification.Id} id not found");
+        }
+        notificationToUpdate.Title = notification.Title;
+        notificationToUpdate.Message = notification.Message;
+        notificationToUpdate.Type = notification.Type;
+        
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task<IEnumerable<Notification>> GetAllAsync()
+    {
+        var notifications = await _context.Notifications.ToListAsync();
+        if (notifications is null)
+        {
+            throw new KeyNotFoundException("There are no notifications");
+        }
+        return notifications;
+    }
+
+    public async Task<Notification> GetByIdAsync(Guid id)
+    {
+        var notification = await _context.Notifications.FindAsync(id);
+        if (notification is null)
+        {
+            throw new KeyNotFoundException($"Notification with id {id} not found");
+        }
         return notification;
+    }
+
+    public async Task DeleteAsync(Guid id)
+    {
+        var notificationToDelete = _context.Notifications.Find(id);
+        if (notificationToDelete is null)
+        {
+            throw new KeyNotFoundException($"Notification with id {id} not found");
+        }
+        _context.Notifications.Remove(notificationToDelete);
+        _context.SaveChangesAsync();
     }
 
     public async Task CreateBatchAsync(IEnumerable<Notification> notifications)
@@ -34,6 +79,7 @@ public class NotificationRepository : INotificationRepository
         bool unreadOnly)
     {
         var query = _context.Notifications
+            .Include(n => n.User) 
             .Where(n => n.UserId == userId)
             .OrderByDescending(n => n.CreatedAt);
 
@@ -57,33 +103,42 @@ public class NotificationRepository : INotificationRepository
 
     public async Task MarkAsReadAsync(Guid userId, IEnumerable<Guid> notificationIds)
     {
-        var notifications = await _context.Notifications
-            .Where(n => n.UserId == userId && notificationIds.Contains(n.Id))
-            .ToListAsync();
-
-        var now = DateTimeOffset.UtcNow;
-        foreach (var notification in notifications)
-        {
-            notification.IsRead = true;
-            notification.ReadAt = now;
-        }
-
-        await _context.SaveChangesAsync();
+        var notifications = await GetNotificationsToMarkAsync(
+            userId, 
+            n => notificationIds.Contains(n.Id));
+    
+        await UpdateNotificationsAsReadAsync(notifications);
     }
 
     public async Task MarkAllAsReadAsync(Guid userId)
     {
-        var unreadNotifications = await _context.Notifications
-            .Where(n => n.UserId == userId && !n.IsRead)
-            .ToListAsync();
+        var notifications = await GetNotificationsToMarkAsync(
+            userId, 
+            n => !n.IsRead);
+    
+        await UpdateNotificationsAsReadAsync(notifications);
+    }
 
+    private async Task<List<Notification>> GetNotificationsToMarkAsync(
+        Guid userId, 
+        Expression<Func<Notification, bool>> filter)
+    {
+        return await _context.Notifications
+                   .Where(n => n.UserId == userId)
+                   .Where(filter)
+                   .ToListAsync() 
+               ?? throw new KeyNotFoundException("Notifications not found");
+    }
+
+    private async Task UpdateNotificationsAsReadAsync(List<Notification> notifications)
+    {
         var now = DateTimeOffset.UtcNow;
-        foreach (var notification in unreadNotifications)
+        notifications.ForEach(n => 
         {
-            notification.IsRead = true;
-            notification.ReadAt = now;
-        }
-
+            n.IsRead = true;
+            n.ReadAt = now;
+        });
+    
         await _context.SaveChangesAsync();
     }
 }

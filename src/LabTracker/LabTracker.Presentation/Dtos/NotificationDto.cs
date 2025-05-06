@@ -9,4 +9,5 @@ public record NotificationDto(
     DateTimeOffset CreatedAt,
     DateTimeOffset? ReadAt,
     string? RelatedEntityId,
-    string? RelatedEntityType);
+    string? RelatedEntityType,
+    UserDto Recipient);
