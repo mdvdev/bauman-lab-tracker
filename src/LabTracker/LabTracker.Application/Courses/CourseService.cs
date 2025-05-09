@@ -1,7 +1,6 @@
 using LabTracker.Application.Contracts;
 using LabTracker.Domain.Entities;
 using LabTracker.Domain.ValueObjects;
-using Microsoft.AspNetCore.Identity;
 
 namespace LabTracker.Application.Courses;
 
@@ -9,21 +8,32 @@ public class CourseService : ICourseService
 {
     private readonly ICourseRepository _courseRepository;
     private readonly ICourseMemberRepository _courseMemberRepository;
-    private readonly UserManager<User> _userManager;
+    private readonly IUserRepository _userRepository;
 
     public CourseService(
         ICourseRepository courseRepository,
         ICourseMemberRepository courseMemberRepository,
-        UserManager<User> userManager)
+        IUserRepository userRepository)
     {
         _courseRepository = courseRepository;
         _courseMemberRepository = courseMemberRepository;
-        _userManager = userManager;
+        _userRepository = userRepository;
     }
 
-    public async Task CreateCourseAsync(Course course)
+    public async Task<bool> IsCourseMemberAsync(Guid courseId, Guid memberId)
     {
-        await _courseRepository.CreateAsync(course);
+        return await _courseMemberRepository.GetByIdAsync(new CourseMemberKey(courseId, memberId)) != null;
+    }
+
+    public async Task<Guid> CreateCourseAsync(CreateCourseCommand command)
+    {
+        var course = new Course
+        {
+            Name = command.Name,
+            Description = command.Description,
+            QueueMode = command.QueueMode
+        };
+        return await _courseRepository.CreateAsync(course);
     }
 
     public async Task<Course?> GetCourseDetailsAsync(Guid courseId)
@@ -36,73 +46,96 @@ public class CourseService : ICourseService
         return await _courseMemberRepository.GetByIdAsync(new CourseMemberKey(courseId, memberId));
     }
 
-    public async Task<List<CourseMember>> GetMemberCoursesAsync(Guid memberId)
+    public async Task<IEnumerable<CourseMember>> GetMemberCoursesAsync(Guid memberId)
     {
+        if (await _userRepository.GetByIdAsync(memberId) is null)
+            throw new KeyNotFoundException($"Member with '{memberId}' not found.");
         return await _courseMemberRepository.GetCoursesByMemberIdAsync(memberId);
     }
 
-    public async Task<List<CourseMember>> GetCourseStudentsAsync(Guid courseId)
+    public async Task<IEnumerable<CourseMember>> GetCourseStudentsAsync(Guid courseId)
     {
-        var results = await GetMembersWithRoles(courseId);
-        return results
-            .Where(r => r.Roles.Contains(nameof(Role.Student)))
-            .Select(r => r.Member)
-            .ToList();
+        if (await _courseRepository.GetByIdAsync(courseId) is null)
+            throw new KeyNotFoundException($"Course with '{courseId}' not found.");
+
+        var members = await _courseMemberRepository.GetMembersByCourseIdAsync(courseId);
+        var result = new List<CourseMember>();
+
+        foreach (var m in members)
+        {
+            var user = await _userRepository.GetByIdAsync(m.MemberId);
+            if (user is null)
+                throw new KeyNotFoundException($"User with id {m.MemberId} not found.");
+
+            if (user.IsStudent)
+                result.Add(m);
+        }
+
+        return result;
     }
 
-    public async Task<List<CourseMember>> GetCourseTeachersAsync(Guid courseId)
+    public async Task<IEnumerable<CourseMember>> GetCourseTeachersAsync(Guid courseId)
     {
-        var results = await GetMembersWithRoles(courseId);
-        return results
-            .Where(r => r.Roles.Contains(nameof(Role.Teacher)))
-            .Select(r => r.Member)
-            .ToList();
+        if (await _courseRepository.GetByIdAsync(courseId) is null)
+            throw new KeyNotFoundException($"Course with '{courseId}' not found.");
+
+        var members = await _courseMemberRepository.GetMembersByCourseIdAsync(courseId);
+        var result = new List<CourseMember>();
+
+        foreach (var m in members)
+        {
+            var user = await _userRepository.GetByIdAsync(m.MemberId);
+            if (user is null)
+                throw new KeyNotFoundException($"User with id {m.MemberId} not found.");
+
+            if (user.IsTeacher)
+                result.Add(m);
+        }
+
+        return result;
     }
 
-    public async Task UpdateCourseAsync(Course course)
+    public async Task UpdateCourseAsync(Guid courseId, UpdateCourseCommand command)
     {
+        var course = await _courseRepository.GetByIdAsync(courseId);
+        if (course is null)
+            throw new KeyNotFoundException($"Course with id {courseId} not found");
+
+        if (command.Name is not null) course.Name = command.Name;
+        if (command.Description is not null) course.Description = command.Description;
+        if (command.QueueMode is not null) course.QueueMode = (QueueMode)command.QueueMode;
+
         await _courseRepository.UpdateAsync(course);
     }
 
     public async Task DeleteCourseAsync(Guid courseId)
     {
+        if (await _courseRepository.GetByIdAsync(courseId) is null)
+            throw new KeyNotFoundException($"Course with '{courseId}' not found.");
+
         await _courseRepository.DeleteAsync(courseId);
     }
 
-    public async Task AddMemberAsync(Guid courseId, Guid memberId)
+    public async Task<CourseMemberKey> AddMemberAsync(Guid courseId, Guid memberId)
     {
-        var (course, member) = await GetCourseAndMemberAsync(courseId, memberId);
-        await _courseMemberRepository.CreateAsync(new CourseMember(course, member));
+        if (await _courseRepository.GetByIdAsync(courseId) is null)
+            throw new KeyNotFoundException($"Course with '{courseId}' not found.");
+
+        if (await _userRepository.GetByIdAsync(memberId) is null)
+            throw new KeyNotFoundException($"User with id {memberId} not found.");
+
+        return await _courseMemberRepository.CreateAsync(
+            new CourseMember { CourseId = courseId, MemberId = memberId });
     }
 
     public async Task RemoveMemberAsync(Guid courseId, Guid memberId)
     {
-        await GetCourseAndMemberAsync(courseId, memberId); // Validates entities existence.
+        if (await _courseRepository.GetByIdAsync(courseId) is null)
+            throw new KeyNotFoundException($"Course with '{courseId}' not found.");
+
+        if (await _userRepository.GetByIdAsync(memberId) is null)
+            throw new KeyNotFoundException($"User with id {memberId} not found.");
+
         await _courseMemberRepository.DeleteAsync(new CourseMemberKey(courseId, memberId));
-    }
-
-    private async Task<List<(CourseMember Member, IList<string> Roles)>> GetMembersWithRoles(Guid courseId)
-    {
-        var members = await _courseMemberRepository.GetMembersByCourseIdAsync(courseId);
-        var memberTasks = members.Select(async m =>
-        {
-            var roles = await _userManager.GetRolesAsync(m.User);
-            return (m, roles);
-        });
-
-        var membersWithRoles = await Task.WhenAll(memberTasks);
-
-        return membersWithRoles.ToList();
-    }
-
-    private async Task<(Course, User)> GetCourseAndMemberAsync(Guid courseId, Guid memberId)
-    {
-        var course = await _courseRepository.GetByIdAsync(courseId);
-        if (course is null) throw new KeyNotFoundException($"Course with id '{courseId}' not found.");
-
-        var member = await _userManager.FindByIdAsync(memberId.ToString());
-        if (member is null) throw new KeyNotFoundException($"Member with id '{memberId}' not found.");
-
-        return (course, member);
     }
 }

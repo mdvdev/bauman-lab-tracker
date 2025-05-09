@@ -1,12 +1,12 @@
-using LabTracker.Domain.Entities;
+using LabTracker.Infrastructure.Persistence.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace LabTracker.Infrastructure.Persistence.EntityConfigurations;
 
-public class CourseMemberConfiguration : IEntityTypeConfiguration<CourseMember>
+public class CourseMemberConfiguration : IEntityTypeConfiguration<CourseMemberEntity>
 {
-    public void Configure(EntityTypeBuilder<CourseMember> builder)
+    public void Configure(EntityTypeBuilder<CourseMemberEntity> builder)
     {
         builder.ToTable("CourseMembers");
 

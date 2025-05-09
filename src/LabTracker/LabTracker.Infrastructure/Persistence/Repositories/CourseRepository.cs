@@ -1,5 +1,6 @@
 using LabTracker.Application.Contracts;
 using LabTracker.Domain.Entities;
+using LabTracker.Infrastructure.Persistence.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace LabTracker.Infrastructure.Persistence.Repositories;
@@ -15,37 +16,48 @@ public class CourseRepository : ICourseRepository
 
     public async Task<Course?> GetByIdAsync(Guid id)
     {
-        return await _context.Courses.FindAsync(id);
+        var entity = await _context.Courses.FindAsync(id);
+        return entity?.ToDomain();
     }
 
     public async Task<IEnumerable<Course>> GetAllAsync()
     {
-        return await _context.Courses.ToListAsync();
+        var entities = await _context.Courses.ToListAsync();
+        return entities.Select(e => e.ToDomain());
     }
 
-    public async Task CreateAsync(Course course)
+    public async Task<Guid> CreateAsync(Course course)
     {
-        await _context.Courses.AddAsync(course);
-        await _context.SaveChangesAsync();
+        if (await _context.Courses.FindAsync(course.Id) is null)
+        {
+            await _context.Courses.AddAsync(CourseEntity.FromDomain(course));
+            await _context.SaveChangesAsync();
+        }
+
+        return course.Id;
     }
 
     public async Task UpdateAsync(Course course)
     {
-        var entry = _context.Entry(course);
-        if (entry.State == EntityState.Detached)
+        var entity = await _context.Courses.FindAsync(course.Id);
+        if (entity is not null)
         {
-            throw new InvalidOperationException("Entity is not being tracked.");
+            entity.Name = course.Name.Value;
+            entity.Description = course.Description;
+            entity.QueueMode = course.QueueMode;
+            entity.PhotoUri = course.PhotoUri;
+            _context.Courses.Update(entity);
+            await _context.SaveChangesAsync();
         }
-
-        await _context.SaveChangesAsync();
     }
 
     public async Task DeleteAsync(Guid id)
     {
         var course = await _context.Courses.FindAsync(id);
-        if (course is null) throw new KeyNotFoundException($"Course with id '{id}' not found.");
-
-        _context.Courses.Remove(course);
-        await _context.SaveChangesAsync();
+        if (course is not null)
+        {
+            _context.Courses.Remove(course);
+            await _context.SaveChangesAsync();
+        }
     }
 }

@@ -26,7 +26,7 @@ public class FileService : IFileService
 
         await using var stream = File.Create(filePath);
         await file.CopyToAsync(stream);
-        
+
         return filePath;
     }
 

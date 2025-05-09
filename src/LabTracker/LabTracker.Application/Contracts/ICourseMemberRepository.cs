@@ -4,6 +4,6 @@ namespace LabTracker.Application.Contracts;
 
 public interface ICourseMemberRepository : ICrudRepository<CourseMember, CourseMemberKey>
 {
-    Task<List<CourseMember>> GetMembersByCourseIdAsync(Guid courseId);
-    Task<List<CourseMember>> GetCoursesByMemberIdAsync(Guid memberId);
+    Task<IEnumerable<CourseMember>> GetMembersByCourseIdAsync(Guid courseId);
+    Task<IEnumerable<CourseMember>> GetCoursesByMemberIdAsync(Guid memberId);
 }
