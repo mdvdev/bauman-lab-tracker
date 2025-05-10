@@ -5,12 +5,12 @@ namespace LabTracker.Infrastructure.Persistence.Entities;
 
 public class CourseEntity
 {
-    public Guid Id { get; init; } = Guid.NewGuid();
+    public required Guid Id { get; init; }
     public required string Name { get; set; }
     public required string Description { get; set; }
     public required QueueMode QueueMode { get; set; }
-    public DateTimeOffset CreatedAt { get; init; } = DateTimeOffset.UtcNow;
-    public string? PhotoUri { get; set; }
+    public required DateTimeOffset CreatedAt { get; init; }
+    public required string? PhotoUri { get; set; }
 
     public Course ToDomain()
     {

@@ -1,4 +1,3 @@
-using LabTracker.Domain.Entities;
 using LabTracker.Infrastructure.Persistence.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -22,8 +21,9 @@ public class CourseConfiguration : IEntityTypeConfiguration<CourseEntity>
             .HasMaxLength(500);
 
         builder.Property(c => c.QueueMode)
+            .HasConversion<string>()
             .IsRequired();
-
+        
         builder.Property(c => c.CreatedAt)
             .IsRequired()
             .HasDefaultValueSql("CURRENT_TIMESTAMP");

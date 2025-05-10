@@ -10,7 +10,7 @@ public class CourseResponse
     public required string Description { get; set; }
     public required QueueMode QueueMode { get; set; }
     public required DateTimeOffset CreatedAt { get; set; }
-    public string? PhotoUri { get; set; }
+    public required string? PhotoUri { get; set; }
 
     public static CourseResponse Create(Course course)
     {

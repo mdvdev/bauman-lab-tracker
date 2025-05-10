@@ -1,6 +1,5 @@
 using LabTracker.Application.Contracts;
 using LabTracker.Domain.Entities;
-using Microsoft.AspNetCore.Http;
 
 namespace LabTracker.Application.Users;
 
@@ -36,18 +35,20 @@ public class UserService : IUserService
         await _userRepository.UpdateAsync(user);
     }
 
-    public async Task UpdateProfilePhotoAsync(Guid userId, IFormFile file)
+    public async Task UpdateProfilePhotoAsync(Guid userId, Stream stream, string fileName)
     {
         var user = await _userRepository.GetByIdAsync(userId);
         if (user is null)
             throw new KeyNotFoundException($"User with id '{userId}' not found.");
 
-        var filePath = await _fileService.SaveImageAsync(file,
+        var filePath = await _fileService.SaveFileAsync(
+            stream,
             SaveDirectory,
-            Path.GetFileNameWithoutExtension(file.FileName));
+            fileName
+        );
 
         if (user.PhotoUri is not null)
-            _fileService.DeleteImage(user.PhotoUri.TrimStart('/'));
+            _fileService.DeleteFile(user.PhotoUri.TrimStart('/'));
 
         user.PhotoUri = "/" + filePath;
         await _userRepository.UpdateAsync(user);

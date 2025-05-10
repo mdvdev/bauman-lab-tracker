@@ -9,15 +9,19 @@ public class CourseService : ICourseService
     private readonly ICourseRepository _courseRepository;
     private readonly ICourseMemberRepository _courseMemberRepository;
     private readonly IUserRepository _userRepository;
+    private readonly IFileService _fileService;
+    private const string SaveDirectory = "StaticFiles/Images/CoursePhotos";
 
     public CourseService(
         ICourseRepository courseRepository,
         ICourseMemberRepository courseMemberRepository,
-        IUserRepository userRepository)
+        IUserRepository userRepository,
+        IFileService fileService)
     {
         _courseRepository = courseRepository;
         _courseMemberRepository = courseMemberRepository;
         _userRepository = userRepository;
+        _fileService = fileService;
     }
 
     public async Task<bool> IsCourseMemberAsync(Guid courseId, Guid memberId)
@@ -41,9 +45,13 @@ public class CourseService : ICourseService
         return await _courseRepository.GetByIdAsync(courseId);
     }
 
-    public async Task<CourseMember?> GetMemberDetailsAsync(Guid courseId, Guid memberId)
+    public async Task<User?> GetCourseMemberDetailsAsync(Guid courseId, Guid memberId)
     {
-        return await _courseMemberRepository.GetByIdAsync(new CourseMemberKey(courseId, memberId));
+        var member = await _courseMemberRepository.GetByIdAsync(new CourseMemberKey(courseId, memberId));
+        if (member is null)
+            return null;
+
+        return await _userRepository.GetByIdAsync(member.MemberId);
     }
 
     public async Task<IEnumerable<CourseMember>> GetMemberCoursesAsync(Guid memberId)
@@ -105,6 +113,25 @@ public class CourseService : ICourseService
         if (command.Description is not null) course.Description = command.Description;
         if (command.QueueMode is not null) course.QueueMode = (QueueMode)command.QueueMode;
 
+        await _courseRepository.UpdateAsync(course);
+    }
+
+    public async Task UpdateCoursePhoto(Guid courseId, Stream stream, string fileName)
+    {
+        var course = await _courseRepository.GetByIdAsync(courseId);
+        if (course is null)
+            throw new KeyNotFoundException($"Course with id '{courseId}' not found.");
+
+        var filePath = await _fileService.SaveFileAsync(
+            stream,
+            SaveDirectory,
+            fileName
+        );
+
+        if (course.PhotoUri is not null)
+            _fileService.DeleteFile(course.PhotoUri.TrimStart('/'));
+
+        course.PhotoUri = "/" + filePath;
         await _courseRepository.UpdateAsync(course);
     }
 

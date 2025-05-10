@@ -12,7 +12,7 @@ public class UserResponse
     public string? TelegramUsername { get; set; }
     public required ICollection<string> Roles { get; set; }
     public required DateTimeOffset CreatedAt { get; set; }
-    public string? PhotoUri { get; set; }
+    public required string? PhotoUri { get; set; }
 
     public static UserResponse Create(User user)
     {

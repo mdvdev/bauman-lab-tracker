@@ -8,7 +8,7 @@ public class CreateCourseRequest
 {
     [Required] public required string Name { get; set; }
     [Required] public required string Description { get; set; }
-    [Required] public QueueMode QueueMode { get; set; }
+    [Required] public required QueueMode QueueMode { get; set; }
 
     public CreateCourseCommand ToCommand()
     {

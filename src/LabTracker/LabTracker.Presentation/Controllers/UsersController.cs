@@ -60,7 +60,7 @@ public class UsersController : ControllerBase
         if (HttpContext.Items[ContextKeys.CurrentUser] is not User user)
             return NotFound();
 
-        await _userService.UpdateProfilePhotoAsync(user.Id, file);
+        await _userService.UpdateProfilePhotoAsync(user.Id, file.OpenReadStream(), file.FileName);
 
         return Ok();
     }

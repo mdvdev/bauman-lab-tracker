@@ -12,10 +12,12 @@ namespace LabTracker.Presentation.Controllers;
 public class CoursesController : ControllerBase
 {
     private readonly ICourseService _courseService;
+    private readonly ILogger<UsersController> _logger;
 
-    public CoursesController(ICourseService courseService)
+    public CoursesController(ICourseService courseService, ILogger<UsersController> logger)
     {
         _courseService = courseService;
+        _logger = logger;
     }
 
     [HttpGet]
@@ -71,7 +73,7 @@ public class CoursesController : ControllerBase
         if (HttpContext.Items[ContextKeys.CurrentUser] is not User user)
             return NotFound();
 
-        if (!user.IsAdministrator && !await _courseService.IsCourseMemberAsync(courseId, user.Id))
+        if (user.IsTeacher && !await _courseService.IsCourseMemberAsync(courseId, user.Id))
             return Forbid();
 
         var course = await _courseService.GetCourseDetailsAsync(courseId);
@@ -83,6 +85,36 @@ public class CoursesController : ControllerBase
         return Ok();
     }
 
+    [HttpPatch("{courseId}/photo")]
+    [Authorize(Policy = "TeacherOrAdmin")]
+    public async Task<IActionResult> PatchCoursePhotoAsync(Guid courseId, IFormFile file)
+    {
+        if (HttpContext.Items[ContextKeys.CurrentUser] is not User user)
+            return NotFound();
+        
+        if (user.IsTeacher && !await _courseService.IsCourseMemberAsync(courseId, user.Id))
+            return Forbid();
+        
+        await _courseService.UpdateCoursePhoto(courseId, file.OpenReadStream(), file.FileName);
+        
+        return Ok();
+    }
+
+    [HttpDelete("{courseId}")]
+    [Authorize(Policy = "TeacherOrAdmin")]
+    public async Task<IActionResult> DeleteCourseAsync(Guid courseId)
+    {
+        if (HttpContext.Items[ContextKeys.CurrentUser] is not User user)
+            return NotFound();
+
+        if (user.IsTeacher && !await _courseService.IsCourseMemberAsync(courseId, user.Id))
+            return Forbid();
+
+        await _courseService.DeleteCourseAsync(courseId);
+
+        return Ok();
+    }
+
     [HttpPost("{courseId}/students/{studentId}")]
     [Authorize(Policy = "TeacherOrAdmin")]
     public async Task<IActionResult> PostAsync(Guid courseId, Guid studentId)
@@ -90,7 +122,7 @@ public class CoursesController : ControllerBase
         if (HttpContext.Items[ContextKeys.CurrentUser] is not User user)
             return NotFound();
 
-        if (!user.IsAdministrator && !await _courseService.IsCourseMemberAsync(courseId, user.Id))
+        if (user.IsTeacher && !await _courseService.IsCourseMemberAsync(courseId, user.Id))
             return Forbid();
 
         var course = await _courseService.GetCourseDetailsAsync(courseId);
@@ -99,8 +131,11 @@ public class CoursesController : ControllerBase
 
         await _courseService.AddMemberAsync(courseId, studentId);
 
-        var courseMember = await _courseService.GetMemberDetailsAsync(courseId, studentId);
-        return courseMember is null ? NotFound() : Ok(CourseMemberResponse.Create(courseMember));
+        var courseMember = await _courseService.GetCourseMemberDetailsAsync(courseId, studentId);
+        if (courseMember is null)
+            return NotFound();
+
+        return Ok();
     }
 
     [HttpGet("{courseId}/students/")]
@@ -117,6 +152,20 @@ public class CoursesController : ControllerBase
             return NotFound();
 
         var students = await _courseService.GetCourseStudentsAsync(courseId);
-        return Ok(students.Select(CourseMemberResponse.Create));
+        var responses = new List<CourseMemberResponse>();
+        foreach (var cm in students)
+        {
+            var localUser = await _courseService.GetCourseMemberDetailsAsync(courseId, cm.MemberId);
+            if (localUser == null)
+            {
+                _logger.LogWarning("User with ID {UserId} for course {CourseId} not found in database", cm.MemberId,
+                    courseId);
+                continue;
+            }
+
+            responses.Add(CourseMemberResponse.Create(cm, course, localUser));
+        }
+
+        return Ok(responses);
     }
 }

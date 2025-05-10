@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Hellang.Middleware.ProblemDetails;
 using LabTracker.Application.Auth;
 using LabTracker.Application.Contracts;
@@ -22,9 +23,10 @@ builder.Services.AddProblemDetails(options =>
     options.IncludeExceptionDetails = (ctx, ex) =>
         builder.Environment.IsDevelopment();
 
+    options.MapToStatusCode<ArgumentException>(StatusCodes.Status400BadRequest);
+    options.MapToStatusCode<NotSupportedException>(StatusCodes.Status400BadRequest);
     options.MapToStatusCode<InvalidOperationException>(StatusCodes.Status400BadRequest);
     options.MapToStatusCode<UnauthorizedAccessException>(StatusCodes.Status401Unauthorized);
-    options.MapToStatusCode<ArgumentException>(StatusCodes.Status400BadRequest);
     options.MapToStatusCode<KeyNotFoundException>(StatusCodes.Status404NotFound);
 
     options.MapToStatusCode<Exception>(StatusCodes.Status500InternalServerError);
@@ -65,6 +67,12 @@ builder.Services.AddIdentityApiEndpoints<UserEntity>()
     .AddRoles<IdentityRole<Guid>>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    });
+
 // Add repositories.
 builder.Services.AddScoped<ICourseRepository, CourseRepository>();
 builder.Services.AddScoped<ICourseMemberRepository, CourseMemberRepository>();
@@ -73,8 +81,11 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 // Add services.
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ICourseService, CourseService>();
-builder.Services.AddScoped<IFileService, FileService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IFileValidator, ImageFileValidator>();
+builder.Services.AddScoped<ImageFileValidator>();
+builder.Services.AddScoped<IFileValidatorFactory, FileValidatorFactory>();
+builder.Services.AddScoped<IFileService, FileService>();
 
 var app = builder.Build();
 
@@ -112,16 +123,6 @@ app.UseMiddleware<CurrentUserMiddleware>();
 
 // TODO: Add email service.
 
-// var api = app
-//     .MapGroup("/api")
-//     .WithTags("Api");
-
 app.MapControllers();
-
-// api.MapAuthEndpoints();
-//
-// api.MapUserEndpoints();
-//
-// api.MapCourseEndpoints();
 
 app.Run();
