@@ -12,16 +12,18 @@ public class CourseMemberConfiguration : IEntityTypeConfiguration<CourseMemberEn
 
         builder.HasKey(cm => new { cm.CourseId, cm.MemberId });
 
-        builder.HasOne(ct => ct.Course)
+        builder.HasOne(cm => cm.Course)
             .WithMany()
-            .HasForeignKey(ct => ct.CourseId);
+            .HasForeignKey(cm => cm.CourseId);
 
-        builder.HasOne(ct => ct.User)
+        builder.HasOne(cm => cm.User)
             .WithMany()
-            .HasForeignKey(ct => ct.MemberId);
+            .HasForeignKey(cm => cm.MemberId);
 
-        builder.Property(ct => ct.AssignedAt)
+        builder.Property(cm => cm.AssignedAt)
             .IsRequired()
             .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+        builder.Property(cm => cm.Score);
     }
 }

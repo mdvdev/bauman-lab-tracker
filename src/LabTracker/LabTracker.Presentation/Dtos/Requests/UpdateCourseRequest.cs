@@ -1,4 +1,5 @@
 using LabTracker.Application.Courses;
+using LabTracker.Application.Courses.Core;
 using LabTracker.Domain.ValueObjects;
 
 namespace LabTracker.Presentation.Dtos.Requests;

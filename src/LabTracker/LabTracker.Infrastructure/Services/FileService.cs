@@ -1,4 +1,5 @@
 using LabTracker.Application.Contracts;
+using LabTracker.Infrastructure.Abstractions;
 
 namespace LabTracker.Infrastructure.Services;
 

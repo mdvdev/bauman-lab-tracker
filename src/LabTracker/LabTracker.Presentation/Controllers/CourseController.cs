@@ -1,0 +1,143 @@
+using LabTracker.Application.Courses.Core;
+using LabTracker.Application.Courses.Students;
+using LabTracker.Domain.Entities;
+using LabTracker.Presentation.Dtos.Requests;
+using LabTracker.Presentation.Dtos.Responses;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+
+namespace LabTracker.Presentation.Controllers;
+
+[ApiController]
+[Route("api/v1/courses")]
+public class CourseController : ControllerBase
+{
+    private readonly ICourseService _courseService;
+    private readonly ICourseMemberService _courseMemberService;
+    private readonly ILogger<CourseController> _logger;
+
+    public CourseController(
+        ICourseService courseService,
+        ICourseMemberService courseMemberService,
+        ILogger<CourseController> logger)
+    {
+        _courseService = courseService;
+        _courseMemberService = courseMemberService;
+        _logger = logger;
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetCourseAsync()
+    {
+        if (HttpContext.Items[ContextKeys.CurrentUser] is not User user)
+            return NotFound();
+
+        var courseMembers = await _courseMemberService.GetMemberCoursesAsync(user.Id);
+        var responses = new List<CourseMemberResponse>();
+        foreach (var cm in courseMembers)
+        {
+            var localUser = await _courseMemberService.GetCourseMemberDetailsAsync(cm.CourseId, cm.MemberId);
+            if (localUser == null)
+            {
+                _logger.LogWarning("User with ID {UserId} for course {CourseId} not found in database", cm.MemberId,
+                    cm.CourseId);
+                continue;
+            }
+
+            var course = await _courseService.GetCourseDetailsAsync(cm.CourseId);
+            if (course is null)
+            {
+                _logger.LogWarning("Course with ID {CourseId} not found in database", cm.CourseId);
+                continue;           
+            }
+            responses.Add(CourseMemberResponse.Create(cm, course, localUser));
+        }
+
+        return Ok(responses);
+    }
+
+    [HttpPost]
+    [Authorize(Policy = "TeacherOrAdmin")]
+    public async Task<IActionResult> CreateCourseAsync(CreateCourseRequest request)
+    {
+        var courseId = await _courseService
+            .CreateCourseAsync(request.ToCommand());
+
+        if (HttpContext.Items[ContextKeys.CurrentUser] is not User user)
+            return NotFound();
+
+        if (user.IsTeacher)
+            await _courseMemberService.AddTeacherAsync(courseId, user.Id);
+
+        return Ok();
+    }
+
+    [HttpGet("{courseId}")]
+    public async Task<IActionResult> GetCourseAsync(Guid courseId)
+    {
+        if (HttpContext.Items[ContextKeys.CurrentUser] is not User user)
+            return NotFound();
+
+        if (!user.IsAdministrator && !await _courseMemberService.IsCourseMemberAsync(courseId, user.Id))
+            return Forbid();
+
+        var course = await _courseService.GetCourseDetailsAsync(courseId);
+        return course is null ? NotFound() : Ok(CourseResponse.Create(course));
+    }
+
+    [HttpPatch("{courseId}")]
+    [Authorize(Policy = "TeacherOrAdmin")]
+    public async Task<IActionResult> PatchCourseAsync(Guid courseId, UpdateCourseRequest request)
+    {
+        if (request.Name is null &&
+            request.Description is null &&
+            request.QueueMode is null)
+        {
+            return BadRequest("At least one field must be provided.");
+        }
+
+        if (HttpContext.Items[ContextKeys.CurrentUser] is not User user)
+            return NotFound();
+
+        if (user.IsTeacher && !await _courseMemberService.IsCourseMemberAsync(courseId, user.Id))
+            return Forbid();
+
+        var course = await _courseService.GetCourseDetailsAsync(courseId);
+        if (course is null)
+            return NotFound();
+
+        await _courseService.UpdateCourseAsync(courseId, request.ToCommand());
+
+        return Ok();
+    }
+
+    [HttpPatch("{courseId}/photo")]
+    [Authorize(Policy = "TeacherOrAdmin")]
+    public async Task<IActionResult> PatchCoursePhotoAsync(Guid courseId, IFormFile file)
+    {
+        if (HttpContext.Items[ContextKeys.CurrentUser] is not User user)
+            return NotFound();
+
+        if (user.IsTeacher && !await _courseMemberService.IsCourseMemberAsync(courseId, user.Id))
+            return Forbid();
+
+        await _courseService.UpdateCoursePhotoAsync(courseId, file.OpenReadStream(), file.FileName);
+
+        return Ok();
+    }
+
+    [HttpDelete("{courseId}")]
+    [Authorize(Policy = "TeacherOrAdmin")]
+    public async Task<IActionResult> DeleteCourseAsync(Guid courseId)
+    {
+        if (HttpContext.Items[ContextKeys.CurrentUser] is not User user)
+            return NotFound();
+
+        if (user.IsTeacher && !await _courseMemberService.IsCourseMemberAsync(courseId, user.Id))
+            return Forbid();
+
+        await _courseService.DeleteCourseAsync(courseId);
+
+        return Ok();
+    }
+}

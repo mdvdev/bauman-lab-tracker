@@ -2,9 +2,11 @@ using System.Text.Json.Serialization;
 using Hellang.Middleware.ProblemDetails;
 using LabTracker.Application.Auth;
 using LabTracker.Application.Contracts;
-using LabTracker.Application.Courses;
+using LabTracker.Application.Courses.Core;
+using LabTracker.Application.Courses.Students;
 using LabTracker.Application.Users;
 using LabTracker.Domain.ValueObjects;
+using LabTracker.Infrastructure.Abstractions;
 using LabTracker.Infrastructure.Identity;
 using LabTracker.Infrastructure.Persistence;
 using LabTracker.Infrastructure.Persistence.Entities;
@@ -81,7 +83,9 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 // Add services.
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ICourseService, CourseService>();
+builder.Services.AddScoped<ICourseMemberService, CourseMemberService>();
 builder.Services.AddScoped<IUserService, UserService>();
+
 builder.Services.AddScoped<IFileValidator, ImageFileValidator>();
 builder.Services.AddScoped<ImageFileValidator>();
 builder.Services.AddScoped<IFileValidatorFactory, FileValidatorFactory>();

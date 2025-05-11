@@ -7,6 +7,7 @@ public class CourseMemberEntity
     public Guid CourseId { get; init; }
     public Guid MemberId { get; init; }
     public DateTimeOffset AssignedAt { get; init; }
+    public int? Score { get; init; }
 
     public CourseEntity Course { get; init; }
     public UserEntity User { get; init; }
@@ -17,7 +18,8 @@ public class CourseMemberEntity
         {
             CourseId = CourseId,
             MemberId = MemberId,
-            AssignedAt = AssignedAt
+            AssignedAt = AssignedAt,
+            Score = Score
         };
     }
 
@@ -27,7 +29,8 @@ public class CourseMemberEntity
         {
             CourseId = courseMember.CourseId,
             MemberId = courseMember.MemberId,
-            AssignedAt = courseMember.AssignedAt
+            AssignedAt = courseMember.AssignedAt,
+            Score = courseMember.Score
         };
     }
 }

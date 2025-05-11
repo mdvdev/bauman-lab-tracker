@@ -1,4 +1,4 @@
-namespace LabTracker.Application.Contracts;
+namespace LabTracker.Infrastructure.Abstractions;
 
 public interface IFileValidator
 {
