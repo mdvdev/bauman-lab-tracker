@@ -1,0 +1,18 @@
+using LabTracker.Domain.Entities;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+
+namespace LabTracker.Application.Contracts;
+
+public interface INotificationRepository: ICrudRepository<Notification, Guid>
+{
+    public Task CreateBatchAsync(IEnumerable<Notification> notifications);
+    public Task<(IEnumerable<Notification> Items, int TotalCount, int UnreadCount)> GetUserNotificationsAsync(
+        Guid userId, 
+        int limit, 
+        int offset, 
+        bool unreadOnly);
+
+    public Task MarkAsReadAsync(Guid userId, IEnumerable<Guid> notificationIds);
+    public Task MarkAllAsReadAsync(Guid userId);
+}

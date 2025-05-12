@@ -2,8 +2,11 @@ using System.Text.Json.Serialization;
 using Hellang.Middleware.ProblemDetails;
 using LabTracker.Application.Auth;
 using LabTracker.Application.Contracts;
+using LabTracker.Application.Contracts.Labs;
 using LabTracker.Application.Courses.Core;
 using LabTracker.Application.Courses.Students;
+using LabTracker.Application.Labs;
+using LabTracker.Application.Notifications;
 using LabTracker.Application.Users;
 using LabTracker.Domain.ValueObjects;
 using LabTracker.Infrastructure.Abstractions;
@@ -79,12 +82,17 @@ builder.Services.AddControllers()
 builder.Services.AddScoped<ICourseRepository, CourseRepository>();
 builder.Services.AddScoped<ICourseMemberRepository, CourseMemberRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<ILabRepository, LabRepository>();
+builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
+
 
 // Add services.
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ICourseService, CourseService>();
 builder.Services.AddScoped<ICourseMemberService, CourseMemberService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<ILabService, LabService>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
 
 builder.Services.AddScoped<IFileValidator, ImageFileValidator>();
 builder.Services.AddScoped<ImageFileValidator>();

@@ -1,5 +1,6 @@
 using LabTracker.Application.Contracts;
 using LabTracker.Domain.Entities;
+using LabTracker.Infrastructure.Persistence.Entities;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Linq.Expressions;
@@ -14,61 +15,92 @@ public class NotificationRepository : INotificationRepository
     {
         _context = context;
     }
-    
-    public async Task CreateAsync(Notification notification)
-    {
-        await _context.Notifications.AddAsync(notification);
-        await _context.SaveChangesAsync();
-    }
 
-    public async Task UpdateAsync(Notification notification)
+    public async Task<Notification?> GetByIdAsync(Guid id)
     {
-        var notificationToUpdate = await _context.Notifications.FindAsync(notification.Id);
-        if (notificationToUpdate is null)
-        {
-            throw new KeyNotFoundException($"Notification with {notification.Id} id not found");
-        }
-        notificationToUpdate.Title = notification.Title;
-        notificationToUpdate.Message = notification.Message;
-        notificationToUpdate.Type = notification.Type;
-        
-        await _context.SaveChangesAsync();
+        var entity = await _context.Notifications
+            .Include(n => n.User)
+            .FirstOrDefaultAsync(n => n.Id == id);
+
+        if (entity is null)
+            return null;
+
+        var userRoles = entity.User is not null 
+            ? await _context.UserRoles
+                .Where(ur => ur.UserId == entity.User.Id)
+                .Join(_context.Roles,
+                    ur => ur.RoleId,
+                    r => r.Id,
+                    (ur, r) => r.Name)
+                .ToListAsync()
+            : Enumerable.Empty<string>();
+
+        return NotificationEntity.ToDomain(entity, userRoles);
     }
 
     public async Task<IEnumerable<Notification>> GetAllAsync()
     {
-        var notifications = await _context.Notifications.ToListAsync();
-        if (notifications is null)
+        var entities = await _context.Notifications
+            .Include(n => n.User)
+            .ToListAsync();
+
+        var userIds = entities.Where(e => e.User is not null).Select(e => e.User.Id).Distinct();
+        var userRoles = await _context.UserRoles
+            .Where(ur => userIds.Contains(ur.UserId))
+            .Join(_context.Roles,
+                ur => ur.RoleId,
+                r => r.Id,
+                (ur, r) => new { ur.UserId, RoleName = r.Name })
+            .ToListAsync();
+
+        return entities.Select(entity => 
         {
-            throw new KeyNotFoundException("There are no notifications");
-        }
-        return notifications;
+            var roles = userRoles
+                .Where(ur => ur.UserId == entity.User?.Id)
+                .Select(ur => ur.RoleName);
+            return NotificationEntity.ToDomain(entity, roles);
+        });
     }
 
-    public async Task<Notification> GetByIdAsync(Guid id)
+    public async Task<Guid> CreateAsync(Notification notification)
     {
-        var notification = await _context.Notifications.FindAsync(id);
-        if (notification is null)
+        var entity = NotificationEntity.FromDomain(notification);
+        await _context.Notifications.AddAsync(entity);
+        await _context.SaveChangesAsync();
+        return notification.Id;
+    }
+
+    public async Task UpdateAsync(Notification notification)
+    {
+        var entity = await _context.Notifications.FindAsync(notification.Id);
+        if (entity is not null)
         {
-            throw new KeyNotFoundException($"Notification with id {id} not found");
+            entity.Title = notification.Title;
+            entity.Message = notification.Message;
+            entity.Type = notification.Type.ToString();
+            entity.IsRead = notification.IsRead;
+            entity.ReadAt = notification.ReadAt;
+            entity.RelatedEntityId = notification.RelatedEntityId;
+            entity.RelatedEntityType = notification.RelatedEntityType;
+            
+            await _context.SaveChangesAsync();
         }
-        return notification;
     }
 
     public async Task DeleteAsync(Guid id)
     {
-        var notificationToDelete = _context.Notifications.Find(id);
-        if (notificationToDelete is null)
+        var entity = await _context.Notifications.FindAsync(id);
+        if (entity is not null)
         {
-            throw new KeyNotFoundException($"Notification with id {id} not found");
+            _context.Notifications.Remove(entity);
+            await _context.SaveChangesAsync();
         }
-        _context.Notifications.Remove(notificationToDelete);
-        _context.SaveChangesAsync();
     }
 
     public async Task CreateBatchAsync(IEnumerable<Notification> notifications)
     {
-        await _context.Notifications.AddRangeAsync(notifications);
+        var entities = notifications.Select(NotificationEntity.FromDomain);
+        await _context.Notifications.AddRangeAsync(entities);
         await _context.SaveChangesAsync();
     }
 
@@ -79,13 +111,13 @@ public class NotificationRepository : INotificationRepository
         bool unreadOnly)
     {
         var query = _context.Notifications
-            .Include(n => n.User) 
+            .Include(n => n.User)
             .Where(n => n.UserId == userId)
             .OrderByDescending(n => n.CreatedAt);
 
         if (unreadOnly)
         {
-            query = query.Where(n => !n.IsRead) as IOrderedQueryable<Notification>;
+            query = query.Where(n => !n.IsRead) as IOrderedQueryable<NotificationEntity>;
         }
 
         var totalCount = await query.CountAsync();
@@ -93,44 +125,43 @@ public class NotificationRepository : INotificationRepository
             .Where(n => n.UserId == userId && !n.IsRead)
             .CountAsync();
 
-        var items = await query
+        var entities = await query
             .Skip(offset)
             .Take(limit)
             .ToListAsync();
 
+        var userRoles = await _context.UserRoles
+            .Where(ur => ur.UserId == userId)
+            .Join(_context.Roles,
+                ur => ur.RoleId,
+                r => r.Id,
+                (ur, r) => r.Name)
+            .ToListAsync();
+
+        var items = entities.Select(e => NotificationEntity.ToDomain(e, userRoles));
+        
         return (items, totalCount, unreadCount);
     }
 
     public async Task MarkAsReadAsync(Guid userId, IEnumerable<Guid> notificationIds)
     {
-        var notifications = await GetNotificationsToMarkAsync(
-            userId, 
-            n => notificationIds.Contains(n.Id));
-    
+        var notifications = await _context.Notifications
+            .Where(n => n.UserId == userId && notificationIds.Contains(n.Id))
+            .ToListAsync();
+
         await UpdateNotificationsAsReadAsync(notifications);
     }
 
     public async Task MarkAllAsReadAsync(Guid userId)
     {
-        var notifications = await GetNotificationsToMarkAsync(
-            userId, 
-            n => !n.IsRead);
-    
+        var notifications = await _context.Notifications
+            .Where(n => n.UserId == userId && !n.IsRead)
+            .ToListAsync();
+
         await UpdateNotificationsAsReadAsync(notifications);
     }
 
-    private async Task<List<Notification>> GetNotificationsToMarkAsync(
-        Guid userId, 
-        Expression<Func<Notification, bool>> filter)
-    {
-        return await _context.Notifications
-                   .Where(n => n.UserId == userId)
-                   .Where(filter)
-                   .ToListAsync() 
-               ?? throw new KeyNotFoundException("Notifications not found");
-    }
-
-    private async Task UpdateNotificationsAsReadAsync(List<Notification> notifications)
+    private async Task UpdateNotificationsAsReadAsync(List<NotificationEntity> notifications)
     {
         var now = DateTimeOffset.UtcNow;
         notifications.ForEach(n => 

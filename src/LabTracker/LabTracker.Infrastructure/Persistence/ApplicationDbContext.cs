@@ -9,6 +9,8 @@ public class ApplicationDbContext : IdentityDbContext<UserEntity, IdentityRole<G
 {
     public DbSet<CourseEntity> Courses { get; set; }
     public DbSet<CourseMemberEntity> CourseMembers { get; set; }
+    public DbSet<LabEntity> Labs { get; set; }
+    public DbSet<NotificationEntity> Notifications { get; set; }
 
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options)

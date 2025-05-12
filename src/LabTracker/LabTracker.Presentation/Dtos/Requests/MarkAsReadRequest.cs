@@ -1,4 +1,4 @@
-namespace LabTracker.Presentation.Dtos;
+namespace LabTracker.Presentation.Dtos.Requests;
 
 public record MarkAsReadRequest(
     IEnumerable<Guid>? Ids,
