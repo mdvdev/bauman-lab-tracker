@@ -1,27 +1,29 @@
-using LabTracker.Domain.Entities;
+using LabTracker.Infrastructure.Persistence.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace LabTracker.Infrastructure.Persistence.EntityConfigurations;
 
-public class CourseMemberConfiguration : IEntityTypeConfiguration<CourseMember>
+public class CourseMemberConfiguration : IEntityTypeConfiguration<CourseMemberEntity>
 {
-    public void Configure(EntityTypeBuilder<CourseMember> builder)
+    public void Configure(EntityTypeBuilder<CourseMemberEntity> builder)
     {
         builder.ToTable("CourseMembers");
 
         builder.HasKey(cm => new { cm.CourseId, cm.MemberId });
 
-        builder.HasOne(ct => ct.Course)
+        builder.HasOne(cm => cm.Course)
             .WithMany()
-            .HasForeignKey(ct => ct.CourseId);
+            .HasForeignKey(cm => cm.CourseId);
 
-        builder.HasOne(ct => ct.User)
+        builder.HasOne(cm => cm.User)
             .WithMany()
-            .HasForeignKey(ct => ct.MemberId);
+            .HasForeignKey(cm => cm.MemberId);
 
-        builder.Property(ct => ct.AssignedAt)
+        builder.Property(cm => cm.AssignedAt)
             .IsRequired()
             .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+        builder.Property(cm => cm.Score);
     }
 }

@@ -1,4 +1,4 @@
-using LabTracker.Domain.Entities;
+using LabTracker.Infrastructure.Persistence.Entities;
 using Microsoft.AspNetCore.Identity;
 
 namespace LabTracker.Presentation;
@@ -12,11 +12,12 @@ public class CurrentUserMiddleware
         _next = next;
     }
 
-    public async Task InvokeAsync(HttpContext context, UserManager<User> userManager)
+    public async Task InvokeAsync(HttpContext context, UserManager<UserEntity> userManager)
     {
-        var user = await userManager.GetUserAsync(context.User);
-        if (user != null)
+        var userEntity = await userManager.GetUserAsync(context.User);
+        if (userEntity != null)
         {
+            var user = userEntity.ToDomain(await userManager.GetRolesAsync(userEntity));
             context.Items[ContextKeys.CurrentUser] = user;
         }
 

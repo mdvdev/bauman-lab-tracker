@@ -1,19 +1,18 @@
+using System.Text.Json.Serialization;
 using Hellang.Middleware.ProblemDetails;
-using LabTracker.Application;
+using LabTracker.Application.Auth;
 using LabTracker.Application.Contracts;
-using LabTracker.Application.Contracts.Labs;
-using LabTracker.Application.Courses;
-using LabTracker.Application.Labs;
-using LabTracker.Application.Notifications;
-using LabTracker.Domain.Entities;
+using LabTracker.Application.Courses.Core;
+using LabTracker.Application.Courses.Students;
+using LabTracker.Application.Users;
 using LabTracker.Domain.ValueObjects;
+using LabTracker.Infrastructure.Abstractions;
 using LabTracker.Infrastructure.Identity;
 using LabTracker.Infrastructure.Persistence;
+using LabTracker.Infrastructure.Persistence.Entities;
 using LabTracker.Infrastructure.Persistence.Repositories;
 using LabTracker.Infrastructure.Services;
 using LabTracker.Presentation;
-using LabTracker.Presentation.Dtos;
-using LabTracker.Presentation.Endpoints;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -26,9 +25,10 @@ builder.Services.AddProblemDetails(options =>
     options.IncludeExceptionDetails = (ctx, ex) =>
         builder.Environment.IsDevelopment();
 
+    options.MapToStatusCode<ArgumentException>(StatusCodes.Status400BadRequest);
+    options.MapToStatusCode<NotSupportedException>(StatusCodes.Status400BadRequest);
     options.MapToStatusCode<InvalidOperationException>(StatusCodes.Status400BadRequest);
     options.MapToStatusCode<UnauthorizedAccessException>(StatusCodes.Status401Unauthorized);
-    options.MapToStatusCode<ArgumentException>(StatusCodes.Status400BadRequest);
     options.MapToStatusCode<KeyNotFoundException>(StatusCodes.Status404NotFound);
 
     options.MapToStatusCode<Exception>(StatusCodes.Status500InternalServerError);
@@ -43,9 +43,20 @@ builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy(nameof(Role.Administrator), policy => { policy.RequireRole(nameof(Role.Administrator)); });
     options.AddPolicy(nameof(Role.Teacher), policy => { policy.RequireRole(nameof(Role.Teacher)); });
+    options.AddPolicy("TeacherOrAdmin", policy =>
+        policy.RequireRole(nameof(Role.Teacher), nameof(Role.Administrator)));
     options.FallbackPolicy = new AuthorizationPolicyBuilder()
         .RequireAuthenticatedUser()
         .Build();
+});
+
+builder.Services.Configure<IdentityOptions>(options =>
+{
+    options.Password.RequireDigit = true;
+    options.Password.RequiredLength = 8;
+    options.Password.RequireNonAlphanumeric = true;
+    options.Password.RequireUppercase = true;
+    options.Password.RequireLowercase = true;
 });
 
 builder.Services.AddEndpointsApiExplorer();
@@ -54,25 +65,33 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-builder.Services.AddIdentityApiEndpoints<User>()
+builder.Services.AddIdentityApiEndpoints<UserEntity>()
     .AddRoles<IdentityRole<Guid>>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
+
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    });
 
 // Add repositories.
 builder.Services.AddScoped<ICourseRepository, CourseRepository>();
 builder.Services.AddScoped<ICourseMemberRepository, CourseMemberRepository>();
-builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
-builder.Services.AddScoped<ILabRepository, LabRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 
-// Add our services.
+// Add services.
+builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ICourseService, CourseService>();
-builder.Services.AddScoped<IFileService, FileService>();
-builder.Services.AddScoped<INotificationService, NotificationService>();
-builder.Services.AddScoped<ILabService, LabService>();
+builder.Services.AddScoped<ICourseMemberService, CourseMemberService>();
+builder.Services.AddScoped<IUserService, UserService>();
 
+builder.Services.AddScoped<IFileValidator, ImageFileValidator>();
+builder.Services.AddScoped<ImageFileValidator>();
+builder.Services.AddScoped<IFileValidatorFactory, FileValidatorFactory>();
+builder.Services.AddScoped<IFileService, FileService>();
 
 var app = builder.Build();
-
 
 using (var scope = app.Services.CreateScope())
 {
@@ -108,18 +127,6 @@ app.UseMiddleware<CurrentUserMiddleware>();
 
 // TODO: Add email service.
 
-var api = app
-    .MapGroup("/api")
-    .WithTags("Api");
-
-api.MapAuthEndpoints();
-
-api.MapUserEndpoints();
-
-api.MapCourseEndpoints();
-
-app.MapNotificationEndpoints();
-
-app.MapLabEndpoints();
+app.MapControllers();
 
 app.Run();

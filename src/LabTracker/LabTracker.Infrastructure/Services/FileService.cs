@@ -1,36 +1,37 @@
 using LabTracker.Application.Contracts;
-using Microsoft.AspNetCore.Http;
+using LabTracker.Infrastructure.Abstractions;
 
 namespace LabTracker.Infrastructure.Services;
 
 public class FileService : IFileService
 {
-    private const int MaxFileSizeBytes = 50 * 1024 * 1024; // 5 MB.
-    private static readonly string[] AllowedExtensions = [".jpg", ".jpeg", ".png", "image/webp"];
-    private static readonly string[] AllowedContentTypes = ["image/jpeg", "image/png", "image/webp"];
+    private readonly IFileValidatorFactory _fileValidatorFactory;
 
-    public async Task<string> SaveImageAsync(IFormFile file, string saveDirectory, string fileName)
+    public FileService(IFileValidatorFactory fileValidatorFactory)
     {
-        if (file.Length is <= 0 or > MaxFileSizeBytes)
-            throw new InvalidOperationException("Invalid file size.");
+        _fileValidatorFactory = fileValidatorFactory;
+    }
 
-        var extension = Path.GetExtension(file.FileName);
+    public async Task<string> SaveFileAsync(Stream stream, string saveDirectory, string fileName)
+    {
+        var fileValidator = _fileValidatorFactory.GetFileValidator(fileName);
 
-        if (!AllowedExtensions.Contains(extension) || !AllowedContentTypes.Contains(file.ContentType))
-            throw new InvalidOperationException("Invalid file format.");
+        fileValidator.ValidateFile(stream, fileName);
 
         Directory.CreateDirectory(saveDirectory);
 
-        var uniqueFileName = fileName + "_" + Guid.NewGuid() + extension;
+        var uniqueFileName = Path.GetFileNameWithoutExtension(fileName) + "_" + Guid.NewGuid() +
+                             Path.GetExtension(fileName);
+
         var filePath = Path.Combine(saveDirectory, uniqueFileName);
 
-        await using var stream = File.Create(filePath);
-        await file.CopyToAsync(stream);
-        
+        await using var destination = File.Create(filePath);
+        await stream.CopyToAsync(destination);
+
         return filePath;
     }
 
-    public void DeleteImage(string fileName)
+    public void DeleteFile(string fileName)
     {
         ArgumentNullException.ThrowIfNull(fileName);
         File.Delete(fileName);

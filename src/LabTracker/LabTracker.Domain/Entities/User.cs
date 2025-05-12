@@ -1,23 +1,31 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using LabTracker.Domain.ValueObjects;
-using Microsoft.AspNetCore.Identity;
 
 namespace LabTracker.Domain.Entities;
 
-public class User : IdentityUser<Guid>
+public class User
 {
-    public Name FirstName { get; set; }
-    public Name LastName { get; set; }
-    public Name Patronymic { get; set; }
+    public required Guid Id { get; init; }
+    
+    public required Name FirstName { get; set; }
+    
+    public required Name LastName { get; set; }
+    
+    public required Name Patronymic { get; set; }
+    
+    public required string Email { get; set; }
+    
+    public required IEnumerable<Role> Roles;
 
-    [MaxLength(50)] public string? TelegramUsername { get; set; }
+    [MaxLength(50)]
+    public required string? TelegramUsername { get; set; }
 
-    public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
+    public DateTimeOffset CreatedAt { get; init; } = DateTimeOffset.UtcNow;
 
-    [MaxLength(500)] public string? PhotoUri { get; set; }
+    [MaxLength(500)]
+    public required string? PhotoUri { get; set; }
 
-    // Public for Identity API only. Otherwise, use below ctor.
-    public User()
-    {
-    }
+    public bool IsTeacher => Roles.Contains(Role.Teacher);
+    public bool IsStudent => Roles.Contains(Role.Student);
+    public bool IsAdministrator => Roles.Contains(Role.Administrator);
 }

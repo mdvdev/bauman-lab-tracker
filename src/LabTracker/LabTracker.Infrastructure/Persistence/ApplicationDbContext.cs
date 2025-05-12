@@ -1,18 +1,14 @@
-﻿using LabTracker.Domain.Entities;
-using LabTracker.Domain.ValueObjects;
-using LabTracker.Infrastructure.Persistence.Converters;
+﻿using LabTracker.Infrastructure.Persistence.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace LabTracker.Infrastructure.Persistence;
 
-public class ApplicationDbContext : IdentityDbContext<User, IdentityRole<Guid>, Guid>
+public class ApplicationDbContext : IdentityDbContext<UserEntity, IdentityRole<Guid>, Guid>
 {
-    public DbSet<Course> Courses { get; set; }
-    public DbSet<CourseMember> CourseMembers { get; set; }
-    public DbSet<Notification> Notifications { get; set; }
-    public DbSet<Lab> Labs { get; set; }
+    public DbSet<CourseEntity> Courses { get; set; }
+    public DbSet<CourseMemberEntity> CourseMembers { get; set; }
 
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options)
@@ -23,12 +19,5 @@ public class ApplicationDbContext : IdentityDbContext<User, IdentityRole<Guid>, 
     {
         builder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
         base.OnModelCreating(builder);
-    }
-
-    protected override void ConfigureConventions(ModelConfigurationBuilder builder)
-    {
-        builder.Properties<Name>()
-            .HaveConversion<NameConverter>()
-            .HaveMaxLength(100);
     }
 }
