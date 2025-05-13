@@ -7,15 +7,17 @@ namespace LabTracker.Infrastructure.Persistence.Entities;
 
 public class UserEntity : IdentityUser<Guid>
 {
-    public string FirstName { get; set; }
-    public string LastName { get; set; }
-    public string Patronymic { get; set; }
+    public required string FirstName { get; set; }
+    public required string LastName { get; set; }
+    public required string Patronymic { get; set; }
 
-    [MaxLength(50)] public string? TelegramUsername { get; set; }
+    [MaxLength(50)]
+    public string? TelegramUsername { get; set; }
 
-    public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
+    public DateTimeOffset CreatedAt { get; init; } = DateTimeOffset.UtcNow;
 
-    [MaxLength(500)] public string? PhotoUri { get; set; }
+    [MaxLength(500)]
+    public string? PhotoUri { get; set; }
 
     public User ToDomain(IEnumerable<string> roles)
     {

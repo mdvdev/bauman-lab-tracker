@@ -1,6 +1,7 @@
 using LabTracker.Domain.Entities;
+using LabTracker.Domain.ValueObjects;
 
-namespace LabTracker.Application.Contracts;
+namespace LabTracker.Application.Abstractions;
 
 public interface ICourseMemberRepository : ICrudRepository<CourseMember, CourseMemberKey>
 {

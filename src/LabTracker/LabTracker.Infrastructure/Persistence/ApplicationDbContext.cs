@@ -9,6 +9,7 @@ public class ApplicationDbContext : IdentityDbContext<UserEntity, IdentityRole<G
 {
     public DbSet<CourseEntity> Courses { get; set; }
     public DbSet<CourseMemberEntity> CourseMembers { get; set; }
+    public DbSet<SlotEntity> Slots { get; set; }
 
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options)

@@ -1,6 +1,7 @@
 using LabTracker.Application.Courses.Core;
 using LabTracker.Application.Courses.Students;
 using LabTracker.Domain.Entities;
+using LabTracker.Domain.ValueObjects;
 using LabTracker.Presentation.Dtos.Requests;
 using LabTracker.Presentation.Dtos.Responses;
 using Microsoft.AspNetCore.Authorization;
@@ -27,7 +28,7 @@ public class CourseController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetCourseAsync()
+    public async Task<IActionResult> GetMyCoursesAsync()
     {
         if (HttpContext.Items[ContextKeys.CurrentUser] is not User user)
             return NotFound();
@@ -36,20 +37,21 @@ public class CourseController : ControllerBase
         var responses = new List<CourseMemberResponse>();
         foreach (var cm in courseMembers)
         {
-            var localUser = await _courseMemberService.GetCourseMemberDetailsAsync(cm.CourseId, cm.MemberId);
+            var localUser = await _courseMemberService.GetCourseMemberDetailsAsync(cm.Id);
             if (localUser == null)
             {
-                _logger.LogWarning("User with ID {UserId} for course {CourseId} not found in database", cm.MemberId,
-                    cm.CourseId);
+                _logger.LogWarning("User with ID {UserId} for course {CourseId} not found in database", cm.Id.MemberId,
+                    cm.Id.CourseId);
                 continue;
             }
 
-            var course = await _courseService.GetCourseDetailsAsync(cm.CourseId);
+            var course = await _courseService.GetCourseDetailsAsync(cm.Id.CourseId);
             if (course is null)
             {
-                _logger.LogWarning("Course with ID {CourseId} not found in database", cm.CourseId);
-                continue;           
+                _logger.LogWarning("Course with ID {CourseId} not found in database", cm.Id.CourseId);
+                continue;
             }
+
             responses.Add(CourseMemberResponse.Create(cm, course, localUser));
         }
 
@@ -57,19 +59,18 @@ public class CourseController : ControllerBase
     }
 
     [HttpPost]
-    [Authorize(Policy = "TeacherOrAdmin")]
+    [Authorize(nameof(Role.Teacher))]
     public async Task<IActionResult> CreateCourseAsync(CreateCourseRequest request)
     {
-        var courseId = await _courseService
+        var course = await _courseService
             .CreateCourseAsync(request.ToCommand());
 
         if (HttpContext.Items[ContextKeys.CurrentUser] is not User user)
             return NotFound();
 
-        if (user.IsTeacher)
-            await _courseMemberService.AddTeacherAsync(courseId, user.Id);
+        await _courseMemberService.AddTeacherAsync(new CourseMemberKey(course.Id, user.Id));
 
-        return Ok();
+        return Ok(CourseResponse.Create(course));
     }
 
     [HttpGet("{courseId}")]
@@ -78,15 +79,15 @@ public class CourseController : ControllerBase
         if (HttpContext.Items[ContextKeys.CurrentUser] is not User user)
             return NotFound();
 
-        if (!user.IsAdministrator && !await _courseMemberService.IsCourseMemberAsync(courseId, user.Id))
-            return Forbid();
+        if (!await _courseMemberService.IsCourseMemberAsync(new CourseMemberKey(courseId, user.Id)))
+            return StatusCode(StatusCodes.Status403Forbidden);
 
         var course = await _courseService.GetCourseDetailsAsync(courseId);
         return course is null ? NotFound() : Ok(CourseResponse.Create(course));
     }
 
     [HttpPatch("{courseId}")]
-    [Authorize(Policy = "TeacherOrAdmin")]
+    [Authorize(nameof(Role.Teacher))]
     public async Task<IActionResult> PatchCourseAsync(Guid courseId, UpdateCourseRequest request)
     {
         if (request.Name is null &&
@@ -99,27 +100,27 @@ public class CourseController : ControllerBase
         if (HttpContext.Items[ContextKeys.CurrentUser] is not User user)
             return NotFound();
 
-        if (user.IsTeacher && !await _courseMemberService.IsCourseMemberAsync(courseId, user.Id))
-            return Forbid();
+        if (!await _courseMemberService.IsCourseMemberAsync(new CourseMemberKey(courseId, user.Id)))
+            return StatusCode(StatusCodes.Status403Forbidden);
 
         var course = await _courseService.GetCourseDetailsAsync(courseId);
         if (course is null)
             return NotFound();
 
-        await _courseService.UpdateCourseAsync(courseId, request.ToCommand());
+        course = await _courseService.UpdateCourseAsync(request.ToCommand(courseId));
 
-        return Ok();
+        return Ok(CourseResponse.Create(course));
     }
 
     [HttpPatch("{courseId}/photo")]
-    [Authorize(Policy = "TeacherOrAdmin")]
+    [Authorize(nameof(Role.Teacher))]
     public async Task<IActionResult> PatchCoursePhotoAsync(Guid courseId, IFormFile file)
     {
         if (HttpContext.Items[ContextKeys.CurrentUser] is not User user)
             return NotFound();
 
-        if (user.IsTeacher && !await _courseMemberService.IsCourseMemberAsync(courseId, user.Id))
-            return Forbid();
+        if (!await _courseMemberService.IsCourseMemberAsync(new CourseMemberKey(courseId, user.Id)))
+            return StatusCode(StatusCodes.Status403Forbidden);
 
         await _courseService.UpdateCoursePhotoAsync(courseId, file.OpenReadStream(), file.FileName);
 
@@ -127,14 +128,14 @@ public class CourseController : ControllerBase
     }
 
     [HttpDelete("{courseId}")]
-    [Authorize(Policy = "TeacherOrAdmin")]
+    [Authorize(nameof(Role.Teacher))]
     public async Task<IActionResult> DeleteCourseAsync(Guid courseId)
     {
         if (HttpContext.Items[ContextKeys.CurrentUser] is not User user)
             return NotFound();
 
-        if (user.IsTeacher && !await _courseMemberService.IsCourseMemberAsync(courseId, user.Id))
-            return Forbid();
+        if (!await _courseMemberService.IsCourseMemberAsync(new CourseMemberKey(courseId, user.Id)))
+            return StatusCode(StatusCodes.Status403Forbidden);
 
         await _courseService.DeleteCourseAsync(courseId);
 

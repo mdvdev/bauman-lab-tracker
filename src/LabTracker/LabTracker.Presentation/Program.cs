@@ -1,8 +1,9 @@
 using System.Text.Json.Serialization;
 using Hellang.Middleware.ProblemDetails;
+using LabTracker.Application.Abstractions;
 using LabTracker.Application.Auth;
-using LabTracker.Application.Contracts;
 using LabTracker.Application.Courses.Core;
+using LabTracker.Application.Courses.Slots;
 using LabTracker.Application.Courses.Students;
 using LabTracker.Application.Users;
 using LabTracker.Domain.ValueObjects;
@@ -26,9 +27,12 @@ builder.Services.AddProblemDetails(options =>
         builder.Environment.IsDevelopment();
 
     options.MapToStatusCode<ArgumentException>(StatusCodes.Status400BadRequest);
+    options.MapToStatusCode<ArgumentOutOfRangeException>(StatusCodes.Status400BadRequest);
     options.MapToStatusCode<NotSupportedException>(StatusCodes.Status400BadRequest);
     options.MapToStatusCode<InvalidOperationException>(StatusCodes.Status400BadRequest);
+    
     options.MapToStatusCode<UnauthorizedAccessException>(StatusCodes.Status401Unauthorized);
+    
     options.MapToStatusCode<KeyNotFoundException>(StatusCodes.Status404NotFound);
 
     options.MapToStatusCode<Exception>(StatusCodes.Status500InternalServerError);
@@ -50,41 +54,38 @@ builder.Services.AddAuthorization(options =>
         .Build();
 });
 
-builder.Services.Configure<IdentityOptions>(options =>
-{
-    options.Password.RequireDigit = true;
-    options.Password.RequiredLength = 8;
-    options.Password.RequireNonAlphanumeric = true;
-    options.Password.RequireUppercase = true;
-    options.Password.RequireLowercase = true;
-});
-
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-builder.Services.AddIdentityApiEndpoints<UserEntity>()
-    .AddRoles<IdentityRole<Guid>>()
+builder.Services
+    .AddIdentity<UserEntity, IdentityRole<Guid>>(options =>
+    {
+        options.Password.RequireDigit = true;
+        options.Password.RequiredLength = 8;
+        options.Password.RequireNonAlphanumeric = true;
+        options.Password.RequireUppercase = true;
+        options.Password.RequireLowercase = true;
+    })
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
 builder.Services.AddControllers()
-    .AddJsonOptions(options =>
-    {
-        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-    });
+    .AddJsonOptions(options => { options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()); });
 
 // Add repositories.
 builder.Services.AddScoped<ICourseRepository, CourseRepository>();
 builder.Services.AddScoped<ICourseMemberRepository, CourseMemberRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<ISlotRepository, SlotRepository>();
 
 // Add services.
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ICourseService, CourseService>();
 builder.Services.AddScoped<ICourseMemberService, CourseMemberService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<ISlotService, SlotService>();
 
 builder.Services.AddScoped<IFileValidator, ImageFileValidator>();
 builder.Services.AddScoped<ImageFileValidator>();

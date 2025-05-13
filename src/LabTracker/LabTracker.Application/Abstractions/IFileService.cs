@@ -1,4 +1,4 @@
-namespace LabTracker.Application.Contracts;
+namespace LabTracker.Application.Abstractions;
 
 public interface IFileService
 {

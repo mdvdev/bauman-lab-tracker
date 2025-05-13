@@ -1,3 +1,3 @@
-namespace LabTracker.Application.Contracts;
+namespace LabTracker.Domain.ValueObjects;
 
 public record CourseMemberKey(Guid CourseId, Guid MemberId);

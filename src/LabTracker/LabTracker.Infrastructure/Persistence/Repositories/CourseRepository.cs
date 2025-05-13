@@ -1,4 +1,4 @@
-using LabTracker.Application.Contracts;
+using LabTracker.Application.Abstractions;
 using LabTracker.Domain.Entities;
 using LabTracker.Infrastructure.Persistence.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -26,7 +26,7 @@ public class CourseRepository : ICourseRepository
         return entities.Select(e => e.ToDomain());
     }
 
-    public async Task<Guid> CreateAsync(Course course)
+    public async Task<Course> CreateAsync(Course course)
     {
         if (await _context.Courses.FindAsync(course.Id) is null)
         {
@@ -34,21 +34,23 @@ public class CourseRepository : ICourseRepository
             await _context.SaveChangesAsync();
         }
 
-        return course.Id;
+        return course;
     }
 
-    public async Task UpdateAsync(Course course)
+    public async Task<Course?> UpdateAsync(Course course)
     {
         var entity = await _context.Courses.FindAsync(course.Id);
-        if (entity is not null)
-        {
-            entity.Name = course.Name.Value;
-            entity.Description = course.Description;
-            entity.QueueMode = course.QueueMode;
-            entity.PhotoUri = course.PhotoUri;
-            _context.Courses.Update(entity);
-            await _context.SaveChangesAsync();
-        }
+        if (entity is null) return null;
+
+        entity.Name = course.Name.Value;
+        entity.Description = course.Description;
+        entity.QueueMode = course.QueueMode;
+        entity.PhotoUri = course.PhotoUri;
+
+        _context.Courses.Update(entity);
+        await _context.SaveChangesAsync();
+
+        return entity.ToDomain();
     }
 
     public async Task DeleteAsync(Guid id)

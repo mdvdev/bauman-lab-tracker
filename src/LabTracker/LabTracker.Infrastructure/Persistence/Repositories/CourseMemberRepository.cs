@@ -1,5 +1,6 @@
-using LabTracker.Application.Contracts;
+using LabTracker.Application.Abstractions;
 using LabTracker.Domain.Entities;
+using LabTracker.Domain.ValueObjects;
 using LabTracker.Infrastructure.Persistence.Entities;
 using Microsoft.EntityFrameworkCore;
 
@@ -44,26 +45,34 @@ public class CourseMemberRepository : ICourseMemberRepository
         return entities.Select(e => e.ToDomain()).ToList();
     }
 
-    public async Task<CourseMemberKey> CreateAsync(CourseMember courseMember)
+    public async Task<CourseMember> CreateAsync(CourseMember courseMember)
     {
         if (await _context.CourseMembers
-                .FindAsync(courseMember.CourseId, courseMember.MemberId) is null)
+                .FindAsync(courseMember.Id.CourseId, courseMember.Id.MemberId) is null)
         {
             _context.CourseMembers.Add(CourseMemberEntity.FromDomain(courseMember));
             await _context.SaveChangesAsync();
         }
 
-        return new CourseMemberKey(courseMember.CourseId, courseMember.MemberId);
+        return courseMember;
     }
 
-    public async Task UpdateAsync(CourseMember courseMember)
+    public async Task<CourseMember> UpdateAsync(CourseMember courseMember)
     {
-        var entity = await _context.CourseMembers.FindAsync(courseMember.CourseId, courseMember.MemberId);
-        if (entity is not null)
-        {
-            _context.CourseMembers.Update(entity);
-            await _context.SaveChangesAsync();
-        }
+        var entity = await _context.CourseMembers
+            .FindAsync(courseMember.Id.CourseId, courseMember.Id.MemberId);
+
+        if (entity is null) return await CreateAsync(courseMember);
+
+        entity.CourseId = courseMember.Id.CourseId;
+        entity.MemberId = courseMember.Id.MemberId;
+        entity.AssignedAt = courseMember.AssignedAt;
+        entity.Score = courseMember.Score;
+
+        _context.CourseMembers.Update(entity);
+        await _context.SaveChangesAsync();
+
+        return entity.ToDomain();
     }
 
     public async Task DeleteAsync(CourseMemberKey key)

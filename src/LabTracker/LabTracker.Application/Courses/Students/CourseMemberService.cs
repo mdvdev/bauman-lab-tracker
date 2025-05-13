@@ -1,5 +1,6 @@
-using LabTracker.Application.Contracts;
+using LabTracker.Application.Abstractions;
 using LabTracker.Domain.Entities;
+using LabTracker.Domain.ValueObjects;
 
 namespace LabTracker.Application.Courses.Students;
 
@@ -19,18 +20,18 @@ public class CourseMemberService : ICourseMemberService
         _userRepository = userRepository;
     }
 
-    public async Task<bool> IsCourseMemberAsync(Guid courseId, Guid memberId)
+    public async Task<bool> IsCourseMemberAsync(CourseMemberKey key)
     {
-        return await _courseMemberRepository.GetByIdAsync(new CourseMemberKey(courseId, memberId)) != null;
+        return await _courseMemberRepository.GetByIdAsync(key) != null;
     }
 
-    public async Task<User?> GetCourseMemberDetailsAsync(Guid courseId, Guid memberId)
+    public async Task<User?> GetCourseMemberDetailsAsync(CourseMemberKey key)
     {
-        var member = await _courseMemberRepository.GetByIdAsync(new CourseMemberKey(courseId, memberId));
+        var member = await _courseMemberRepository.GetByIdAsync(key);
         if (member is null)
             return null;
 
-        return await _userRepository.GetByIdAsync(member.MemberId);
+        return await _userRepository.GetByIdAsync(member.Id.MemberId);
     }
 
     public async Task<IEnumerable<CourseMember>> GetMemberCoursesAsync(Guid memberId)
@@ -50,9 +51,9 @@ public class CourseMemberService : ICourseMemberService
 
         foreach (var m in members)
         {
-            var user = await _userRepository.GetByIdAsync(m.MemberId);
+            var user = await _userRepository.GetByIdAsync(m.Id.MemberId);
             if (user is null)
-                throw new KeyNotFoundException($"User with id {m.MemberId} not found.");
+                throw new KeyNotFoundException($"User with id {m.Id.MemberId} not found.");
 
             if (user.IsStudent)
                 result.Add(m);
@@ -71,9 +72,9 @@ public class CourseMemberService : ICourseMemberService
 
         foreach (var m in members)
         {
-            var user = await _userRepository.GetByIdAsync(m.MemberId);
+            var user = await _userRepository.GetByIdAsync(m.Id.MemberId);
             if (user is null)
-                throw new KeyNotFoundException($"User with id {m.MemberId} not found.");
+                throw new KeyNotFoundException($"User with id {m.Id.MemberId} not found.");
 
             if (user.IsTeacher)
                 result.Add(m);
@@ -82,55 +83,54 @@ public class CourseMemberService : ICourseMemberService
         return result;
     }
 
-    public async Task<CourseMemberKey> AddStudentAsync(Guid courseId, Guid userId)
+    public async Task<CourseMember> AddStudentAsync(CourseMemberKey key)
     {
-        var user = await _userRepository.GetByIdAsync(userId);
+        var user = await _userRepository.GetByIdAsync(key.MemberId);
         if (user is null)
-            throw new KeyNotFoundException($"User with id {userId} not found.");
+            throw new KeyNotFoundException($"User with id {key.MemberId} not found.");
 
         if (!user.IsStudent)
-            throw new InvalidOperationException($"User with id {userId} is not a student.");
+            throw new InvalidOperationException($"User with id {key.MemberId} is not a student.");
 
-        return await AddMemberAsync(courseId, userId);
+        return await AddMemberAsync(key);
     }
 
-    public async Task<CourseMemberKey> AddTeacherAsync(Guid courseId, Guid userId)
+    public async Task<CourseMember> AddTeacherAsync(CourseMemberKey key)
     {
-        var user = await _userRepository.GetByIdAsync(userId);
+        var user = await _userRepository.GetByIdAsync(key.MemberId);
         if (user is null)
-            throw new KeyNotFoundException($"User with id {userId} not found.");
-        
+            throw new KeyNotFoundException($"User with id {key.MemberId} not found.");
+
         if (!user.IsTeacher)
-            throw new InvalidOperationException($"User with id {userId} is not a teacher.");
-        
-        return await AddMemberAsync(courseId, userId);
+            throw new InvalidOperationException($"User with id {key.MemberId} is not a teacher.");
+
+        return await AddMemberAsync(key);
     }
 
-    public async Task RemoveMemberAsync(Guid courseId, Guid memberId)
+    public async Task RemoveMemberAsync(CourseMemberKey key)
     {
-        if (await _courseRepository.GetByIdAsync(courseId) is null)
-            throw new KeyNotFoundException($"Course with '{courseId}' not found.");
+        if (await _courseRepository.GetByIdAsync(key.CourseId) is null)
+            throw new KeyNotFoundException($"Course with '{key.CourseId}' not found.");
 
-        if (await _userRepository.GetByIdAsync(memberId) is null)
-            throw new KeyNotFoundException($"User with id {memberId} not found.");
+        if (await _userRepository.GetByIdAsync(key.MemberId) is null)
+            throw new KeyNotFoundException($"User with id {key.MemberId} not found.");
 
-        await _courseMemberRepository.DeleteAsync(new CourseMemberKey(courseId, memberId));
+        await _courseMemberRepository.DeleteAsync(key);
     }
 
-    private async Task<CourseMemberKey> AddMemberAsync(Guid courseId, Guid userId)
+    private async Task<CourseMember> AddMemberAsync(CourseMemberKey key)
     {
-        if (await _courseRepository.GetByIdAsync(courseId) is null)
-            throw new KeyNotFoundException($"Course with '{courseId}' not found.");
+        if (await _courseRepository.GetByIdAsync(key.CourseId) is null)
+            throw new KeyNotFoundException($"Course with '{key.CourseId}' not found.");
 
-        var user = await _userRepository.GetByIdAsync(userId);
+        var user = await _userRepository.GetByIdAsync(key.MemberId);
         if (user is null)
-            throw new KeyNotFoundException($"User with id {userId} not found.");
+            throw new KeyNotFoundException($"User with id {key.MemberId} not found.");
 
         return await _courseMemberRepository.CreateAsync(
             new CourseMember
             {
-                CourseId = courseId,
-                MemberId = userId,
+                Id = key,
                 Score = user.IsStudent ? 0 : null
             });
     }
