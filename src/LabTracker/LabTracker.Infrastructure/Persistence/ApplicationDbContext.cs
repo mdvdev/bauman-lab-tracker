@@ -11,6 +11,7 @@ public class ApplicationDbContext : IdentityDbContext<UserEntity, IdentityRole<G
     public DbSet<CourseMemberEntity> CourseMembers { get; set; }
     public DbSet<LabEntity> Labs { get; set; }
     public DbSet<NotificationEntity> Notifications { get; set; }
+    public DbSet<SubmissionEntity> Submissions { get; set; }
 
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options)

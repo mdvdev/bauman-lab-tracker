@@ -18,7 +18,7 @@ namespace LabTracker.Application.Labs
         public async Task<Lab> CreateLabAsync(Guid courseId, string name, string description, DateTimeOffset deadline, int score, int scoreAfterDeadline)
         {
             var course = await _courseRepository.GetByIdAsync(courseId);
-            if (course == null)
+            if (course is null)
             {
                 throw new KeyNotFoundException($"Course with id '{courseId}' not found.");
             }
@@ -55,7 +55,7 @@ namespace LabTracker.Application.Labs
         public async Task UpdateLabAsync(Guid id, string name, string description, DateTimeOffset deadline, int score, int scoreAfterDeadline)
         {
             var lab = await _labRepository.GetByIdAsync(id);
-            if (lab == null)
+            if (lab is null)
             {
                 throw new KeyNotFoundException($"Lab with id '{id}' not found.");
             }

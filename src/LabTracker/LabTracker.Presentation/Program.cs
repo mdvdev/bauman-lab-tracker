@@ -7,6 +7,8 @@ using LabTracker.Application.Courses.Core;
 using LabTracker.Application.Courses.Students;
 using LabTracker.Application.Labs;
 using LabTracker.Application.Notifications;
+using LabTracker.Application.Submission;
+using LabTracker.Application.Submissions;
 using LabTracker.Application.Users;
 using LabTracker.Domain.ValueObjects;
 using LabTracker.Infrastructure.Abstractions;
@@ -84,6 +86,7 @@ builder.Services.AddScoped<ICourseMemberRepository, CourseMemberRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<ILabRepository, LabRepository>();
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
+builder.Services.AddScoped<ISubmissionRepository, SubmissionRepository>();
 
 
 // Add services.
@@ -93,6 +96,7 @@ builder.Services.AddScoped<ICourseMemberService, CourseMemberService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ILabService, LabService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddScoped<ISubmissionService, SubmissionService>();
 
 builder.Services.AddScoped<IFileValidator, ImageFileValidator>();
 builder.Services.AddScoped<ImageFileValidator>();

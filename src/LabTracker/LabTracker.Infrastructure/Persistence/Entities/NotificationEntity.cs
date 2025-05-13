@@ -19,7 +19,7 @@ public class NotificationEntity
 
     public static Notification ToDomain(NotificationEntity entity, IEnumerable<string> userRoles = null)
     {
-        if (entity == null)
+        if (entity is null)
             return null;
 
         return new Notification
@@ -40,7 +40,7 @@ public class NotificationEntity
 
     public static NotificationEntity FromDomain(Notification domain)
     {
-        if (domain == null)
+        if (domain is null)
             return null;
 
         return new NotificationEntity
