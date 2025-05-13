@@ -42,15 +42,15 @@ namespace LabTracker.Infrastructure.Persistence.Repositories
             return entities.Select(e => e.ToDomain());
         }
 
-        public async Task<Guid> CreateAsync(Lab lab)
+        public async Task<Lab> CreateAsync(Lab lab)
         {
             var entity = LabEntity.FromDomain(lab);
             await _context.Labs.AddAsync(entity);
             await _context.SaveChangesAsync();
-            return lab.Id;
+            return lab;
         }
 
-        public async Task UpdateAsync(Lab lab)
+        public async Task<Lab> UpdateAsync(Lab lab)
         {
             var entity = await _context.Labs.FindAsync(lab.Id);
             if (entity != null)
@@ -68,6 +68,7 @@ namespace LabTracker.Infrastructure.Persistence.Repositories
 
                 await _context.SaveChangesAsync();
             }
+            return lab;
         }
 
         public async Task DeleteAsync(Guid id)

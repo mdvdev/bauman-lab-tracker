@@ -1,6 +1,7 @@
 using LabTracker.Domain.Entities;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using LabTracker.Application.Abstractions;
 
 namespace LabTracker.Application.Contracts;
 

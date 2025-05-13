@@ -31,9 +31,7 @@ public class LabController : ControllerBase
     {
         if (HttpContext.Items[ContextKeys.CurrentUser] is not User user)
             return NotFound();
-
-        if (!user.IsAdministrator && !await _courseMemberService.IsCourseMemberAsync(courseId, user.Id))
-            return Forbid();
+        
 
         try
         {
@@ -53,9 +51,7 @@ public class LabController : ControllerBase
     {
         if (HttpContext.Items[ContextKeys.CurrentUser] is not User user)
             return NotFound();
-
-        if (!user.IsAdministrator && !await _courseMemberService.IsCourseMemberAsync(courseId, user.Id))
-            return Forbid();
+        
 
         try
         {
@@ -78,9 +74,7 @@ public class LabController : ControllerBase
     {
         if (HttpContext.Items[ContextKeys.CurrentUser] is not User user)
             return NotFound();
-
-        if (user.IsTeacher && !await _courseMemberService.IsCourseMemberAsync(courseId, user.Id))
-            return Forbid();
+        
 
         try
         {
@@ -119,9 +113,7 @@ public class LabController : ControllerBase
 
         if (HttpContext.Items[ContextKeys.CurrentUser] is not User user)
             return NotFound();
-
-        if (user.IsTeacher && !await _courseMemberService.IsCourseMemberAsync(courseId, user.Id))
-            return Forbid();
+        
 
         try
         {
@@ -149,7 +141,7 @@ public class LabController : ControllerBase
         if (HttpContext.Items[ContextKeys.CurrentUser] is not User user)
             return NotFound();
 
-        if (user.IsTeacher && !await _courseMemberService.IsCourseMemberAsync(courseId, user.Id))
+        if (user.IsTeacher)
             return Forbid();
 
         try

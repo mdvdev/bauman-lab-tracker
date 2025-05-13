@@ -1,5 +1,6 @@
+using LabTracker.Application.Abstractions;
 using LabTracker.Application.Contracts;
-using LabTracker.Application.Submission;
+using LabTracker.Domain.Entities;
 using LabTracker.Domain.ValueObjects;
 using Microsoft.Extensions.Logging;
 
@@ -47,11 +48,7 @@ public class SubmissionService : ISubmissionService
 
         var currentSubmissions = await _submissionRepository.GetByCourseIdAsync(courseId);
         var slotSubmissions = currentSubmissions.Count(s => s.SlotId == slotId);
-
-        if (slotSubmissions >= slot.Capacity)
-        {
-            throw new Exception("The slot is full");
-        }
+        
 
         var submission = new Submission
         {
@@ -73,6 +70,17 @@ public class SubmissionService : ISubmissionService
     {
         return await _submissionRepository.GetByCourseIdAsync(courseId, studentId, status);
     }
+    
+    public async Task<Submission?> GetSubmissionAsync(Guid courseId, Guid submissionId, Guid userId)
+    {
+        var submission = await _submissionRepository.GetByIdAsync(submissionId);
+    
+        if (submission is null || submission.CourseId != courseId)
+            return null;
+
+        return submission;
+    }
+    
 
     public async Task DeleteSubmissionAsync(Guid courseId, Guid submissionId)
     {

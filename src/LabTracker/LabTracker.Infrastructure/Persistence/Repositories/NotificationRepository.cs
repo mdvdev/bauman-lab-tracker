@@ -62,15 +62,15 @@ public class NotificationRepository : INotificationRepository
         });
     }
 
-    public async Task<Guid> CreateAsync(Notification notification)
+    public async Task<Notification> CreateAsync(Notification notification)
     {
         var entity = NotificationEntity.FromDomain(notification);
         await _context.Notifications.AddAsync(entity);
         await _context.SaveChangesAsync();
-        return notification.Id;
+        return notification;
     }
 
-    public async Task UpdateAsync(Notification notification)
+    public async Task<Notification> UpdateAsync(Notification notification)
     {
         var entity = await _context.Notifications.FindAsync(notification.Id);
         if (entity is not null)
@@ -85,6 +85,7 @@ public class NotificationRepository : INotificationRepository
             
             await _context.SaveChangesAsync();
         }
+        return notification;
     }
 
     public async Task DeleteAsync(Guid id)

@@ -1,3 +1,4 @@
+using LabTracker.Application.Abstractions;
 using LabTracker.Domain.Entities;
 
 namespace LabTracker.Application.Contracts;

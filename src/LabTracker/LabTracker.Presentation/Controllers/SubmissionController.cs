@@ -1,5 +1,4 @@
 using LabTracker.Application.Contracts;
-using LabTracker.Application.Submission;
 using LabTracker.Domain.Entities;
 using LabTracker.Presentation.Dtos.Requests;
 using LabTracker.Presentation.Dtos.Responses;
@@ -22,6 +21,31 @@ public class SubmissionController : ControllerBase
         _submissionService = submissionService;
         _logger = logger;
     }
+    
+    [HttpGet("{submissionId}")]
+    [Authorize]
+    public async Task<IActionResult> GetSubmissionAsync(
+        Guid courseId,
+        Guid submissionId)
+    {
+        if (HttpContext.Items[ContextKeys.CurrentUser] is not User user)
+            return Unauthorized();
+
+        try
+        {
+            var submission = await _submissionService.GetSubmissionAsync(courseId, submissionId, user.Id);
+        
+            if (submission is null)
+                return NotFound();
+
+            return Ok(SubmissionResponse.Create(submission));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting submission {SubmissionId} for user {UserId}", submissionId, user.Id);
+            return StatusCode(500, "Internal server error");
+        }
+    }
 
     [HttpPost]
     [Authorize]
@@ -41,7 +65,7 @@ public class SubmissionController : ControllerBase
                 request.SlotId);
 
             return CreatedAtAction(
-                nameof(GetSubmissionAsync),
+                nameof(GetSubmissionAsync),  
                 new { courseId, submissionId = submission.Id },
                 SubmissionResponse.Create(submission));
         }
@@ -51,6 +75,8 @@ public class SubmissionController : ControllerBase
             return BadRequest(new { error = "Failed to register for submission", details = new[] { ex.Message } });
         }
     }
+    
+    
 
     [HttpGet]
     [Authorize]
