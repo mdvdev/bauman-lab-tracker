@@ -1,4 +1,3 @@
-using LabTracker.Application.Contracts;
 using LabTracker.Infrastructure.Abstractions;
 using LabTracker.Infrastructure.Helpers;
 using Microsoft.Extensions.DependencyInjection;

@@ -1,4 +1,4 @@
-using LabTracker.Application.Contracts;
+using LabTracker.Application.Abstractions;
 using LabTracker.Domain.Entities;
 using LabTracker.Infrastructure.Persistence.Entities;
 using Microsoft.AspNetCore.Identity;
@@ -34,27 +34,30 @@ public class UserRepository : IUserRepository
         return result;
     }
 
-    public async Task<Guid> CreateAsync(User user)
+    public async Task<User> CreateAsync(User user)
     {
         if (await _userManager.FindByIdAsync(user.Id.ToString()) is null)
             await _userManager.CreateAsync(UserEntity.FromDomain(user));
 
-        return user.Id;
+        return user;
     }
 
-    public async Task UpdateAsync(User user)
+    public async Task<User> UpdateAsync(User user)
     {
         var entity = await _userManager.FindByIdAsync(user.Id.ToString());
-        if (entity is not null)
-        {
-            entity.FirstName = user.FirstName.Value;
-            entity.LastName = user.LastName.Value;
-            entity.Patronymic = user.Patronymic.Value;
-            entity.Email = user.Email;
-            entity.PhotoUri = user.PhotoUri;
-            entity.TelegramUsername = user.TelegramUsername;
-            await _userManager.UpdateAsync(entity);
-        }
+
+        if (entity is null) return await CreateAsync(user);
+
+        entity.FirstName = user.FirstName.Value;
+        entity.LastName = user.LastName.Value;
+        entity.Patronymic = user.Patronymic.Value;
+        entity.Email = user.Email;
+        entity.PhotoUri = user.PhotoUri;
+        entity.TelegramUsername = user.TelegramUsername;
+
+        await _userManager.UpdateAsync(entity);
+
+        return entity.ToDomain(user.Roles.Select(r => r.ToString()));
     }
 
     public async Task DeleteAsync(Guid key)

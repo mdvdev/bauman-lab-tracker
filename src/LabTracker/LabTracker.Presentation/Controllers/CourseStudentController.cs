@@ -1,6 +1,7 @@
 using LabTracker.Application.Courses.Core;
 using LabTracker.Application.Courses.Students;
 using LabTracker.Domain.Entities;
+using LabTracker.Domain.ValueObjects;
 using LabTracker.Presentation.Dtos.Responses;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -31,42 +32,42 @@ public class CourseStudentController : ControllerBase
         if (HttpContext.Items[ContextKeys.CurrentUser] is not User user)
             return NotFound();
 
-        if (!user.IsAdministrator && !await _courseMemberService.IsCourseMemberAsync(courseId, user.Id))
-            return Forbid();
+        if (!await _courseMemberService.IsCourseMemberAsync(new CourseMemberKey(courseId, user.Id)))
+            return StatusCode(StatusCodes.Status403Forbidden);
 
         var course = await _courseService.GetCourseDetailsAsync(courseId);
         if (course is null)
             return NotFound();
 
         var students = await _courseMemberService.GetCourseStudentsAsync(courseId);
-        var responses = new List<CourseMemberResponse>();
+        var response = new List<CourseMemberResponse>();
         foreach (var cm in students)
         {
-            var localUser = await _courseMemberService.GetCourseMemberDetailsAsync(courseId, cm.MemberId);
+            var localUser = await _courseMemberService.GetCourseMemberDetailsAsync(cm.Id);
             if (localUser == null)
             {
-                _logger.LogWarning("User with ID {UserId} for course {CourseId} not found in database", cm.MemberId,
+                _logger.LogWarning("User with ID {UserId} for course {CourseId} not found in database", cm.Id.MemberId,
                     courseId);
                 continue;
             }
 
-            responses.Add(CourseMemberResponse.Create(cm, course, localUser));
+            response.Add(CourseMemberResponse.Create(cm, course, localUser));
         }
 
-        return Ok(responses);
+        return Ok(response);
     }
 
     [HttpPost("{studentId}")]
-    [Authorize(Policy = "TeacherOrAdmin")]
+    [Authorize(nameof(Role.Teacher))]
     public async Task<IActionResult> EnrollStudentToCourse(Guid courseId, Guid studentId)
     {
         if (HttpContext.Items[ContextKeys.CurrentUser] is not User user)
             return NotFound();
 
-        if (user.IsTeacher && !await _courseMemberService.IsCourseMemberAsync(courseId, user.Id))
-            return Forbid();
+        if (!await _courseMemberService.IsCourseMemberAsync(new CourseMemberKey(courseId, user.Id)))
+            return StatusCode(StatusCodes.Status403Forbidden);
 
-        await _courseMemberService.AddStudentAsync(courseId, studentId);
+        await _courseMemberService.AddStudentAsync(new CourseMemberKey(courseId, studentId));
 
         return Ok();
     }

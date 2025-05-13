@@ -12,9 +12,10 @@ public class UpdateCourseRequest
 
     public QueueMode? QueueMode { get; set; }
 
-    public UpdateCourseCommand ToCommand()
+    public UpdateCourseCommand ToCommand(Guid courseId)
     {
         return new UpdateCourseCommand(
+            courseId,
             Name is null ? null : new CourseName(Name),
             Description,
             QueueMode

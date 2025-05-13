@@ -1,6 +1,5 @@
-using LabTracker.Application.Contracts;
+using LabTracker.Application.Abstractions;
 using LabTracker.Domain.Entities;
-using LabTracker.Domain.ValueObjects;
 
 namespace LabTracker.Application.Courses.Core;
 
@@ -16,7 +15,7 @@ public class CourseService : ICourseService
         _fileService = fileService;
     }
 
-    public async Task<Guid> CreateCourseAsync(CreateCourseCommand command)
+    public async Task<Course> CreateCourseAsync(CreateCourseCommand command)
     {
         var course = new Course
         {
@@ -32,20 +31,25 @@ public class CourseService : ICourseService
         return await _courseRepository.GetByIdAsync(courseId);
     }
 
-    public async Task UpdateCourseAsync(Guid courseId, UpdateCourseCommand command)
+    public async Task<Course> UpdateCourseAsync(UpdateCourseCommand command)
     {
-        var course = await _courseRepository.GetByIdAsync(courseId);
+        var course = await _courseRepository.GetByIdAsync(command.CourseId);
         if (course is null)
-            throw new KeyNotFoundException($"Course with id {courseId} not found");
+            throw new KeyNotFoundException($"Course with id {command.CourseId} not found");
 
-        if (command.Name is not null) course.Name = command.Name;
-        if (command.Description is not null) course.Description = command.Description;
-        if (command.QueueMode is not null) course.QueueMode = (QueueMode)command.QueueMode;
+        if (command.Name is not null)
+            course.Name = command.Name;
 
-        await _courseRepository.UpdateAsync(course);
+        if (command.Description is not null)
+            course.Description = command.Description;
+
+        if (command.QueueMode is { } queueMode)
+            course.QueueMode = queueMode;
+
+        return await _courseRepository.UpdateAsync(course);
     }
 
-    public async Task UpdateCoursePhotoAsync(Guid courseId, Stream stream, string fileName)
+    public async Task<Course> UpdateCoursePhotoAsync(Guid courseId, Stream stream, string fileName)
     {
         var course = await _courseRepository.GetByIdAsync(courseId);
         if (course is null)
@@ -61,7 +65,7 @@ public class CourseService : ICourseService
             _fileService.DeleteFile(course.PhotoUri.TrimStart('/'));
 
         course.PhotoUri = "/" + filePath;
-        await _courseRepository.UpdateAsync(course);
+        return await _courseRepository.UpdateAsync(course);
     }
 
     public async Task DeleteCourseAsync(Guid courseId)

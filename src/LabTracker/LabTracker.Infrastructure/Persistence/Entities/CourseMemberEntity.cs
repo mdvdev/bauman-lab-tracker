@@ -1,13 +1,14 @@
 using LabTracker.Domain.Entities;
+using LabTracker.Domain.ValueObjects;
 
 namespace LabTracker.Infrastructure.Persistence.Entities;
 
 public class CourseMemberEntity
 {
-    public Guid CourseId { get; init; }
-    public Guid MemberId { get; init; }
-    public DateTimeOffset AssignedAt { get; init; }
-    public int? Score { get; init; }
+    public required Guid CourseId { get; set; }
+    public required Guid MemberId { get; set; }
+    public required DateTimeOffset AssignedAt { get; set; }
+    public required int? Score { get; set; }
 
     public CourseEntity Course { get; init; }
     public UserEntity User { get; init; }
@@ -16,8 +17,7 @@ public class CourseMemberEntity
     {
         return new CourseMember
         {
-            CourseId = CourseId,
-            MemberId = MemberId,
+            Id = new CourseMemberKey(CourseId, MemberId),
             AssignedAt = AssignedAt,
             Score = Score
         };
@@ -27,8 +27,8 @@ public class CourseMemberEntity
     {
         return new CourseMemberEntity
         {
-            CourseId = courseMember.CourseId,
-            MemberId = courseMember.MemberId,
+            CourseId = courseMember.Id.CourseId,
+            MemberId = courseMember.Id.MemberId,
             AssignedAt = courseMember.AssignedAt,
             Score = courseMember.Score
         };

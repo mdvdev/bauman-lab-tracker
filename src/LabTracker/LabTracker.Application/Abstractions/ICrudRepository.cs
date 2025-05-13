@@ -1,11 +1,11 @@
-namespace LabTracker.Application.Contracts;
+namespace LabTracker.Application.Abstractions;
 
-public interface ICrudRepository<TEntity, TKey>
+public interface ICrudRepository<TEntity, in TKey>
     where TEntity : class
 {
     Task<TEntity?> GetByIdAsync(TKey key);
     Task<IEnumerable<TEntity>> GetAllAsync();
-    Task<TKey> CreateAsync(TEntity entity);
-    Task UpdateAsync(TEntity entity);
+    Task<TEntity> CreateAsync(TEntity course);
+    Task<TEntity> UpdateAsync(TEntity course);
     Task DeleteAsync(TKey key);
 }
