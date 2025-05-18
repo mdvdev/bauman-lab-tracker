@@ -1,0 +1,10 @@
+.list-of-teachers {
+    display: flex;
+    flex-direction: row;
+    gap: 5px;
+
+}
+
+.teacher-name {
+    color: #757575
+}
