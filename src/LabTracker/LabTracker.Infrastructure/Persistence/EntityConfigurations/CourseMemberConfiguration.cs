@@ -14,11 +14,13 @@ public class CourseMemberConfiguration : IEntityTypeConfiguration<CourseMemberEn
 
         builder.HasOne(cm => cm.Course)
             .WithMany()
-            .HasForeignKey(cm => cm.CourseId);
+            .HasForeignKey(cm => cm.CourseId)
+            .HasConstraintName("FK_CourseMembers_Courses_CourseId");
 
         builder.HasOne(cm => cm.User)
             .WithMany()
-            .HasForeignKey(cm => cm.MemberId);
+            .HasForeignKey(cm => cm.MemberId)
+            .HasConstraintName("FK_CourseMembers_Users_MemberId");
 
         builder.Property(cm => cm.AssignedAt)
             .IsRequired()

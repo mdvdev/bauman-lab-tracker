@@ -16,8 +16,7 @@ public class SubmissionConfiguration : IEntityTypeConfiguration<SubmissionEntity
             .IsRequired()
             .HasConversion<string>();
 
-        builder.Property(s => s.Score)
-            .HasDefaultValue(null);
+        builder.Property(s => s.Score);
 
         builder.Property(s => s.CreatedAt)
             .IsRequired();
@@ -25,22 +24,26 @@ public class SubmissionConfiguration : IEntityTypeConfiguration<SubmissionEntity
         builder.HasOne(s => s.Student)
             .WithMany()
             .HasForeignKey(s => s.StudentId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.Cascade)
+            .HasConstraintName("FK_Submissions_Students_StudentId");
 
         builder.HasOne(s => s.Lab)
             .WithMany()
             .HasForeignKey(s => s.LabId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.Cascade)
+            .HasConstraintName("FK_Submissions_Labs_LabId");
 
         builder.HasOne(s => s.Slot)
             .WithMany()
             .HasForeignKey(s => s.SlotId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.Cascade)
+            .HasConstraintName("FK_Submissions_Slots_SlotId");
 
         builder.HasOne(s => s.Course)
             .WithMany()
             .HasForeignKey(s => s.CourseId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.Cascade)
+            .HasConstraintName("FK_Submissions_Courses_CourseId");
 
         builder.HasIndex(s => s.StudentId);
         builder.HasIndex(s => s.LabId);

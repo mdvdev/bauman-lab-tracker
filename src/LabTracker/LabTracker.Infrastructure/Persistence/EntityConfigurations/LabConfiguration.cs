@@ -31,7 +31,8 @@ namespace LabTracker.Infrastructure.Persistence.EntityConfigurations
             builder.HasOne(l => l.Course)
                 .WithMany()
                 .HasForeignKey(l => l.CourseId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK_Labs_Courses_CourseId");
         }
     }
 }
