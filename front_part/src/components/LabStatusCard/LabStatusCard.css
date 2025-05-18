@@ -1,0 +1,114 @@
+.lab-status-card {
+    width: 360px;
+    border: 2px solid #d9534f;
+    border-radius: 12px;
+    padding: 10px 10px;
+    font-family: 'Arial', sans-serif;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 16px;
+    box-sizing: border-box;
+}
+
+.lab-name {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1c1c1c;
+    margin-bottom: 8px;
+}
+
+.lab-status-card-info {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.lab-info-row {
+    display: flex;
+    align-items: baseline;
+    font-size: 16px;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.lab-buttons {
+    display: flex;
+    gap: 12px;
+    margin-top: 12px;
+}
+
+.downoload-button,
+.sign-button {
+    padding: 8px 16px;
+    border-radius: 20px;
+    border: none;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+    white-space: nowrap;
+    min-width: 160px;
+    text-align: center;
+    box-sizing: border-box;
+
+}
+
+.downoload-button {
+    background-color: #1c1c1c;
+    color: white;
+}
+
+.sign-button {
+    background-color: #D24949;
+    color: white;
+}
+
+.sign-button.status-approved,
+.sign-button.status-approved-after-deadline {
+    background-color: #757575;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.lab-status-card.status-approved {
+    border: 2px solid #28a745;
+}
+
+.lab-status-card.status-rejected {
+    border: 2px solid #dc3545;
+}
+
+.lab-status-card.status-needs-revision {
+    border: 2px solid #fd7e14;
+}
+
+.lab-status-card.status-in-progress,
+.lab-status-card.status-not-signed {
+    border: 2px solid #ccc;
+}
+
+.lab-status-card.status-approved-after-deadline {
+    border: 2px solid #ffc107;
+}
+
+.row-info.status-approved {
+    color: #28a745;
+}
+
+.row-info.status-rejected {
+    color: #dc3545;
+}
+
+.row-info.status-needs-revision {
+    color: #fd7e14;
+}
+
+.row-info.status-in-progress,
+.row-info.status-not-signed {
+    color: #6c757d;
+}
+
+.row-info.status-approved-after-deadline {
+    color: #ffc107;
+}
