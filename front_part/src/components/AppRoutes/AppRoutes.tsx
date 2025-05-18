@@ -13,9 +13,12 @@ function AppRoutes() {
             {/* Доступно всем */}
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
-            <Route path="/" element={<Home />} />
+            <Route path="/student-profile" element={<StudentProfile />} />
+            <Route path="/courses" element={<CoursesOfStudent />} />
+            <Route path="/courses/:courseId" element={<SignUpForLaboratoryWorkPage />} />
+            <Route path="/courses/:courseId/notifications" element={<StudentCoursePerformance />} />
 
-            {/* Защищённые маршруты */}
+            {/* Защищённые маршруты
             <Route
                 path="/student-profile"
                 element={
@@ -47,7 +50,7 @@ function AppRoutes() {
                         <StudentCoursePerformance />
                     </ProtectedRoute>
                 }
-            />
+            /> */}
         </Routes>
     )
 }

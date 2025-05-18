@@ -13,7 +13,7 @@ const EditProfile: React.FC<EditProfileProps> = ({ onSave, onClose }) => {
     const [newPassword, setNewPassword] = useState('');
 
     useEffect(() => {
-        fetch('http://localhost:3001/users/2')
+        fetch('http://localhost:5272/api/v1/users/me')
             .then((res) => res.json())
             .then((data) => {
                 setFirstName(data.firstName);
@@ -37,7 +37,7 @@ const EditProfile: React.FC<EditProfileProps> = ({ onSave, onClose }) => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault(); // предотвратить перезагрузку страницы
         try {
-            const res = await fetch('http://localhost:3001/users/2', {
+            const res = await fetch('http://localhost:5272/api/v1/users/me', {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
