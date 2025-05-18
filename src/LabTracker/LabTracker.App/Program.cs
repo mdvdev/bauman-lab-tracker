@@ -33,6 +33,7 @@ using LabTracker.Submissions.Web;
 using LabTracker.User.Abstractions.Repositories;
 using LabTracker.User.Abstractions.Services;
 using LabTracker.Users.Domain;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -69,7 +70,23 @@ builder.Services.AddProblemDetails(options =>
     options.MapToStatusCode<Exception>(StatusCodes.Status500InternalServerError);
 });
 
-builder.Services.AddAuthentication();
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.Events = new CookieAuthenticationEvents
+        {
+            OnRedirectToLogin = ctx =>
+            {
+                ctx.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                return Task.CompletedTask;
+            },
+            OnRedirectToAccessDenied = ctx =>
+            {
+                ctx.Response.StatusCode = StatusCodes.Status403Forbidden;
+                return Task.CompletedTask;
+            }
+        };
+    });
 
 builder.Services.AddAuthorization(options =>
 {
@@ -116,6 +133,31 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services
     .AddIdentity<UserEntity, IdentityRole<Guid>>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
+
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.Events.OnRedirectToLogin = context =>
+    {
+        if (context.Request.Path.StartsWithSegments("/api"))
+        {
+            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+            return Task.CompletedTask;
+        }
+        context.Response.Redirect(context.RedirectUri);
+        return Task.CompletedTask;
+    };
+
+    options.Events.OnRedirectToAccessDenied = context =>
+    {
+        if (context.Request.Path.StartsWithSegments("/api"))
+        {
+            context.Response.StatusCode = StatusCodes.Status403Forbidden;
+            return Task.CompletedTask;
+        }
+        context.Response.Redirect(context.RedirectUri);
+        return Task.CompletedTask;
+    };
+});
 
 builder.Services.AddControllers()
     .AddApplicationPart(typeof(AuthController).Assembly)
@@ -178,11 +220,9 @@ app.UseStaticFiles();
 
 app.UseProblemDetails();
 app.UseRouting();
-app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
-
 app.UseMiddleware<CurrentUserMiddleware>();
 
 var staticFilesPath = Path.Combine(builder.Environment.ContentRootPath, "StaticFiles");
