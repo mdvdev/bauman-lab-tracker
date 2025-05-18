@@ -115,6 +115,14 @@ builder.Services.AddAuthorization(options =>
         .Build();
 });
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowLocalhost5174",
+        builder => builder.WithOrigins("http://localhost:5174")
+            .AllowAnyHeader()
+            .AllowAnyMethod());
+});
+
 builder.Services.Configure<IdentityOptions>(options =>
 {
     options.Password.RequireDigit = true;
@@ -224,6 +232,8 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseMiddleware<CurrentUserMiddleware>();
+
+app.UseCors("AllowLocalhost5174");
 
 var staticFilesPath = Path.Combine(builder.Environment.ContentRootPath, "StaticFiles");
 
