@@ -1,18 +1,18 @@
-using LabTracker.Domain.Entities;
+using LabTracker.Infrastructure.Persistence.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace LabTracker.Infrastructure.Persistence.EntityConfigurations;
 
-public class SubmissionConfiguration : IEntityTypeConfiguration<Submission>
+public class SubmissionConfiguration : IEntityTypeConfiguration<SubmissionEntity>
 {
-    public void Configure(EntityTypeBuilder<Submission> builder)
+    public void Configure(EntityTypeBuilder<SubmissionEntity> builder)
     {
         builder.ToTable("Submissions");
-        
+
         builder.HasKey(s => s.Id);
 
-        builder.Property(s => s.Status)
+        builder.Property(s => s.SubmissionStatus)
             .IsRequired()
             .HasConversion<string>();
 

@@ -12,7 +12,7 @@ namespace LabTracker.Infrastructure.Persistence.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "Slots",
+                name: "LabTracker.Slots",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -34,19 +34,19 @@ namespace LabTracker.Infrastructure.Persistence.Migrations
                     table.ForeignKey(
                         name: "FK_Slots_Courses_CourseId",
                         column: x => x.CourseId,
-                        principalTable: "Courses",
+                        principalTable: "LabTracker.Courses",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Slots_CourseId",
-                table: "Slots",
+                table: "LabTracker.Slots",
                 column: "CourseId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Slots_TeacherId",
-                table: "Slots",
+                table: "LabTracker.Slots",
                 column: "TeacherId");
         }
 
@@ -54,7 +54,7 @@ namespace LabTracker.Infrastructure.Persistence.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "Slots");
+                name: "LabTracker.Slots");
         }
     }
 }

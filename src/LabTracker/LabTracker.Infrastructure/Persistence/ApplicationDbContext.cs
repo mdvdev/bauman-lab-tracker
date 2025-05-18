@@ -12,8 +12,7 @@ public class ApplicationDbContext : IdentityDbContext<UserEntity, IdentityRole<G
     public DbSet<LabEntity> Labs { get; set; }
     public DbSet<NotificationEntity> Notifications { get; set; }
     public DbSet<SubmissionEntity> Submissions { get; set; }
-    public DbSet<SubmissionEntity> Slots { get; set; }
-
+    public DbSet<SlotEntity> Slots { get; set; }
 
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options)

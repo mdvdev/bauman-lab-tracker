@@ -7,8 +7,18 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\LabTracker.Application\LabTracker.Application.csproj" />
-      <ProjectReference Include="..\LabTracker.Domain\LabTracker.Domain.csproj" />
+      <ProjectReference Include="..\LabTracker.CourseMembers.Abstractions\LabTracker.CourseMembers.Abstractions.csproj" />
+      <ProjectReference Include="..\LabTracker.Courses.Abstractions\LabTracker.Courses.Abstractions.csproj" />
+      <ProjectReference Include="..\LabTracker.Courses.Domain\LabTracker.Courses.Domain.csproj" />
+      <ProjectReference Include="..\LabTracker.Labs.Abstractions\LabTracker.Labs.Abstractions.csproj" />
+      <ProjectReference Include="..\LabTracker.Labs.Domain\LabTracker.Labs.Domain.csproj" />
+      <ProjectReference Include="..\LabTracker.Notifications.Abstractions\LabTracker.Notifications.Abstractions.csproj" />
+      <ProjectReference Include="..\LabTracker.Notifications.Domain\LabTracker.Notifications.Domain.csproj" />
+      <ProjectReference Include="..\LabTracker.Slots.Abstractions\LabTracker.Slots.Abstractions.csproj" />
+      <ProjectReference Include="..\LabTracker.Slots.Domain\LabTracker.Slots.Domain.csproj" />
+      <ProjectReference Include="..\LabTracker.Submissions.Abstractions\LabTracker.Submissions.Abstractions.csproj" />
+      <ProjectReference Include="..\LabTracker.Users.Domain\LabTracker.Users.Domain.csproj" />
+      <ProjectReference Include="..\LabTracker.Users\LabTracker.Users.csproj" />
     </ItemGroup>
 
     <ItemGroup>

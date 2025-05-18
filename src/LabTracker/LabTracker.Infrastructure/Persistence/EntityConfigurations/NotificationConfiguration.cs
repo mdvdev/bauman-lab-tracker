@@ -1,15 +1,15 @@
-using LabTracker.Domain.Entities;
+using LabTracker.Infrastructure.Persistence.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace LabTracker.Infrastructure.Persistence.EntityConfigurations;
 
-public class NotificationConfiguration : IEntityTypeConfiguration<Notification>
+public class NotificationConfiguration : IEntityTypeConfiguration<NotificationEntity>
 {
-    public void Configure(EntityTypeBuilder<Notification> builder)
+    public void Configure(EntityTypeBuilder<NotificationEntity> builder)
     {
         builder.ToTable("Notifications");
-        
+
         builder.HasKey(n => n.Id);
 
         builder.Property(n => n.Title)
@@ -29,13 +29,12 @@ public class NotificationConfiguration : IEntityTypeConfiguration<Notification>
 
         builder.Property(n => n.CreatedAt)
             .IsRequired();
-        
+
         builder.HasOne(n => n.User)
-            .WithMany() 
+            .WithMany()
             .HasForeignKey(n => n.UserId)
             .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasIndex(n => n.UserId);
-        
     }
 }

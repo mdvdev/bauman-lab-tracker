@@ -12,7 +12,7 @@ namespace LabTracker.Infrastructure.Persistence.Migrations
         {
             migrationBuilder.AlterColumn<string>(
                 name: "QueueMode",
-                table: "Courses",
+                table: "LabTracker.Courses",
                 type: "text",
                 nullable: false,
                 oldClrType: typeof(int),
@@ -24,7 +24,7 @@ namespace LabTracker.Infrastructure.Persistence.Migrations
         {
             migrationBuilder.AlterColumn<int>(
                 name: "QueueMode",
-                table: "Courses",
+                table: "LabTracker.Courses",
                 type: "integer",
                 nullable: false,
                 oldClrType: typeof(string),

@@ -1,9 +1,7 @@
-using LabTracker.Application.Contracts;
-using LabTracker.Domain.Entities;
 using LabTracker.Infrastructure.Persistence.Entities;
+using LabTracker.Notifications.Abstractions.Repositories;
+using LabTracker.Notifications.Domain;
 using Microsoft.EntityFrameworkCore;
-using System.Linq;
-using System.Linq.Expressions;
 
 namespace LabTracker.Infrastructure.Persistence.Repositories;
 
@@ -18,73 +16,44 @@ public class NotificationRepository : INotificationRepository
 
     public async Task<Notification?> GetByIdAsync(Guid id)
     {
-        var entity = await _context.Notifications
-            .Include(n => n.User)
-            .FirstOrDefaultAsync(n => n.Id == id);
-
-        if (entity is null)
-            return null;
-
-        var userRoles = entity.User is not null 
-            ? await _context.UserRoles
-                .Where(ur => ur.UserId == entity.User.Id)
-                .Join(_context.Roles,
-                    ur => ur.RoleId,
-                    r => r.Id,
-                    (ur, r) => r.Name)
-                .ToListAsync()
-            : Enumerable.Empty<string>();
-
-        return NotificationEntity.ToDomain(entity, userRoles);
+        var entity = await _context.Notifications.FindAsync(id);
+        return entity?.ToDomain();
     }
 
     public async Task<IEnumerable<Notification>> GetAllAsync()
     {
-        var entities = await _context.Notifications
-            .Include(n => n.User)
-            .ToListAsync();
-
-        var userIds = entities.Where(e => e.User is not null).Select(e => e.User.Id).Distinct();
-        var userRoles = await _context.UserRoles
-            .Where(ur => userIds.Contains(ur.UserId))
-            .Join(_context.Roles,
-                ur => ur.RoleId,
-                r => r.Id,
-                (ur, r) => new { ur.UserId, RoleName = r.Name })
-            .ToListAsync();
-
-        return entities.Select(entity => 
-        {
-            var roles = userRoles
-                .Where(ur => ur.UserId == entity.User?.Id)
-                .Select(ur => ur.RoleName);
-            return NotificationEntity.ToDomain(entity, roles);
-        });
+        var entities = await _context.Notifications.ToListAsync();
+        return entities.Select(e => e.ToDomain());
     }
 
     public async Task<Notification> CreateAsync(Notification notification)
     {
-        var entity = NotificationEntity.FromDomain(notification);
-        await _context.Notifications.AddAsync(entity);
-        await _context.SaveChangesAsync();
+        if (await _context.Notifications.FindAsync(notification.Id) is null)
+        {
+            await _context.Notifications.AddAsync(NotificationEntity.FromDomain(notification));
+            await _context.SaveChangesAsync();
+        }
+
         return notification;
     }
 
     public async Task<Notification> UpdateAsync(Notification notification)
     {
         var entity = await _context.Notifications.FindAsync(notification.Id);
-        if (entity is not null)
-        {
-            entity.Title = notification.Title;
-            entity.Message = notification.Message;
-            entity.Type = notification.Type.ToString();
-            entity.IsRead = notification.IsRead;
-            entity.ReadAt = notification.ReadAt;
-            entity.RelatedEntityId = notification.RelatedEntityId;
-            entity.RelatedEntityType = notification.RelatedEntityType;
-            
-            await _context.SaveChangesAsync();
-        }
+
+        if (entity is null) return await CreateAsync(notification);
+
+        entity.Title = notification.Title;
+        entity.Message = notification.Message;
+        entity.Type = notification.Type;
+        entity.IsRead = notification.IsRead;
+        entity.ReadAt = notification.ReadAt;
+        entity.RelatedEntityId = notification.RelatedEntityId;
+        entity.RelatedEntityType = notification.RelatedEntityType;
+
+        _context.Notifications.Update(entity);
+        await _context.SaveChangesAsync();
+
         return notification;
     }
 
@@ -105,10 +74,11 @@ public class NotificationRepository : INotificationRepository
         await _context.SaveChangesAsync();
     }
 
+    // TODO: Refactor.
     public async Task<(IEnumerable<Notification> Items, int TotalCount, int UnreadCount)> GetUserNotificationsAsync(
-        Guid userId, 
-        int limit, 
-        int offset, 
+        Guid userId,
+        int limit,
+        int offset,
         bool unreadOnly)
     {
         var query = _context.Notifications
@@ -131,16 +101,8 @@ public class NotificationRepository : INotificationRepository
             .Take(limit)
             .ToListAsync();
 
-        var userRoles = await _context.UserRoles
-            .Where(ur => ur.UserId == userId)
-            .Join(_context.Roles,
-                ur => ur.RoleId,
-                r => r.Id,
-                (ur, r) => r.Name)
-            .ToListAsync();
+        var items = entities.Select(e => e.ToDomain());
 
-        var items = entities.Select(e => NotificationEntity.ToDomain(e, userRoles));
-        
         return (items, totalCount, unreadCount);
     }
 
@@ -165,12 +127,12 @@ public class NotificationRepository : INotificationRepository
     private async Task UpdateNotificationsAsReadAsync(List<NotificationEntity> notifications)
     {
         var now = DateTimeOffset.UtcNow;
-        notifications.ForEach(n => 
+        notifications.ForEach(n =>
         {
             n.IsRead = true;
             n.ReadAt = now;
         });
-    
+
         await _context.SaveChangesAsync();
     }
 }

@@ -1,48 +1,39 @@
-using System.ComponentModel.DataAnnotations;
-using LabTracker.Domain.Entities;
-using LabTracker.Domain.ValueObjects;
+using LabTracker.Users.Domain;
 using Microsoft.AspNetCore.Identity;
 
 namespace LabTracker.Infrastructure.Persistence.Entities;
 
 public class UserEntity : IdentityUser<Guid>
 {
-    public required string FirstName { get; set; }
-    public required string LastName { get; set; }
-    public required string Patronymic { get; set; }
-
-    [MaxLength(50)]
+    public string FirstName { get; set; }
+    public string LastName { get; set; }
+    public string Patronymic { get; set; }
     public string? TelegramUsername { get; set; }
-
     public DateTimeOffset CreatedAt { get; init; } = DateTimeOffset.UtcNow;
-
-    [MaxLength(500)]
     public string? PhotoUri { get; set; }
 
-    public User ToDomain(IEnumerable<string> roles)
+    public Users.Domain.User ToDomain(IEnumerable<string> roles)
     {
-        return new User
-        {
-            Id = Id,
-            FirstName = new Name(FirstName),
-            LastName = new Name(LastName),
-            Patronymic = new Name(Patronymic),
-            TelegramUsername = TelegramUsername,
-            CreatedAt = CreatedAt,
-            Email = Email,
-            Roles = roles.Select(Enum.Parse<Role>).ToList(),
-            PhotoUri = PhotoUri
-        };
+        return Users.Domain.User.Restore(
+            id: Id,
+            firstName: FirstName,
+            lastName: LastName,
+            patronymic: Patronymic,
+            roles: roles.Select(Enum.Parse<Role>).ToList(),
+            email: Email,
+            telegramUsername: TelegramUsername,
+            createdAt: CreatedAt,
+            photoUri: PhotoUri);
     }
 
-    public static UserEntity FromDomain(User user)
+    public static UserEntity FromDomain(Users.Domain.User user)
     {
         return new UserEntity
         {
             Id = user.Id,
-            FirstName = user.FirstName.Value,
-            LastName = user.LastName.Value,
-            Patronymic = user.Patronymic.Value,
+            FirstName = user.FirstName,
+            LastName = user.LastName,
+            Patronymic = user.Patronymic,
             TelegramUsername = user.TelegramUsername,
             CreatedAt = user.CreatedAt,
             Email = user.Email,

@@ -1,23 +1,22 @@
-using LabTracker.Domain.Entities;
+using LabTracker.Infrastructure.Persistence.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace LabTracker.Infrastructure.Persistence.EntityConfigurations
 {
-    public class LabConfiguration : IEntityTypeConfiguration<Lab>
+    public class LabConfiguration : IEntityTypeConfiguration<LabEntity>
     {
-        public void Configure(EntityTypeBuilder<Lab> builder)
+        public void Configure(EntityTypeBuilder<LabEntity> builder)
         {
             builder.ToTable("Labs");
-            
+
             builder.HasKey(l => l.Id);
 
             builder.Property(l => l.Name)
                 .IsRequired()
                 .HasMaxLength(200);
 
-            builder.Property(l => l.Description)
-                .IsRequired()
+            builder.Property(l => l.DescriptionUri)
                 .HasMaxLength(1000);
 
             builder.Property(l => l.Deadline)
@@ -28,9 +27,9 @@ namespace LabTracker.Infrastructure.Persistence.EntityConfigurations
 
             builder.Property(l => l.ScoreAfterDeadline)
                 .IsRequired();
-            
+
             builder.HasOne(l => l.Course)
-                .WithMany() 
+                .WithMany()
                 .HasForeignKey(l => l.CourseId)
                 .OnDelete(DeleteBehavior.Cascade);
         }

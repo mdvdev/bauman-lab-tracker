@@ -9,7 +9,7 @@ public class CourseConfiguration : IEntityTypeConfiguration<CourseEntity>
     public void Configure(EntityTypeBuilder<CourseEntity> builder)
     {
         builder.ToTable("Courses");
-        
+
         builder.HasKey(c => c.Id);
 
         builder.Property(c => c.Name)
@@ -23,7 +23,7 @@ public class CourseConfiguration : IEntityTypeConfiguration<CourseEntity>
         builder.Property(c => c.QueueMode)
             .HasConversion<string>()
             .IsRequired();
-        
+
         builder.Property(c => c.CreatedAt)
             .IsRequired()
             .HasDefaultValueSql("CURRENT_TIMESTAMP");

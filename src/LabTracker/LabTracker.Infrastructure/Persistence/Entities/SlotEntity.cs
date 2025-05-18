@@ -1,30 +1,28 @@
-using LabTracker.Domain.Entities;
+using LabTracker.Slots.Domain;
 
 namespace LabTracker.Infrastructure.Persistence.Entities;
 
 public class SlotEntity
 {
-    public required Guid Id { get; set; }
-    public required Guid CourseId { get; set; }
-    public required Guid TeacherId { get; set; }
-    public required DateTimeOffset StartTime { get; set; }
-    public required DateTimeOffset EndTime { get; set; }
-    public required int MaxStudents { get; set; }
+    public Guid Id { get; set; }
+    public Guid CourseId { get; set; }
+    public Guid TeacherId { get; set; }
+    public DateTimeOffset StartTime { get; set; }
+    public DateTimeOffset EndTime { get; set; }
+    public int MaxStudents { get; set; }
 
     public CourseEntity Course { get; init; }
     public UserEntity Teacher { get; init; }
 
     public Slot ToDomain()
     {
-        return new Slot
-        {
-            Id = Id,
-            CourseId = CourseId,
-            TeacherId = TeacherId,
-            StartTime = StartTime,
-            EndTime = EndTime,
-            MaxStudents = MaxStudents
-        };
+        return Slot.Restore(
+            id: Id,
+            courseId: CourseId,
+            teacherId: TeacherId,
+            startTime: StartTime,
+            endTime: EndTime,
+            maxStudents: MaxStudents);
     }
 
     public static SlotEntity FromDomain(Slot slot)

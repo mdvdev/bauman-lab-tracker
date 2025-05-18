@@ -1,6 +1,5 @@
-using LabTracker.Application.Abstractions;
-using LabTracker.Domain.Entities;
 using LabTracker.Infrastructure.Persistence.Entities;
+using LabTracker.User.Abstractions.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,16 +14,16 @@ public class UserRepository : IUserRepository
         _userManager = userManager;
     }
 
-    public async Task<User?> GetByIdAsync(Guid key)
+    public async Task<Users.Domain.User?> GetByIdAsync(Guid labId)
     {
-        var entity = await _userManager.FindByIdAsync(key.ToString());
+        var entity = await _userManager.FindByIdAsync(labId.ToString());
         return entity?.ToDomain(await _userManager.GetRolesAsync(entity));
     }
 
-    public async Task<IEnumerable<User>> GetAllAsync()
+    public async Task<IEnumerable<Users.Domain.User>> GetAllAsync()
     {
         var users = await _userManager.Users.ToListAsync();
-        var result = new List<User>();
+        var result = new List<Users.Domain.User>();
         foreach (var user in users)
         {
             var roles = await _userManager.GetRolesAsync(user);
@@ -34,7 +33,7 @@ public class UserRepository : IUserRepository
         return result;
     }
 
-    public async Task<User> CreateAsync(User user)
+    public async Task<Users.Domain.User> CreateAsync(Users.Domain.User user)
     {
         if (await _userManager.FindByIdAsync(user.Id.ToString()) is null)
             await _userManager.CreateAsync(UserEntity.FromDomain(user));
@@ -42,15 +41,15 @@ public class UserRepository : IUserRepository
         return user;
     }
 
-    public async Task<User> UpdateAsync(User user)
+    public async Task<Users.Domain.User> UpdateAsync(Users.Domain.User user)
     {
         var entity = await _userManager.FindByIdAsync(user.Id.ToString());
 
         if (entity is null) return await CreateAsync(user);
 
-        entity.FirstName = user.FirstName.Value;
-        entity.LastName = user.LastName.Value;
-        entity.Patronymic = user.Patronymic.Value;
+        entity.FirstName = user.FirstName;
+        entity.LastName = user.LastName;
+        entity.Patronymic = user.Patronymic;
         entity.Email = user.Email;
         entity.PhotoUri = user.PhotoUri;
         entity.TelegramUsername = user.TelegramUsername;

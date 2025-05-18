@@ -53,7 +53,7 @@ namespace LabTracker.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Courses", (string)null);
+                    b.ToTable("LabTracker.Courses", (string)null);
                 });
 
             modelBuilder.Entity("LabTracker.Infrastructure.Persistence.Entities.CourseMemberEntity", b =>
@@ -106,7 +106,7 @@ namespace LabTracker.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("TeacherId");
 
-                    b.ToTable("Slots", (string)null);
+                    b.ToTable("LabTracker.Slots", (string)null);
                 });
 
             modelBuilder.Entity("LabTracker.Infrastructure.Persistence.Entities.UserEntity", b =>

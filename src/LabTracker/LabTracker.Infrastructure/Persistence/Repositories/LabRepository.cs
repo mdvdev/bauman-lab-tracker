@@ -1,84 +1,74 @@
-using LabTracker.Application.Contracts;
-using LabTracker.Domain.Entities;
 using LabTracker.Infrastructure.Persistence.Entities;
+using LabTracker.Labs.Abstractions.Repositories;
+using LabTracker.Labs.Domain;
 using Microsoft.EntityFrameworkCore;
 
-namespace LabTracker.Infrastructure.Persistence.Repositories
+namespace LabTracker.Infrastructure.Persistence.Repositories;
+
+public class LabRepository : ILabRepository
 {
-    public class LabRepository : ILabRepository
+    private readonly ApplicationDbContext _context;
+
+    public LabRepository(ApplicationDbContext context)
     {
-        private readonly ApplicationDbContext _context;
+        _context = context;
+    }
 
-        public LabRepository(ApplicationDbContext context)
+    public async Task<Lab?> GetByIdAsync(Guid labId)
+    {
+        var entity = await _context.Labs.FindAsync(labId);
+        return entity?.ToDomain();
+    }
+
+    public async Task<IEnumerable<Lab>> GetAllAsync()
+    {
+        var entities = await _context.Labs.ToListAsync();
+        return entities.Select(e => e.ToDomain());
+    }
+
+    public async Task<IEnumerable<Lab>> GetByCourseIdAsync(Guid courseId)
+    {
+        var entities = await _context.Labs.Where(l => l.CourseId == courseId).ToListAsync();
+        return entities.Select(e => e.ToDomain());
+    }
+
+    public async Task<Lab> CreateAsync(Lab lab)
+    {
+        if (await _context.Labs.FindAsync(lab.Id) is null)
         {
-            _context = context;
-        }
-
-        public async Task<Lab?> GetByIdAsync(Guid id)
-        {
-            var entity = await _context.Labs
-                .Include(l => l.Course)
-                .FirstOrDefaultAsync(l => l.Id == id);
-
-            return entity?.ToDomain();
-        }
-
-        public async Task<IEnumerable<Lab>> GetAllAsync()
-        {
-            var entities = await _context.Labs
-                .Include(l => l.Course)
-                .ToListAsync();
-
-            return entities.Select(e => e.ToDomain());
-        }
-
-        public async Task<IEnumerable<Lab>> GetByCourseIdAsync(Guid courseId)
-        {
-            var entities = await _context.Labs
-                .Include(l => l.Course)
-                .Where(l => l.CourseId == courseId)
-                .ToListAsync();
-
-            return entities.Select(e => e.ToDomain());
-        }
-
-        public async Task<Lab> CreateAsync(Lab lab)
-        {
-            var entity = LabEntity.FromDomain(lab);
-            await _context.Labs.AddAsync(entity);
+            await _context.Labs.AddAsync(LabEntity.FromDomain(lab));
             await _context.SaveChangesAsync();
-            return lab;
         }
 
-        public async Task<Lab> UpdateAsync(Lab lab)
-        {
-            var entity = await _context.Labs.FindAsync(lab.Id);
-            if (entity != null)
-            {
-                entity.Name = lab.Name;
-                entity.Description = lab.Description;
-                entity.Deadline = lab.Deadline;
-                entity.Score = lab.Score;
-                entity.ScoreAfterDeadline = lab.ScoreAfterDeadline;
-                
-                if (lab.Course is not null && (entity.Course is null || entity.Course.Id != lab.Course.Id))
-                {
-                    entity.Course = await _context.Courses.FindAsync(lab.Course.Id);
-                }
+        return lab;
+    }
 
-                await _context.SaveChangesAsync();
-            }
-            return lab;
-        }
+    public async Task<Lab> UpdateAsync(Lab lab)
+    {
+        var entity = await _context.Labs.FindAsync(lab.Id);
 
-        public async Task DeleteAsync(Guid id)
+        if (entity is null) return await CreateAsync(lab);
+
+        entity.CourseId = lab.CourseId;
+        entity.Name = lab.Name;
+        entity.DescriptionUri = lab.DescriptionUri;
+        entity.Deadline = lab.Deadline;
+        entity.Score = lab.Score;
+        entity.ScoreAfterDeadline = lab.ScoreAfterDeadline;
+
+        _context.Labs.Update(entity);
+        await _context.SaveChangesAsync();
+
+        return lab;
+    }
+
+    public async Task DeleteAsync(Guid id)
+    {
+        var entity = await _context.Labs.FindAsync(id);
+        if (entity is not null)
         {
-            var entity = await _context.Labs.FindAsync(id);
-            if (entity is not null)
-            {
-                _context.Labs.Remove(entity);
-                await _context.SaveChangesAsync();
-            }
+            _context.Labs.Remove(entity);
+            await _context.SaveChangesAsync();
         }
     }
 }

@@ -1,5 +1,5 @@
-using LabTracker.Application.Abstractions;
-using LabTracker.Domain.Entities;
+using LabTracker.Courses.Abstractions.Repositories;
+using LabTracker.Courses.Domain;
 using LabTracker.Infrastructure.Persistence.Entities;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,9 +14,9 @@ public class CourseRepository : ICourseRepository
         _context = context;
     }
 
-    public async Task<Course?> GetByIdAsync(Guid id)
+    public async Task<Course?> GetByIdAsync(Guid labId)
     {
-        var entity = await _context.Courses.FindAsync(id);
+        var entity = await _context.Courses.FindAsync(labId);
         return entity?.ToDomain();
     }
 
@@ -37,12 +37,12 @@ public class CourseRepository : ICourseRepository
         return course;
     }
 
-    public async Task<Course?> UpdateAsync(Course course)
+    public async Task<Course> UpdateAsync(Course course)
     {
         var entity = await _context.Courses.FindAsync(course.Id);
-        if (entity is null) return null;
+        if (entity is null) return await CreateAsync(course);
 
-        entity.Name = course.Name.Value;
+        entity.Name = course.Name;
         entity.Description = course.Description;
         entity.QueueMode = course.QueueMode;
         entity.PhotoUri = course.PhotoUri;
@@ -55,11 +55,41 @@ public class CourseRepository : ICourseRepository
 
     public async Task DeleteAsync(Guid id)
     {
-        var course = await _context.Courses.FindAsync(id);
-        if (course is not null)
+        var entity = await _context.Courses.FindAsync(id);
+        if (entity is not null)
         {
-            _context.Courses.Remove(course);
+            _context.Courses.Remove(entity);
             await _context.SaveChangesAsync();
         }
+    }
+    
+    /// <summary>
+    /// Retrieves all courses where the specified user is a member.
+    /// Ensures referential integrity by validating existence of each course associated with the user.
+    /// </summary>
+    /// <param name="userId">The ID of the user whose courses should be retrieved.</param>
+    /// <returns>A collection of <see cref="Course"/> instances the user is a member of.</returns>
+    /// <exception cref="InvalidOperationException">
+    /// Thrown when a course referenced by a membership does not exist in the database,
+    /// indicating potential referential integrity violation.
+    /// </exception>
+    public async Task<IEnumerable<Course>> GetCoursesByUserIdAsync(Guid userId)
+    {
+        var courseMemberEntities = await _context.CourseMembers
+            .Where(cm => cm.MemberId == userId)
+            .ToListAsync();
+
+        var result = new List<Course>();
+        
+        foreach (var entity in courseMemberEntities)
+        {
+            var course = await GetByIdAsync(entity.CourseId);
+            if (course is null)
+                throw new InvalidOperationException(
+                    $"Course with ID {entity.CourseId} was not found.");
+            result.Add(course);
+        }
+
+        return result;
     }
 }

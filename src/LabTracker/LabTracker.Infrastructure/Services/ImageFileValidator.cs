@@ -1,5 +1,5 @@
-using LabTracker.Infrastructure.Abstractions;
 using LabTracker.Infrastructure.Helpers;
+using LabTracker.Shared.Contracts;
 using MimeKit;
 
 namespace LabTracker.Infrastructure.Services;

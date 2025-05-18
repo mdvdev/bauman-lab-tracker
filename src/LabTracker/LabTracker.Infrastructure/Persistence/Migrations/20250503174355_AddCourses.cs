@@ -26,7 +26,7 @@ namespace LabTracker.Infrastructure.Persistence.Migrations
                 oldMaxLength: 256);
 
             migrationBuilder.CreateTable(
-                name: "Courses",
+                name: "LabTracker.Courses",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -61,7 +61,7 @@ namespace LabTracker.Infrastructure.Persistence.Migrations
                     table.ForeignKey(
                         name: "FK_CourseMembers_Courses_CourseId",
                         column: x => x.CourseId,
-                        principalTable: "Courses",
+                        principalTable: "LabTracker.Courses",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -79,7 +79,7 @@ namespace LabTracker.Infrastructure.Persistence.Migrations
                 name: "CourseMembers");
 
             migrationBuilder.DropTable(
-                name: "Courses");
+                name: "LabTracker.Courses");
 
             migrationBuilder.AlterColumn<string>(
                 name: "Email",

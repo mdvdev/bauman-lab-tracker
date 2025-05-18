@@ -1,4 +1,4 @@
-using LabTracker.Domain.ValueObjects;
+using LabTracker.Users.Domain;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 

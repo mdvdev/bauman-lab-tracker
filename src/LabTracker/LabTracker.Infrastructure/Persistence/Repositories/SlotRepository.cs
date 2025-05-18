@@ -1,6 +1,6 @@
-using LabTracker.Application.Abstractions;
-using LabTracker.Domain.Entities;
 using LabTracker.Infrastructure.Persistence.Entities;
+using LabTracker.Slots.Abstractions.Repositories;
+using LabTracker.Slots.Domain;
 using Microsoft.EntityFrameworkCore;
 
 namespace LabTracker.Infrastructure.Persistence.Repositories;
@@ -14,9 +14,9 @@ public class SlotRepository : ISlotRepository
         _context = context;
     }
 
-    public async Task<Slot?> GetByIdAsync(Guid key)
+    public async Task<Slot?> GetByIdAsync(Guid labId)
     {
-        var entity = await _context.Slots.FindAsync(key);
+        var entity = await _context.Slots.FindAsync(labId);
         return entity?.ToDomain();
     }
 
@@ -72,7 +72,7 @@ public class SlotRepository : ISlotRepository
         );
     }
 
-    public async Task<IEnumerable<Slot>> GetAllCourseSlotsAsync(Guid courseId)
+    public async Task<IEnumerable<Slot>> GetCourseSlotsAsync(Guid courseId)
     {
         return await _context.Slots
             .Where(s => s.CourseId == courseId)
