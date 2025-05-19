@@ -1,0 +1,27 @@
+.add-course-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+    max-width: 400px;
+}
+
+.add-course-form label {
+    display: flex;
+    flex-direction: column;
+    font-weight: 500;
+    color: #333;
+}
+
+
+.add-course-form input {
+    padding: 8px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    margin-top: 4px;
+}
+
+.add-course-form select {
+    font-size: 30px;
+    margin-top: 4px;
+}

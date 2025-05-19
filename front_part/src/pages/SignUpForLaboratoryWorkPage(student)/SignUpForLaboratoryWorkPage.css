@@ -1,0 +1,16 @@
+.course-detail {
+    display: flex;
+    flex-direction: column;
+    padding-left: 30px;
+}
+
+.course-title {
+    padding: 0;
+}
+
+.course-slots {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+
+}
