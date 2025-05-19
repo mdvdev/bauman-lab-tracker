@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Courses.Web.Dtos;
 using LabTracker.CourseMembers.Abstractions.Services;
 using LabTracker.CourseMembers.Domain;
