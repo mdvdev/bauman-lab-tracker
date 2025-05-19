@@ -227,8 +227,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.UseMiddleware<CurrentUserMiddleware>();
 
-app.UseCors("AllowLocalhost5174");
-
 var staticFilesPath = Path.Combine(builder.Environment.ContentRootPath, "StaticFiles");
 
 if (!Directory.Exists(staticFilesPath))
