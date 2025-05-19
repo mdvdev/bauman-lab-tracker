@@ -89,6 +89,9 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy(nameof(Role.Administrator), policy => policy.RequireRole(nameof(Role.Administrator)));
+    options.AddPolicy(nameof(Role.Administrator), policy => { policy.RequireRole(nameof(Role.Administrator)); });
+    
+    options.AddPolicy(nameof(Role.Teacher), policy => { policy.RequireRole(nameof(Role.Teacher)); });
 
     options.AddPolicy("TeacherOrAdmin", policy =>
         policy.RequireRole(nameof(Role.Teacher), nameof(Role.Administrator)));
@@ -113,7 +116,7 @@ builder.Services.AddAuthorization(options =>
         .Build();
 });
 
-// CORS
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
@@ -124,7 +127,6 @@ builder.Services.AddCors(options =>
     });
 });
 
-// Identity options
 builder.Services.Configure<IdentityOptions>(options =>
 {
     options.Password.RequireDigit = true;
@@ -232,7 +234,15 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
-// Static files dir
+app.UseStaticFiles();
+
+app.UseProblemDetails();
+app.UseRouting();
+
+app.UseAuthentication();
+app.UseAuthorization();
+app.UseMiddleware<CurrentUserMiddleware>();
+
 var staticFilesPath = Path.Combine(builder.Environment.ContentRootPath, "StaticFiles");
 if (!Directory.Exists(staticFilesPath))
 {
@@ -243,7 +253,7 @@ if (!Directory.Exists(staticFilesPath))
 app.UseProblemDetails();
 app.UseRouting();
 
-app.UseCors("AllowAll"); // ✅ Важно: раньше UseAuthentication
+app.UseCors("AllowAll"); 
 
 app.UseAuthentication();
 app.UseAuthorization();
