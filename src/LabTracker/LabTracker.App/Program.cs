@@ -97,8 +97,7 @@ builder.Services.AddAuthorization(options =>
 
     options.AddPolicy("CourseMemberOnly", policy =>
         policy.Requirements.Add(new CourseMemberRequirement()));
-
-    options.AddPolicy("TeacherAndCourseMember", policy =>
+        options.AddPolicy("TeacherAndCourseMember", policy =>
     {
         policy.RequireRole(nameof(Role.Teacher));
         policy.Requirements.Add(new CourseMemberRequirement());
@@ -117,10 +116,12 @@ builder.Services.AddAuthorization(options =>
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowLocalhost5174",
-        builder => builder.WithOrigins("http://localhost:5174")
-            .AllowAnyHeader()
-            .AllowAnyMethod());
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.AllowAnyOrigin()  
+            .AllowAnyMethod()
+            .AllowAnyHeader();
+    });
 });
 
 builder.Services.Configure<IdentityOptions>(options =>
@@ -199,9 +200,7 @@ builder.Services.AddScoped<ISubmissionService, SubmissionService>();
 builder.Services.AddScoped<ISlotService, SlotService>();
 
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
-builder.Services.AddHttpContextAccessor();
-
-builder.Services.AddScoped<IFileValidator, ImageFileValidator>();
+builder.Services.AddHttpContextAccessor();builder.Services.AddScoped<IFileValidator, ImageFileValidator>();
 builder.Services.AddScoped<ImageFileValidator>();
 builder.Services.AddScoped<IFileValidatorFactory, FileValidatorFactory>();
 builder.Services.AddScoped<IFileService, FileService>();
@@ -233,7 +232,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.UseMiddleware<CurrentUserMiddleware>();
 
-app.UseCors("AllowLocalhost5174");
+app.UseCors("AllowAll");
 
 var staticFilesPath = Path.Combine(builder.Environment.ContentRootPath, "StaticFiles");
 
