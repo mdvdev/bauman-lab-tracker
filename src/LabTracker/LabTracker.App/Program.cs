@@ -53,23 +53,21 @@ using Users.Web;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Error formatting
 builder.Services.AddProblemDetails(options =>
 {
-    options.IncludeExceptionDetails = (ctx, ex) =>
-        builder.Environment.IsDevelopment();
+    options.IncludeExceptionDetails = (ctx, ex) => builder.Environment.IsDevelopment();
 
     options.MapToStatusCode<ArgumentException>(StatusCodes.Status400BadRequest);
     options.MapToStatusCode<ArgumentOutOfRangeException>(StatusCodes.Status400BadRequest);
     options.MapToStatusCode<NotSupportedException>(StatusCodes.Status400BadRequest);
     options.MapToStatusCode<InvalidOperationException>(StatusCodes.Status400BadRequest);
-
     options.MapToStatusCode<UnauthorizedAccessException>(StatusCodes.Status401Unauthorized);
-
     options.MapToStatusCode<KeyNotFoundException>(StatusCodes.Status404NotFound);
-
     options.MapToStatusCode<Exception>(StatusCodes.Status500InternalServerError);
 });
 
+// Auth
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
@@ -90,19 +88,20 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 
 builder.Services.AddAuthorization(options =>
 {
-    options.AddPolicy(nameof(Role.Administrator), policy => { policy.RequireRole(nameof(Role.Administrator)); });
+    options.AddPolicy(nameof(Role.Administrator), policy => policy.RequireRole(nameof(Role.Administrator)));
 
     options.AddPolicy("TeacherOrAdmin", policy =>
         policy.RequireRole(nameof(Role.Teacher), nameof(Role.Administrator)));
 
     options.AddPolicy("CourseMemberOnly", policy =>
         policy.Requirements.Add(new CourseMemberRequirement()));
-        options.AddPolicy("TeacherAndCourseMember", policy =>
+
+    options.AddPolicy("TeacherAndCourseMember", policy =>
     {
         policy.RequireRole(nameof(Role.Teacher));
         policy.Requirements.Add(new CourseMemberRequirement());
     });
-    
+
     options.AddPolicy("StudentAndCourseMember", policy =>
     {
         policy.RequireRole(nameof(Role.Student));
@@ -114,16 +113,18 @@ builder.Services.AddAuthorization(options =>
         .Build();
 });
 
+// CORS
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
     {
-        policy.AllowAnyOrigin()  
-            .AllowAnyMethod()
-            .AllowAnyHeader();
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader();
     });
 });
 
+// Identity options
 builder.Services.Configure<IdentityOptions>(options =>
 {
     options.Password.RequireDigit = true;
@@ -133,14 +134,16 @@ builder.Services.Configure<IdentityOptions>(options =>
     options.Password.RequireLowercase = true;
 });
 
+// Swagger
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+// DB Context
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-builder.Services
-    .AddIdentity<UserEntity, IdentityRole<Guid>>()
+// Identity
+builder.Services.AddIdentity<UserEntity, IdentityRole<Guid>>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
 builder.Services.ConfigureApplicationCookie(options =>
@@ -168,6 +171,7 @@ builder.Services.ConfigureApplicationCookie(options =>
     };
 });
 
+// Controllers
 builder.Services.AddControllers()
     .AddApplicationPart(typeof(AuthController).Assembly)
     .AddApplicationPart(typeof(CourseStudentController).Assembly)
@@ -178,9 +182,12 @@ builder.Services.AddControllers()
     .AddApplicationPart(typeof(SlotController).Assembly)
     .AddApplicationPart(typeof(SubmissionController).Assembly)
     .AddApplicationPart(typeof(UserController).Assembly)
-    .AddJsonOptions(options => { options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()); });
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    });
 
-// Add repositories.
+// Dependencies
 builder.Services.AddScoped<ICourseRepository, CourseRepository>();
 builder.Services.AddScoped<ICourseMemberRepository, CourseMemberRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
@@ -189,7 +196,6 @@ builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 builder.Services.AddScoped<ISubmissionRepository, SubmissionRepository>();
 builder.Services.AddScoped<ISlotRepository, SlotRepository>();
 
-// Add services.
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ICourseService, CourseService>();
 builder.Services.AddScoped<ICourseMemberService, CourseMemberService>();
@@ -200,7 +206,8 @@ builder.Services.AddScoped<ISubmissionService, SubmissionService>();
 builder.Services.AddScoped<ISlotService, SlotService>();
 
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
-builder.Services.AddHttpContextAccessor();builder.Services.AddScoped<IFileValidator, ImageFileValidator>();
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<IFileValidator, ImageFileValidator>();
 builder.Services.AddScoped<ImageFileValidator>();
 builder.Services.AddScoped<IFileValidatorFactory, FileValidatorFactory>();
 builder.Services.AddScoped<IFileService, FileService>();
@@ -209,13 +216,15 @@ builder.Services.AddScoped<IAuthorizationHandler, CourseMemberHandler>();
 
 var app = builder.Build();
 
+// DB init
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
     await IdentitySeeder.SeedRolesAsync(services);
-    //await IdentitySeeder.SeedAdminAsync(services);
+    // await IdentitySeeder.SeedAdminAsync(services);
 }
 
+// Dev tools
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -223,24 +232,24 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
-app.UseStaticFiles();
-
-app.UseProblemDetails();
-app.UseRouting();
-
-app.UseAuthentication();
-app.UseAuthorization();
-app.UseMiddleware<CurrentUserMiddleware>();
-
-app.UseCors("AllowAll");
-
+// Static files dir
 var staticFilesPath = Path.Combine(builder.Environment.ContentRootPath, "StaticFiles");
-
 if (!Directory.Exists(staticFilesPath))
 {
     Directory.CreateDirectory(staticFilesPath);
 }
 
+// Middleware order
+app.UseProblemDetails();
+app.UseRouting();
+
+app.UseCors("AllowAll"); // ✅ Важно: раньше UseAuthentication
+
+app.UseAuthentication();
+app.UseAuthorization();
+app.UseMiddleware<CurrentUserMiddleware>();
+
+app.UseStaticFiles(); // wwwroot (если есть)
 app.UseStaticFiles(new StaticFileOptions
 {
     FileProvider = new PhysicalFileProvider(staticFilesPath),
