@@ -91,6 +91,8 @@ builder.Services.AddAuthorization(options =>
 
     options.AddPolicy("TeacherOrAdmin", policy =>
         policy.RequireRole(nameof(Role.Teacher), nameof(Role.Administrator)));
+    
+    options.AddPolicy("Teacher", policy => policy.RequireRole(nameof(Role.Teacher)));
 
     options.AddPolicy("CourseMemberOnly", policy =>
         policy.Requirements.Add(new CourseMemberRequirement()));
