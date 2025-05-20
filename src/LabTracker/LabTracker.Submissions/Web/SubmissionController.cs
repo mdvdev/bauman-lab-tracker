@@ -41,7 +41,7 @@ public class SubmissionController : ControllerBase
     }
 
     [HttpGet]
-    [Authorize(Policy = "StudentAndCourseMember")]
+    [Authorize(Policy = "CourseMemberOnly")]
     public async Task<IActionResult> GetSubmissionsAsync(
         Guid courseId,
         [FromQuery] SubmissionStatus? status = null,
@@ -59,7 +59,7 @@ public class SubmissionController : ControllerBase
     }
 
     [HttpGet("me")]
-    [Authorize(Policy = "StudentAndCourseMember")]
+    [Authorize(Policy = "CourseMemberOnly")]
     public async Task<IActionResult> GetMySubmissionsAsync(
         Guid courseId,
         [FromQuery] SubmissionStatus? status = null,
