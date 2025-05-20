@@ -89,12 +89,13 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy(nameof(Role.Administrator), policy => policy.RequireRole(nameof(Role.Administrator)));
-    options.AddPolicy(nameof(Role.Administrator), policy => { policy.RequireRole(nameof(Role.Administrator)); });
     
-    options.AddPolicy(nameof(Role.Teacher), policy => { policy.RequireRole(nameof(Role.Teacher)); });
+    options.AddPolicy(nameof(Role.Teacher), policy => policy.RequireRole(nameof(Role.Teacher)));
 
     options.AddPolicy("TeacherOrAdmin", policy =>
         policy.RequireRole(nameof(Role.Teacher), nameof(Role.Administrator)));
+    
+    options.AddPolicy("Teacher", policy => policy.RequireRole(nameof(Role.Teacher)));
 
     options.AddPolicy("CourseMemberOnly", policy =>
         policy.Requirements.Add(new CourseMemberRequirement()));
