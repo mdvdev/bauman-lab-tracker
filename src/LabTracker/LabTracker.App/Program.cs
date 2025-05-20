@@ -41,6 +41,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Notifications.Services;
 using Notifications.Web;
@@ -237,6 +238,12 @@ if (!Directory.Exists(staticFilesPath))
 {
     Directory.CreateDirectory(staticFilesPath);
 }
+
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(staticFilesPath),
+    RequestPath = "/StaticFiles"
+});
 
 app.UseProblemDetails();
 app.UseRouting();
