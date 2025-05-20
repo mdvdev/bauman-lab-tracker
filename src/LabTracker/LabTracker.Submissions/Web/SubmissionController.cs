@@ -44,7 +44,8 @@ public class SubmissionController : ControllerBase
     [Authorize(Policy = "StudentAndCourseMember")]
     public async Task<IActionResult> GetMySubmissionsAsync(
         Guid courseId,
-        [FromQuery] SubmissionStatus? status = null)
+        [FromQuery] SubmissionStatus? status = null,
+        [FromQuery] Guid? slotId = null)
     {
         var user = _currentUserService.User;
 
@@ -54,7 +55,8 @@ public class SubmissionController : ControllerBase
                 ? null
                 : submissionInfo =>
                     submissionInfo.Student.Id == user.Id &&
-                    submissionInfo.Submission.SubmissionStatus == status);
+                    submissionInfo.Submission.SubmissionStatus == status &&
+                    submissionInfo.SlotInfo.Slot.Id == slotId);
 
         return Ok(submissions.Select(SubmissionResponse.Create));
     }
