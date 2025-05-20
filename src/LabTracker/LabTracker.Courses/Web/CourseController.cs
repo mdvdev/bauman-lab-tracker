@@ -1,4 +1,3 @@
-using System.Security.Claims;
 using Courses.Web.Dtos;
 using LabTracker.CourseMembers.Abstractions.Services;
 using LabTracker.CourseMembers.Domain;
@@ -29,8 +28,16 @@ public class CourseController : ControllerBase
         _courseMemberService = courseMemberService;
         _currentUserService = currentUserService;
     }
-
+    
     [HttpGet]
+    [Authorize(nameof(Role.Administrator))]
+    public async Task<IActionResult> GetCoursesAsync()
+    {
+        var courses = await _courseService.GetCoursesAsync();
+        return Ok(courses.Select(CourseResponse.Create));
+    }
+
+    [HttpGet("me")]
     public async Task<IActionResult> GetMyCoursesAsync()
     {
         var user = _currentUserService.User;
