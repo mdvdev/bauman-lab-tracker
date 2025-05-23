@@ -34,6 +34,11 @@ public class CourseService : ICourseService
         return await _courseRepository.GetByIdAsync(courseId);
     }
 
+    public async Task<IEnumerable<Course>> GetCoursesAsync()
+    {
+        return await _courseRepository.GetAllAsync();
+    }
+
     public async Task<IEnumerable<Course>> GetUserCoursesAsync(Guid userId)
     {
         return await _courseRepository.GetCoursesByUserIdAsync(userId);

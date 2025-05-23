@@ -41,10 +41,29 @@ public class SubmissionController : ControllerBase
     }
 
     [HttpGet]
-    [Authorize(Policy = "StudentAndCourseMember")]
+    [Authorize(Policy = "CourseMemberOnly")]
+    public async Task<IActionResult> GetSubmissionsAsync(
+        Guid courseId,
+        [FromQuery] SubmissionStatus? status = null,
+        [FromQuery] Guid? slotId = null)
+    {
+        var submissions = await _submissionService.GetCourseSubmissionsAsync(
+            courseId,
+            status is null
+                ? null
+                : submissionInfo =>
+                    submissionInfo.Submission.SubmissionStatus == status &&
+                    submissionInfo.SlotInfo.Slot.Id == slotId);
+
+        return Ok(submissions.Select(SubmissionResponse.Create));
+    }
+
+    [HttpGet("me")]
+    [Authorize(Policy = "CourseMemberOnly")]
     public async Task<IActionResult> GetMySubmissionsAsync(
         Guid courseId,
-        [FromQuery] SubmissionStatus? status = null)
+        [FromQuery] SubmissionStatus? status = null,
+        [FromQuery] Guid? slotId = null)
     {
         var user = _currentUserService.User;
 
@@ -53,8 +72,9 @@ public class SubmissionController : ControllerBase
             status is null
                 ? null
                 : submissionInfo =>
-                    submissionInfo.Student.Id == user.Id &&
-                    submissionInfo.Submission.SubmissionStatus == status);
+                    submissionInfo.Submission.StudentId == user.Id &&
+                    submissionInfo.Submission.SubmissionStatus == status &&
+                    submissionInfo.SlotInfo.Slot.Id == slotId);
 
         return Ok(submissions.Select(SubmissionResponse.Create));
     }
