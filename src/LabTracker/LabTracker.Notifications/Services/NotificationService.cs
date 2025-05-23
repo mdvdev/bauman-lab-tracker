@@ -67,4 +67,13 @@ public class NotificationService : INotificationService
             await _notificationRepository.MarkAsReadAsync(userId, notificationIds);
         }
     }
+
+    public async Task<Notification> GetNotificationAsync(Guid notificationId) 
+    {
+        var notification = await _notificationRepository.GetByIdAsync(notificationId);
+        if (notification == null)
+            return null;
+        
+        return notification;
+    }
 }

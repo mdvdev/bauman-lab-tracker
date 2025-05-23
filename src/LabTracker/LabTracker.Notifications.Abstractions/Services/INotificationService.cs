@@ -18,4 +18,5 @@ public interface INotificationService
         bool unreadOnly = false);
 
     Task MarkNotificationsAsReadAsync(Guid userId, IEnumerable<Guid> notificationIds, bool markAllAsRead = false);
+    Task<Notification> GetNotificationAsync(Guid notificationId);
 }
