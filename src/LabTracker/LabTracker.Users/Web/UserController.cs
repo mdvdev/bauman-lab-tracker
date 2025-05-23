@@ -52,4 +52,25 @@ public class UserController : ControllerBase
         await _userService.UpdateProfilePhotoAsync(user.Id, file.OpenReadStream(), file.FileName);
         return Ok();
     }
+    
+    [HttpGet("{id}")]
+    [Authorize(nameof(Role.Administrator))]
+    public async Task<IActionResult> GetUserByIdAsync(Guid id)
+    {
+        var user = await _userService.GetUserByIdAsync(id);
+        if (user is null)
+        {
+            return NotFound($"User with ID '{id}' was not found.");
+        }
+        return Ok(UserResponse.Create(user));
+    }
+    
+    [HttpGet("groups")]
+    [Authorize(nameof(Role.Administrator))]
+    public async Task<IActionResult> GetGroupsWithStudentsAsync()
+    {
+        var groups = await _userService.GetGroupsWithStudentsAsync();
+        var response = groups.Select(g => GroupWithStudentsResponse.Create(g.Key, g.Value));
+        return Ok(response);
+    }
 }

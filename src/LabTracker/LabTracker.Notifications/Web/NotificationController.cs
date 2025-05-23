@@ -40,6 +40,14 @@ public class NotificationController : ControllerBase
 
         return Ok(response);
     }
+    
+    [HttpGet("{notificationId}")]
+    public async Task<IActionResult> GetNotificationAsync(Guid notificationId)
+    {
+        var notification = await _notificationService.GetNotificationAsync(notificationId);
+
+        return Ok(NotificationResponse.Create(notification));
+    } 
 
     [HttpPost]
     [Authorize(Policy = "TeacherOrAdmin")]

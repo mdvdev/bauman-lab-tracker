@@ -8,14 +8,16 @@ public class RegisterRequest
     [Required] public string Password { get; set; }
     [Required] public string FirstName { get; set; }
     [Required] public string LastName { get; set; }
+    [Required] public string? Group { get; set; }
     [Required] public string Patronymic { get; set; }
 
-    public RegisterRequest(string email, string password, string firstName, string lastName, string patronymic)
+    public RegisterRequest(string email, string password, string firstName, string lastName, string? group, string patronymic)
     {
         Email = email;
         Password = password;
         FirstName = firstName;
         LastName = lastName;
+        Group = group;
         Patronymic = patronymic;
     }
 }

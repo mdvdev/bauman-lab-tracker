@@ -23,7 +23,6 @@ function AppRoutes() {
             {/* <Route path="/notifications" element={<NotificationPage />} /> */}
 
             {/* <Route path="/slots" element={<Test />} /> */}
-
             {/* Защищённые маршруты
             <Route
                 path="/student-profile"
