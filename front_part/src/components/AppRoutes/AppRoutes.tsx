@@ -6,7 +6,9 @@ import SignUpForLaboratoryWorkPage from '../../pages/SignUpForLaboratoryWorkPage
 import StudentCoursePerformance from '../../pages/StudentСoursePerformance/StudentCoursePerformance'
 import Login from '../../pages/LoginPage/LoginPage'
 import Register from '../../pages/RegistrationPage/RegistrationPage'
+import Test from '../../pages/Test'
 import ProtectedRoute from '../../ProtectedRoute'
+// import NotificationPage from '../../pages/NotificationPage/NotificationPage'
 function AppRoutes() {
     return (
         <Routes>
@@ -14,8 +16,15 @@ function AppRoutes() {
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/" element={<Home />} />
+            <Route path="/student-profile" element={<StudentProfile />} />
+            <Route path="/courses" element={<CoursesOfStudent />} />
+            <Route path="/courses/:courseId" element={<SignUpForLaboratoryWorkPage />} />
+            <Route path="/courses/:courseId/notifications" element={<StudentCoursePerformance />} />
+            {/* <Route path="/notifications" element={<NotificationPage />} /> */}
 
-            {/* Защищённые маршруты */}
+            {/* <Route path="/slots" element={<Test />} /> */}
+
+            {/* Защищённые маршруты
             <Route
                 path="/student-profile"
                 element={
@@ -47,7 +56,7 @@ function AppRoutes() {
                         <StudentCoursePerformance />
                     </ProtectedRoute>
                 }
-            />
+            /> */}
         </Routes>
     )
 }

@@ -5,40 +5,43 @@ import TeachersList from "../../components/TeachersList/TeachersList"
 import { User } from "../../types/userType"
 import { Slot } from "../../types/slotType"
 import SlotCard from '../../components/SlotCard/SlotCard'
-interface Course {
-    id: string | number;
-    name: string;
-    description?: string;
-    photo: string;
-    teacherIds: (string | number)[];
-    createdAt: string;
-}
+import { Course } from "../../types/courseType";
+import { CourseTeacher } from "../../types/courseTeacherType";
 
 function SignUpForLaboratoryWorkPage() {
     const [courseTeachers, setCourseTeachers] = useState<User[]>([]);
     const [course, setCourse] = useState<Course | null>(null);
     const { courseId } = useParams();
-    const [courseSlots, setCourseSlots] = useState<Slot[]>([])
+    const [courseSlots, setCourseSlots] = useState<Slot[]>([]);
+    const [user, setUser] = useState<User | null>(null);
     useEffect(() => {
+
         const fetchData = async () => {
             try {
-                const courseRes = await fetch(`http://localhost:3001/courses/${courseId}`);
+                const userRes = await fetch(`/api/v1/users/me`);
+                const userData: User = await userRes.json();
+
+                setUser(userData);
+
+                // Загрузка данных курса
+                const courseRes = await fetch(`/api/v1/courses/${courseId}`);
                 const courseData: Course = await courseRes.json();
+
                 setCourse(courseData);
 
-                const courseSlotsRes = await fetch(`http://localhost:3001/slots?courseId=${courseId}`);
+                // Загрузка слотов курса
+                const courseSlotsRes = await fetch(`/api/v1/courses/${courseId}/slots`);
                 const courseSlotsData: Slot[] = await courseSlotsRes.json();
                 setCourseSlots(courseSlotsData);
 
-                const usersRes = await fetch(`http://localhost:3001/users`);
-                const allUsers: User[] = await usersRes.json();
+                // Загрузка преподавателей курса
+                const teachersRes = await fetch(`/api/v1/courses/${courseId}/teachers`);
+                const teachersData: CourseTeacher[] = await teachersRes.json();
 
-                const filteredTeachers = allUsers.filter(user =>
-                    courseData.teacherIds.includes(user.id)
-                );
-                console.log("Filtered Teachers:", filteredTeachers);
+                // Преобразуем CourseTeacher[] в User[]
+                const teachers = teachersData.map(ct => ct.user);
+                setCourseTeachers(teachers);
 
-                setCourseTeachers(filteredTeachers);
             } catch (error) {
                 console.error("Error fetching data:", error);
             }
@@ -55,13 +58,12 @@ function SignUpForLaboratoryWorkPage() {
                 <h3>Слоты для записи:</h3>
                 <div className="course-slots">
                     {courseSlots.map((slot) => (
-                        <SlotCard key={slot.id} slot={slot} />
+                        <SlotCard key={slot.id} slot={slot} courseId={courseId!} userId={user?.id!} />
                     ))}
                 </div>
-
             </main>
         </div>
     );
 }
 
-export default SignUpForLaboratoryWorkPage; 
+export default SignUpForLaboratoryWorkPage;

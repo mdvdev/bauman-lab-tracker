@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
 import TeachersList from "../../components/TeachersList/TeachersList";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Course } from '../../types/courseType'
 import { User } from "../../types/userType";
 import { Lab } from "../../types/labType";
 import LabStatusCard from "../../components/LabStatusCard/LabStatusCard"
 import { Submission } from "../../types/submssionType"
-
+import { PlusIcon } from "lucide-react";
+import { Settings } from "lucide-react";
+import { CourseTeacher } from "../../types/courseTeacherType";
 import "./StudentCoursePerformance.css"
 function StudentCoursePerformance() {
     const { courseId } = useParams();
@@ -14,30 +16,30 @@ function StudentCoursePerformance() {
     const [courseTeachers, setCourseTeachers] = useState<User[]>([]);
     // const [notifications, setNotifications] = useState<Notification | null>(null);
     const [labs, setLabs] = useState<Lab[]>([]);
-    const [submissions, setSubmissions] = useState<Submission[]>([]);
+    const [myUserInfo, setMyUserInfo] = useState<User>();
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const courseRes = await fetch(`http://localhost:3001/courses/${courseId}`);
+                const courseRes = await fetch(`/api/v1/courses/${courseId}`);
                 const courseData: Course = await courseRes.json();
                 setCourse(courseData);
 
-                const usersRes = await fetch(`http://localhost:3001/users`);
-                const allUsers: User[] = await usersRes.json();
+                const myUserInfoRes = await fetch(`/api/v1/users/me`);
+                const myUserInfoData: User = await myUserInfoRes.json();
+                setMyUserInfo(myUserInfoData);
 
-                const filteredTeachers = allUsers.filter(user =>
-                    courseData.teacherIds.includes(user.id));
-                setCourseTeachers(filteredTeachers);
+                const teachersRes = await fetch(`/api/v1/courses/${courseId}/teachers`);
+                const teachersData: CourseTeacher[] = await teachersRes.json();
 
-                const labRes = await fetch(`http://localhost:3001/labs`);
+                const teachers = teachersData.map(ct => ct.user);
+                setCourseTeachers(teachers);
+
+                const labRes = await fetch(`/api/v1/courses/${courseId}/labs`);
                 const labData: Lab[] = await labRes.json();
-                const filteredLabs = labData.filter(lab => lab.courseId === courseId);
-                setLabs(filteredLabs);
-
-                const submissionsRes = await fetch(`http://localhost:3001/submissions`);
-                const submissionsData: Submission[] = await submissionsRes.json();
-                setSubmissions(submissionsData);
+                console.log(labData);
+                setLabs(labData);
 
             } catch (error) {
                 console.error("Error fetching data:", error);
@@ -50,16 +52,27 @@ function StudentCoursePerformance() {
     return (
         <div className="page">
             <main className="course-detail">
-                <h2 className="course-title">{course?.name}</h2>
+                <div className="course-performance-header">
+                    <h2 className="course-title">{course?.name}</h2>
+                    {myUserInfo && (myUserInfo.roles.includes('Administrator') || myUserInfo.roles.includes('Teacher')) &&
+                        (
+                            <div className="teacher-controls-button">
+                                <button className="add-lab-button"><PlusIcon className="plus-icon" /></button>
+                                <button className="admin-button"><Settings stroke="white" className="settings-icon" /></button>
+                                <button className="slots-list" onClick={() => navigate(`/courses/${courseId}`)}>Перейти к слотам</button>
+
+                            </div>)
+
+                    }
+                    <button className="course-students-button">Список пользователей</button>
+                </div>
                 <TeachersList teachers={courseTeachers} />
                 <div className="lab-status-card-list">
                     {labs.map((lab) => {
-                        const matchedSubmission = submissions.find(sub => sub.labId === lab.id) || null;
                         return (
                             <LabStatusCard
                                 key={lab.id}
                                 labId={lab.id}
-                                submission={matchedSubmission}
                                 courseId={courseId || ''}
                             />
                         );

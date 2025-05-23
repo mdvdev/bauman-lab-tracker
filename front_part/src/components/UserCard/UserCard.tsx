@@ -12,7 +12,16 @@ function UserCard() {
 
     const loadUser = async () => {
         try {
-            const response = await fetch('http://localhost:3001/users/2');
+            const response = await fetch('/api/v1/users/me', {
+                method: 'GET',
+                credentials: 'include', 
+            });
+
+            if (!response.ok) {
+                console.error('Ошибка при получении данных пользователя:', response.status);
+                return;
+            }
+
             const data = await response.json();
             setUser(data);
         } catch (error) {
@@ -23,23 +32,23 @@ function UserCard() {
     useEffect(() => {
         loadUser();
     }, []);
+
     if (!user) return <div>Загрузка...</div>;
-
-    const translatedRole = translateRole(user.role);
-
+    console.log(user.roles)
+    const translatedRole = translateRole(user.roles);
     return (
         <>
             <div className="card-wrapper">
                 <div className="card-content">
                     <div className="user-info">
-                        <img className="avatar" src={user.photo} alt="avatar" />
+                        <img className="avatar" src={`http://localhost:5272${user.photoUri}`} alt="avatar" />
                         {user.firstName && user.lastName && (
                             <span className="user-name">
                                 {user.firstName} {user.lastName} {user.patronymic}
                             </span>
                         )}
-                        {user.role && (
-                            <span className={`role-badge ${user.role}`}>
+                        {user.roles && (
+                            <span className={`role-badge ${translatedRole}`}>
                                 {translatedRole}
                             </span>
                         )}
@@ -51,8 +60,8 @@ function UserCard() {
                     <div className="contact-info">
                         <div className="telegram-row">
                             <img className="telegram-icon" src="/icons/telegram.png" alt="telegram" />
-                            {user.telegram && (
-                                <span className="telegram-info">{user.telegram}</span>
+                            {user.telegramUsername && (
+                                <span className="telegram-info">{user.telegramUsername}</span>
                             )}
                         </div>
                         <div className="created-at-row">

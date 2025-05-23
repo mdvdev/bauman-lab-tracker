@@ -8,19 +8,19 @@ type EditProfileProps = {
 const EditProfile: React.FC<EditProfileProps> = ({ onSave, onClose }) => {
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
+    const [patronymic, setPatronymic] = useState('');
+    const [telegramUsername, setTelegramUsername] = useState('');
     const [email, setEmail] = useState('');
-    const [oldPassword, setOldPassword] = useState('');
-    const [newPassword, setNewPassword] = useState('');
 
     useEffect(() => {
-        fetch('http://localhost:3001/users/2')
+        fetch('api/v1/users/me')
             .then((res) => res.json())
             .then((data) => {
+                setEmail(data.email)
                 setFirstName(data.firstName);
                 setLastName(data.lastName);
-                setEmail(data.email);
-                setOldPassword(data.oldPassword);
-                setNewPassword(data.newPassword);
+                setPatronymic(data.patronymic);
+                setTelegramUsername(data.telegramUsername);
             }
             )
 
@@ -29,24 +29,25 @@ const EditProfile: React.FC<EditProfileProps> = ({ onSave, onClose }) => {
     const formFields = {
         firstName,
         lastName,
-        email,
-        oldPassword,
-        newPassword,
+        patronymic,
+        telegramUsername,
+        email
     };
     const isFormValid = formFields.firstName != "" && formFields.lastName != "" && formFields.email != "";
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault(); // предотвратить перезагрузку страницы
         try {
-            const res = await fetch('http://localhost:3001/users/2', {
+            const res = await fetch('api/v1/users/me', {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
+                    email,
                     firstName,
                     lastName,
-                    email,
-                    // password: newPassword, // если хочешь отправлять новый пароль
+                    patronymic,
+                    telegramUsername,
                 }),
             });
 
@@ -84,7 +85,25 @@ const EditProfile: React.FC<EditProfileProps> = ({ onSave, onClose }) => {
             </label>
 
             <label>
-                Почта
+                Отчество
+                <input
+                    type="patronymic"
+                    value={patronymic}
+                    onChange={(e) => setPatronymic(e.target.value)}
+                />
+            </label>
+
+            <label>
+                Имя пользователя в telegramm
+                <input
+                    type="telegramUsername"
+                    value={telegramUsername}
+                    onChange={(e) => setTelegramUsername(e.target.value)}
+                />
+            </label>
+
+            <label>
+                Почта пользователя
                 <input
                     type="email"
                     value={email}
@@ -92,23 +111,6 @@ const EditProfile: React.FC<EditProfileProps> = ({ onSave, onClose }) => {
                 />
             </label>
 
-            <label>
-                Старый пароль
-                <input
-                    type="password"
-                    value={oldPassword}
-                    onChange={(e) => setOldPassword(e.target.value)}
-                />
-            </label>
-
-            <label>
-                Новый пароль
-                <input
-                    type="password"
-                    value={newPassword}
-                    onChange={(e) => setNewPassword(e.target.value)}
-                />
-            </label>
             <button type="submit" disabled={!isFormValid}>Готово</button>
         </form>
     );

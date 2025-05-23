@@ -13,7 +13,7 @@ function TeachersList({ teachers }: TeachersListProps) {
             <span style={{ color: 'grey' }}>{teachers.length === 1 ? "Преподаватель:" : "Преподаватели:"}</span>
             {teachers.map((teacher, index) => (
                 <span key={teacher.id} className="teacher-name">
-                    {teacher.firstName} {teacher.lastName}
+                    {teacher.lastName} {teacher.firstName} {teacher.patronymic}
                     {index < teachers.length - 1 && ','}
                 </span>
             ))}
