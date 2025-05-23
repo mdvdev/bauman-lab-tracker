@@ -7,6 +7,7 @@ public class UserEntity : IdentityUser<Guid>
 {
     public string FirstName { get; set; }
     public string LastName { get; set; }
+    public string? Group { get; set; }
     public string Patronymic { get; set; }
     public string? TelegramUsername { get; set; }
     public DateTimeOffset CreatedAt { get; init; } = DateTimeOffset.UtcNow;
@@ -18,6 +19,7 @@ public class UserEntity : IdentityUser<Guid>
             id: Id,
             firstName: FirstName,
             lastName: LastName,
+            group: Group,
             patronymic: Patronymic,
             roles: roles.Select(Enum.Parse<Role>).ToList(),
             email: Email,
@@ -33,6 +35,7 @@ public class UserEntity : IdentityUser<Guid>
             Id = user.Id,
             FirstName = user.FirstName,
             LastName = user.LastName,
+            Group = user.Group,
             Patronymic = user.Patronymic,
             TelegramUsername = user.TelegramUsername,
             CreatedAt = user.CreatedAt,

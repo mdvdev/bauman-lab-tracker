@@ -7,6 +7,7 @@ public class User
     public Guid Id { get; }
     public string FirstName { get; private set; }
     public string LastName { get; private set; }
+    public string? Group  { get; private set; }
     public string Patronymic { get; private set; }
     public string Email { get; private set; }
     public IReadOnlyCollection<Role> Roles => _roles.AsReadOnly();
@@ -22,6 +23,7 @@ public class User
         Guid id,
         string firstName,
         string lastName,
+        string group,
         string patronymic,
         string email,
         IReadOnlyCollection<Role> roles,
@@ -41,6 +43,7 @@ public class User
         Id = id;
         FirstName = firstName;
         LastName = lastName;
+        Group = group;
         Patronymic = patronymic;
         Email = email;
         _roles = roles.ToList();
@@ -52,6 +55,7 @@ public class User
     public static User CreateNew(
         string firstName,
         string lastName,
+        string group,
         string patronymic,
         string email,
         IReadOnlyCollection<Role> roles,
@@ -62,6 +66,7 @@ public class User
             Guid.NewGuid(),
             firstName,
             lastName,
+            group,
             patronymic,
             email,
             roles,
@@ -74,6 +79,7 @@ public class User
         Guid id,
         string firstName,
         string lastName,
+        string group,
         string patronymic,
         string email,
         IReadOnlyCollection<Role> roles,
@@ -85,6 +91,7 @@ public class User
             id,
             firstName,
             lastName,
+            group,
             patronymic,
             email,
             roles,
@@ -96,6 +103,7 @@ public class User
     public void UpdateProfile(
         string? firstName = null,
         string? lastName = null,
+        string? group = null,
         string? patronymic = null,
         string? email = null,
         string? telegramUsername = null,
@@ -113,6 +121,11 @@ public class User
             if (!IsValidName(lastName))
                 throw new ArgumentException($"LastName '{lastName}' is invalid.", nameof(lastName));
             LastName = lastName;
+        }
+
+        if (group is not null)
+        {
+            Group = group;
         }
 
         if (patronymic is not null)

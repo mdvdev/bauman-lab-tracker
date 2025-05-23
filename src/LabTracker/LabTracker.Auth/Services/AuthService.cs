@@ -25,6 +25,7 @@ public class AuthService : IAuthService
             UserName = request.Email,
             FirstName = request.FirstName,
             LastName = request.LastName,
+            Group = !string.IsNullOrEmpty(request.Group) ? request.Group.ToLowerInvariant() : null,
             Patronymic = request.Patronymic,
         };
 

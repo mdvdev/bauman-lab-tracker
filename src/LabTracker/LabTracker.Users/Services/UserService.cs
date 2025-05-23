@@ -19,6 +19,11 @@ public class UserService : IUserService
         _fileService = fileService;
     }
 
+    public async Task<User?> GetUserByIdAsync(Guid userId)
+    {
+        return await _userRepository.GetByIdAsync(userId);
+    }
+
     public async Task<IEnumerable<User>> GetAllUsersAsync()
     {
         return await _userRepository.GetAllAsync();
@@ -54,5 +59,17 @@ public class UserService : IUserService
         user.UpdateProfile(photoUri: "/" + filePath);
 
         await _userRepository.UpdateAsync(user);
+    }
+    public async Task<Dictionary<string, List<User>>> GetGroupsWithStudentsAsync()
+    {
+        var allUsers = await _userRepository.GetAllAsync();
+        var students = allUsers.Where(u => !string.IsNullOrEmpty(u.Group));
+    
+        return students
+            .GroupBy(u => u.Group!, StringComparer.OrdinalIgnoreCase)
+            .ToDictionary(
+                g => g.Key,
+                g => g.ToList(),
+                StringComparer.OrdinalIgnoreCase);
     }
 }

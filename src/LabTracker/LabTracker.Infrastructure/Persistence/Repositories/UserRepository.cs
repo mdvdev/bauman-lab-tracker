@@ -49,6 +49,7 @@ public class UserRepository : IUserRepository
 
         entity.FirstName = user.FirstName;
         entity.LastName = user.LastName;
+        entity.Group = user.Group;
         entity.Patronymic = user.Patronymic;
         entity.Email = user.Email;
         entity.PhotoUri = user.PhotoUri;
