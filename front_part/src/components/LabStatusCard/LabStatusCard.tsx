@@ -5,9 +5,9 @@ import { getSubmissionStatusClass } from "../../utils/labStatusUtil"
 import { Submission } from "../../types/submssionType"
 import { LabStatus } from "../../types/labStatusType";
 import { useNavigate } from 'react-router-dom';
+
 interface LabStatusCardProps {
     labId: string;
-    submission: Submission | null
     courseId: string | null;
 }
 
@@ -15,25 +15,39 @@ interface LabStatusCardProps {
 function formatIsoString(isoString: string): string {
     const date = new Date(isoString);
     return date.toLocaleString('ru-RU', {
+        minute: '2-digit',
+        hour12: false,
         day: '2-digit',
         month: '2-digit',
         year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: false,
+        hour: '2-digit'
     });
 }
 
-function LabStatusCard({ labId, submission, courseId }: LabStatusCardProps) {
+function LabStatusCard({ labId, courseId }: LabStatusCardProps) {
     const [lab, setLab] = useState<Lab>();
     const navigate = useNavigate();
+    const [submission, setSubmission] = useState<Submission | null>(null);
+
+    // console.log("КУРС ID " + courseId)
+    // console.log("ЛАБ ID " + labId)
+    // console.log("SUUUUUUB" + submission)
 
     useEffect(() => {
         const fetchLab = async () => {
             try {
-                const labRes = await fetch(`http://localhost:3001/labs/${labId}`);
+                const labRes = await fetch(`/api/v1/courses/${courseId}/labs/${labId}`);
                 const labData: Lab = await labRes.json();
+                console.log(labData)
                 setLab(labData);
+
+                const submissionsRes = await fetch(`/api/v1/courses/${courseId}/submissions/me`);
+                if (!submissionsRes.ok) throw new Error("Не удалось загрузить данные о сдачах");
+                const submissionsData: Submission[] = await submissionsRes.json();
+                console.log(submissionsData)
+                // Находим submission для текущей lab
+                const labSubmission = submissionsData.find(sub => sub.lab.id === labId);
+                setSubmission(labSubmission || null);
 
             } catch (error) {
                 console.error("Ошибка при загрузке данных:", error);
@@ -43,22 +57,21 @@ function LabStatusCard({ labId, submission, courseId }: LabStatusCardProps) {
         fetchLab();
 
     }, []);
-    console.log(submission?.status);
-    const labStatus: LabStatus = getSubmissionStatusClass(submission?.status || "")
+    const labStatus: LabStatus = getSubmissionStatusClass(submission?.submissionStatus || "")
     return (
         <div className={`lab-status-card ${labStatus.status}`}>
-            <div className="lab-name">{lab?.name} {lab?.description}</div>
+            <div className="lab-name">{lab?.name} {lab?.descriptionUri}</div>
             <div className="lab-status-card-info">
                 <div className="lab-info-row">
                     <label>Срок сдачи: </label>
                     <span className={`row-info ${labStatus.status}`}>{formatIsoString(lab?.deadline || "")}</span>
                 </div>
                 <div className="lab-info-row">
-                    <label>Баллы за сдачу: </label>
+                    <label>Баллы(в срок): </label>
                     <span className={`row-info ${labStatus.status}`}>{lab?.score}</span>
                 </div>
                 <div className="lab-info-row">
-                    <label>Баллы за сдачу после дедлайна: </label>
+                    <label>Баллы(не в срок): </label>
                     <span className={`row-info ${labStatus.status}`}>{lab?.scoreAfterDeadline}</span>
                 </div>
                 <div className="lab-info-row">
@@ -75,5 +88,4 @@ function LabStatusCard({ labId, submission, courseId }: LabStatusCardProps) {
         </div>
     )
 }
-
 export default LabStatusCard;

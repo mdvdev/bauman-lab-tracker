@@ -7,7 +7,6 @@ function Header() {
             <Anchor size={40} color="white" />
 
             <nav className="nav">
-                <a href="/">Домашняя страница</a>
                 <a href="/courses">Ваши курсы</a>
                 <a href="/notifications">Уведомления</a>
                 <a href="/student-profile">Профиль</a>

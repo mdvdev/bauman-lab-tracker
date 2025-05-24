@@ -47,7 +47,7 @@ public class NotificationController : ControllerBase
         var notification = await _notificationService.GetNotificationAsync(notificationId);
 
         return Ok(NotificationResponse.Create(notification));
-    }
+    } 
 
     [HttpPost]
     [Authorize(Policy = "TeacherOrAdmin")]

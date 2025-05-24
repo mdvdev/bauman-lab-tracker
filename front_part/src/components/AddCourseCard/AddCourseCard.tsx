@@ -22,7 +22,7 @@ const AddCourseCard: React.FC<AddCourseCardProps> = ({ onClose }) => {
         setError(null);
 
         try {
-            const response = await fetch(`http://localhost:3001/courses`, {
+            const response = await fetch(`/api/v1/courses`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -61,6 +61,7 @@ const AddCourseCard: React.FC<AddCourseCardProps> = ({ onClose }) => {
                     onChange={(e) => setCourseDescription(e.target.value)}
                 />
             </label>
+
             <label>
                 Выберите режим работы:
                 <select value={selectedOption} onChange={handleChange}>
@@ -70,7 +71,9 @@ const AddCourseCard: React.FC<AddCourseCardProps> = ({ onClose }) => {
                 </select>
             </label>
 
-            <button type="submit">Готово</button>
+
+            <button type="submit" className="create-course-button">Создать</button>
+
         </form>
     );
 }
