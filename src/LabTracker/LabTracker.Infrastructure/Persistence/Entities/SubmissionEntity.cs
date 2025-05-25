@@ -18,6 +18,7 @@ public class SubmissionEntity
     public SlotEntity Slot { get; set; }
     public Guid CourseId { get; set; }
     public CourseEntity Course { get; set; }
+    public double Priority { get; set; }
 
     public Submission ToDomain()
     {
@@ -31,7 +32,8 @@ public class SubmissionEntity
             score: Score,
             comment: Comment,
             createdAt: CreatedAt,
-            updatedAt: UpdatedAt);
+            updatedAt: UpdatedAt,
+            priority: Priority);
     }
 
     public static SubmissionEntity FromDomain(Submission domain)
@@ -48,6 +50,7 @@ public class SubmissionEntity
             UpdatedAt = domain.UpdatedAt,
             SlotId = domain.SlotId,
             CourseId = domain.CourseId,
+            Priority = domain.Priority
         };
     }
 }

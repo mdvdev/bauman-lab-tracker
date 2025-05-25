@@ -79,4 +79,19 @@ public class SlotRepository : ISlotRepository
             .Select(e => e.ToDomain())
             .ToListAsync();
     }
+
+    public async Task<Slot?> GetPreviousSlotAsync(Guid currentSlotId)
+    {
+        var currentSlot = await _context.Slots.FindAsync(currentSlotId);
+
+        if (currentSlot is null)
+            return null;
+
+        var entity = await _context.Slots
+            .Where(s => s.StartTime < currentSlot.StartTime)
+            .OrderByDescending(s => s.StartTime)
+            .FirstOrDefaultAsync();
+
+        return entity?.ToDomain();
+    }
 }

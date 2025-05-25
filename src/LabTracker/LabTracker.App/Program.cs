@@ -26,6 +26,8 @@ using LabTracker.Notifications.Abstractions.Services;
 using LabTracker.Shared.Contracts;
 using LabTracker.Slots.Abstractions.Repositories;
 using LabTracker.Slots.Abstractions.Services;
+using LabTracker.Submissions;
+using LabTracker.Submissions.Abstractions;
 using LabTracker.Submissions.Abstractions.Repositories;
 using LabTracker.Submissions.Abstractions.Services;
 using LabTracker.Submissions.Services;
@@ -189,6 +191,7 @@ builder.Services.AddScoped<ILabRepository, LabRepository>();
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 builder.Services.AddScoped<ISubmissionRepository, SubmissionRepository>();
 builder.Services.AddScoped<ISlotRepository, SlotRepository>();
+builder.Services.AddScoped<IOligarchStudentRepository, OligarchStudentRepository>();
 
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ICourseService, CourseService>();
@@ -205,6 +208,7 @@ builder.Services.AddScoped<IFileValidator, ImageFileValidator>();
 builder.Services.AddScoped<ImageFileValidator>();
 builder.Services.AddScoped<IFileValidatorFactory, FileValidatorFactory>();
 builder.Services.AddScoped<IFileService, FileService>();
+builder.Services.AddScoped<IPriorityCalculatorFactory, PriorityCalculatorFactory>();
 
 builder.Services.AddScoped<IAuthorizationHandler, CourseMemberHandler>();
 

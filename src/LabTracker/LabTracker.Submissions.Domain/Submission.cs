@@ -12,6 +12,7 @@ public class Submission
     public string? Comment { get; private set; }
     public DateTimeOffset CreatedAt { get; }
     public DateTimeOffset? UpdatedAt { get; private set; }
+    public double Priority { get; private set;  }
 
     private Submission(
         Guid id,
@@ -23,12 +24,14 @@ public class Submission
         int? score,
         string? comment,
         DateTimeOffset createdAt,
-        DateTimeOffset? updatedAt)
+        DateTimeOffset? updatedAt,
+        double priority)
     {
         if (studentId == Guid.Empty) throw new ArgumentException("StudentId cannot be empty.", nameof(studentId));
         if (labId == Guid.Empty) throw new ArgumentException("LabId cannot be empty.", nameof(labId));
         if (slotId == Guid.Empty) throw new ArgumentException("SlotId cannot be empty.", nameof(slotId));
         if (courseId == Guid.Empty) throw new ArgumentException("CourseId cannot be empty.", nameof(courseId));
+        if (priority < 0) throw new ArgumentOutOfRangeException(nameof(priority), "Priority must be non-negative.");
 
         Id = id;
         StudentId = studentId;
@@ -40,13 +43,15 @@ public class Submission
         Comment = comment;
         CreatedAt = createdAt;
         UpdatedAt = updatedAt;
+        Priority = priority;
     }
 
     public static Submission CreateNew(
         Guid studentId,
         Guid labId,
         Guid slotId,
-        Guid courseId)
+        Guid courseId,
+        double priority)
     {
         return new Submission(
             Guid.NewGuid(),
@@ -58,7 +63,8 @@ public class Submission
             null,
             null,
             DateTimeOffset.UtcNow,
-            null
+            null,
+            priority
         );
     }
 
@@ -72,7 +78,8 @@ public class Submission
         int? score,
         string? comment,
         DateTimeOffset createdAt,
-        DateTimeOffset? updatedAt)
+        DateTimeOffset? updatedAt,
+        double priority)
     {
         return new Submission(
             id,
@@ -84,7 +91,8 @@ public class Submission
             score,
             comment,
             createdAt,
-            updatedAt
+            updatedAt,
+            priority
         );
     }
 

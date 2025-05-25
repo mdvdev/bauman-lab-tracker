@@ -2,6 +2,7 @@ using LabTracker.CourseMembers.Abstractions.Services;
 using LabTracker.Courses.Abstractions.Repositories;
 using LabTracker.Labs.Abstractions.Repositories;
 using LabTracker.Slots.Abstractions.Services;
+using LabTracker.Submissions.Abstractions;
 using LabTracker.Submissions.Abstractions.Repositories;
 using LabTracker.Submissions.Abstractions.Services;
 using LabTracker.Submissions.Abstractions.Services.Dtos;
@@ -18,6 +19,7 @@ public class SubmissionService : ISubmissionService
     private readonly IUserRepository _userRepository;
     private readonly ICourseMemberService _courseMemberService;
     private readonly ISlotService _slotService;
+    private readonly IPriorityCalculatorFactory _priorityCalculatorFactory;
 
     public SubmissionService(
         ISubmissionRepository submissionRepository,
@@ -25,7 +27,8 @@ public class SubmissionService : ISubmissionService
         ICourseRepository courseRepository,
         IUserRepository userRepository,
         ICourseMemberService courseMemberService,
-        ISlotService slotService)
+        ISlotService slotService,
+        IPriorityCalculatorFactory priorityCalculatorFactory)
     {
         _submissionRepository = submissionRepository;
         _labRepository = labRepository;
@@ -33,16 +36,23 @@ public class SubmissionService : ISubmissionService
         _userRepository = userRepository;
         _courseMemberService = courseMemberService;
         _slotService = slotService;
+        _priorityCalculatorFactory = priorityCalculatorFactory;
     }
 
-    // TODO: Implement queue algorithm on insertion.
     public async Task<SubmissionInfo> CreateSubmissionAsync(Guid courseId, CreateSubmissionRequest request)
     {
+        var course = await _courseRepository.GetByIdAsync(courseId)
+                     ?? throw new ArgumentException($"Course with id '{courseId}' does not exist.", nameof(courseId));
+        
+        var priorityCalculator = _priorityCalculatorFactory.GetPriorityCalculator(course.QueueMode);
+        var priority = await priorityCalculator.CalculatePriorityAsync(request.StudentId, courseId, request.SlotId);
+        
         var submission = Submission.CreateNew(
             studentId: request.StudentId,
             labId: request.LabId,
             slotId: request.SlotId,
-            courseId: courseId);
+            courseId: courseId,
+            priority: priority);
 
         var info = await LoadSubmissionContextAsync(
             courseId,
@@ -72,7 +82,9 @@ public class SubmissionService : ISubmissionService
                 result.Add(submissionInfo);
         }
 
-        return result;
+        return result
+            .OrderByDescending(s => s.Submission.Priority)
+            .ThenBy(s => s.Submission.CreatedAt);;
     }
 
     public async Task<SubmissionInfo?> GetSubmissionAsync(Guid submissionId)

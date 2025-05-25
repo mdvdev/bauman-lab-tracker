@@ -43,6 +43,25 @@ public class CourseMemberRepository : ICourseMemberRepository
         return await ToDomainWithUsersAsync(entities);
     }
 
+    public async Task<IEnumerable<CourseMember>> GetStudentsByCourseIdAsync(Guid courseId)
+    {
+        var entities = await _context.CourseMembers
+            .Where(cm => cm.CourseId == courseId)
+            .ToListAsync();
+
+        var result = new List<CourseMember>();
+
+        foreach (var entity in entities)
+        {
+            var user = await _userRepository.GetByIdAsync(entity.MemberId)
+                       ?? throw new InvalidOperationException($"User with ID {entity.MemberId} not found.");
+            if (user.IsStudent)
+                result.Add(entity.ToDomain(user));
+        }
+
+        return result;
+    }
+
     public async Task<IEnumerable<CourseMember>> GetCoursesByMemberIdAsync(Guid memberId)
     {
         var entities = await _context.CourseMembers
