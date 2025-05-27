@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import "react-datepicker/dist/react-datepicker.css";
 import DatePicker from 'react-datepicker';
-
+import { authFetch } from "../../utils/authFetch";
 import "./AddLabCard.css"
 type AddLabProps = {
     // onSave: () => void;
@@ -27,7 +27,7 @@ const AddLabCard: React.FC<AddLabProps> = ({ onClose, courseId }) => {
         setError(null);
 
         try {
-            const response = await fetch(`/api/v1/courses/${courseId}/labs`, {
+            const response = await authFetch(`/api/v1/courses/${courseId}/labs`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

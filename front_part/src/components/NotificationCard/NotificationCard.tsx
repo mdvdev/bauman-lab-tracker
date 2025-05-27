@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 import { Item } from "../../types/itemType";
 import { User } from "../../types/userType";
 import "./NotificationCard.css"
-
+import { authFetch } from "../../utils/authFetch";
 type NotificationCardProps = {
     notificationId: string;
 }
@@ -12,11 +12,11 @@ const NotificationCard: React.FC<NotificationCardProps> = ({ notificationId }) =
     const [senderInfo, setSenderInfo] = useState<User>();
 
     useEffect(() => {
-        fetch(`/api/v1/notifications/${notificationId}`)
+        authFetch(`/api/v1/notifications/${notificationId}`)
             .then((notificationRes) => notificationRes.json())
             .then((notificationData: Item) => setNotification(notificationData))
 
-        fetch(`/api/v1/users/${notification?.userId}`)
+        authFetch(`/api/v1/users/${notification?.userId}`)
             .then((senderInfoRes) => senderInfoRes.json())
             .then((senderInfoData: User) => setSenderInfo(senderInfoData))
 

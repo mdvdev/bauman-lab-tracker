@@ -1,4 +1,4 @@
-import { useEffect, useState, useContext } from 'react';
+import { useEffect, useState } from 'react';
 import './StudentCourses.css';
 import { User } from '../../types/userType';
 import { useNavigate } from 'react-router-dom';
@@ -8,10 +8,9 @@ import { PlusIcon } from '@heroicons/react/24/solid';
 import Modal from '../../components/Modal/Modal';
 import AddCourseCard from '../../components/AddCourseCard/AddCourseCard';
 import { CourseTeacher } from '../../types/courseTeacherType';
-import { AuthContext } from '../../AuthContext';  
+import { authFetch } from '../../utils/authFetch';
 
 function StudentCourses() {
-    const { credentials } = useContext(AuthContext);
     const [courses, setCourses] = useState<Course[]>([]);
     const [courseTeachers, setCourseTeachers] = useState<Record<string, User[]>>({});
     const [user, setUser] = useState<User>();
@@ -19,72 +18,48 @@ function StudentCourses() {
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     useEffect(() => {
-        if (!credentials) {
-            console.warn("User is not authenticated yet");
-            return;
-        }
-
-
-        const authHeader = 'Basic ' + btoa(`${credentials.email}:${credentials.password}`);
-
-        fetch('/api/v1/users/me', {
-            headers: {
-                'Authorization': authHeader,
-                'Content-Type': 'application/json',
+        const fetchUser = async () => {
+            try {
+                const res = await authFetch('/api/v1/users/me');
+                const userData = await res.json();
+                setUser(userData);
+            } catch (err) {
+                console.error('Ошибка загрузки пользователя:', err);
             }
-        })
-            .then(res => {
-                if (!res.ok) throw new Error('Failed to fetch user info');
-                return res.json();
-            })
-            .then((data: User) => setUser(data))
-            .catch(err => console.error("Ошибка загрузки пользователя:", err));
+        };
 
-        // Загрузка курсов и преподавателей
-        fetch('/api/v1/courses', {
-            headers: {
-                'Authorization': authHeader,
-                'Content-Type': 'application/json',
-            }
-        })
-            .then(res => {
-                if (!res.ok) throw new Error('Failed to fetch courses');
-                return res.json();
-            })
-            .then(async (courses: Course[]) => {
-                setCourses(courses);
+        const fetchCoursesAndTeachers = async () => {
+            try {
+                const res = await authFetch('/api/v1/courses');
+                const courseList: Course[] = await res.json();
+                setCourses(courseList);
 
-                // Загружаем преподавателей для каждого курса
                 const teachersData = await Promise.all(
-                    courses.map(course =>
-                        fetch(`/api/v1/courses/${course.id}/teachers`, {
-                            headers: {
-                                'Authorization': authHeader,
-                                'Content-Type': 'application/json',
-                            }
-                        })
-                            .then(res => {
-                                if (!res.ok) return Promise.reject('Failed to fetch teachers');
-                                return res.json();
-                            })
+                    courseList.map(course =>
+                        authFetch(`/api/v1/courses/${course.id}/teachers`)
+                            .then(res => res.ok ? res.json() : [])
                             .then((teachers: CourseTeacher[]) => ({
                                 courseId: course.id,
-                                teachers: teachers.map(t => t.user)
+                                teachers: teachers.map(t => t.user),
                             }))
                             .catch(() => ({ courseId: course.id, teachers: [] }))
                     )
                 );
 
-                // Преобразуем в объект { courseId: User[] }
                 const teachersMap = teachersData.reduce((acc, item) => {
                     acc[item.courseId] = item.teachers;
                     return acc;
                 }, {} as Record<string, User[]>);
 
                 setCourseTeachers(teachersMap);
-            })
-            .catch(err => console.error("Ошибка загрузки курсов:", err));
-    }, [credentials]); // перезапускаем при изменении credentials
+            } catch (err) {
+                console.error('Ошибка загрузки курсов:', err);
+            }
+        };
+
+        fetchUser();
+        fetchCoursesAndTeachers();
+    }, []);
 
     return (
         <>

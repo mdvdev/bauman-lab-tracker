@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import "./EditProfile.css"
+import { authFetch } from '../../utils/authFetch';
 type EditProfileProps = {
     onSave: () => void;
     onClose: () => void;
@@ -13,7 +14,7 @@ const EditProfile: React.FC<EditProfileProps> = ({ onSave, onClose }) => {
     const [email, setEmail] = useState('');
 
     useEffect(() => {
-        fetch('api/v1/users/me')
+        authFetch('api/v1/users/me')
             .then((res) => res.json())
             .then((data) => {
                 setEmail(data.email)
@@ -37,7 +38,7 @@ const EditProfile: React.FC<EditProfileProps> = ({ onSave, onClose }) => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault(); // предотвратить перезагрузку страницы
         try {
-            const res = await fetch('api/v1/users/me', {
+            const res = await authFetch('api/v1/users/me', {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',

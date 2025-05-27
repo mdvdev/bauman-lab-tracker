@@ -3,6 +3,7 @@ export type User = {
     email: string,
     firstName: string,
     lastName: string,
+    group: string,
     patronymic: string,
     telegramUsername: string,
     roles: string[],

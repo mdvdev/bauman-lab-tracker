@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { CourseStudent } from '../../types/courseStudentType';
 import { User } from '../../types/userType';
 import './CourseParticipantCard.css';
-
+import { authFetch } from '../../utils/authFetch';
 type CourseParticipantProps = {
     courseId: string;
     currentUserId: string; // передавай ID текущего пользователя
@@ -19,7 +19,7 @@ const CourseParticipant: React.FC<CourseParticipantProps> = ({ courseId, current
             setLoading(true);
             setError(null);
 
-            const response = await fetch(`/api/v1/courses/${courseId}/students`);
+            const response = await authFetch(`/api/v1/courses/${courseId}/students`);
             if (!response.ok) {
                 throw new Error(`Ошибка HTTP: ${response.status}`);
             }

@@ -5,7 +5,7 @@ import { getSubmissionStatusClass } from "../../utils/labStatusUtil"
 import { Submission } from "../../types/submssionType"
 import { LabStatus } from "../../types/labStatusType";
 import { useNavigate } from 'react-router-dom';
-
+import { authFetch } from "../../utils/authFetch";
 interface LabStatusCardProps {
     labId: string;
     courseId: string | null;
@@ -36,12 +36,12 @@ function LabStatusCard({ labId, courseId }: LabStatusCardProps) {
     useEffect(() => {
         const fetchLab = async () => {
             try {
-                const labRes = await fetch(`/api/v1/courses/${courseId}/labs/${labId}`);
+                const labRes = await authFetch(`/api/v1/courses/${courseId}/labs/${labId}`);
                 const labData: Lab = await labRes.json();
                 console.log(labData)
                 setLab(labData);
 
-                const submissionsRes = await fetch(`/api/v1/courses/${courseId}/submissions/me`);
+                const submissionsRes = await authFetch(`/api/v1/courses/${courseId}/submissions/me`);
                 if (!submissionsRes.ok) throw new Error("Не удалось загрузить данные о сдачах");
                 const submissionsData: Submission[] = await submissionsRes.json();
                 console.log(submissionsData)

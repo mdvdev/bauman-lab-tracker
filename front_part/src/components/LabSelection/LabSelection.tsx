@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Lab } from "../../types/labType";
 import { Submission } from "../../types/submssionType";
 import "./LabSelection.css";
+import { authFetch } from "../../utils/authFetch";
 
 type LabSelectionProps = {
     courseId: string;
@@ -23,12 +24,12 @@ const LabSelection: React.FC<LabSelectionProps> = ({ courseId, userId, slotId, o
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const labsRes = await fetch(`/api/v1/courses/${courseId}/labs`);
+                const labsRes = await authFetch(`/api/v1/courses/${courseId}/labs`);
                 const labsData: Lab[] = await labsRes.json();
                 console.log(labsData)
                 setLabs(labsData);
 
-                const submissionsRes = await fetch(`/api/v1/courses/${courseId}/submissions`);
+                const submissionsRes = await authFetch(`/api/v1/courses/${courseId}/submissions`);
                 const submissionsData: Submission[] = await submissionsRes.json();
                 setSubmissions(submissionsData);
 

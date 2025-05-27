@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import "./AddCourseCard.css"
+import { authFetch } from "../../utils/authFetch";
 type AddCourseCardProps = {
     // onSave: () => void;
     onClose: () => void;
@@ -22,7 +23,7 @@ const AddCourseCard: React.FC<AddCourseCardProps> = ({ onClose }) => {
         setError(null);
 
         try {
-            const response = await fetch(`/api/v1/courses`, {
+            const response = await authFetch(`/api/v1/courses`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

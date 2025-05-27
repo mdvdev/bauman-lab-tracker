@@ -1,4 +1,4 @@
-import { useEffect, useState, useContext } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import TeachersList from "../../components/TeachersList/TeachersList";
@@ -12,15 +12,13 @@ import { User } from "../../types/userType";
 import { Lab } from "../../types/labType";
 import { CourseTeacher } from "../../types/courseTeacherType";
 
-import { AuthContext } from '../../AuthContext';  // путь поправь, если нужно
-
 import { PlusIcon, Settings } from "lucide-react";
+import { authFetch } from "../../utils/authFetch";
 
 import "./StudentCoursePerformance.css";
 
 function StudentCoursePerformance() {
     const { courseId } = useParams();
-    const { credentials } = useContext(AuthContext);
     const [course, setCourse] = useState<Course>();
     const [courseTeachers, setCourseTeachers] = useState<User[]>([]);
     const [labs, setLabs] = useState<Lab[]>([]);
@@ -31,67 +29,35 @@ function StudentCoursePerformance() {
 
     useEffect(() => {
         const fetchData = async () => {
-            if (!credentials) {
-                console.warn("User is not authenticated yet");
-                return;
-            }
-
-            const authHeader = 'Basic ' + btoa(`${credentials.email}:${credentials.password}`);
-
             try {
-                // 1. Получаем данные курса
-                const courseRes = await fetch(`/api/v1/courses/${courseId}`, {
-                    headers: {
-                        'Authorization': authHeader,
-                        'Content-Type': 'application/json',
-                    },
-                });
-                if (!courseRes.ok) throw new Error('Failed to fetch course');
+                // 1. Курс
+                const courseRes = await authFetch(`/api/v1/courses/${courseId}`);
                 const courseData: Course = await courseRes.json();
                 setCourse(courseData);
 
-                // 2. Получаем информацию о текущем пользователе
-                const myUserInfoRes = await fetch(`/api/v1/users/me`, {
-                    headers: {
-                        'Authorization': authHeader,
-                        'Content-Type': 'application/json',
-                    },
-                });
-                if (!myUserInfoRes.ok) throw new Error('Failed to fetch user info');
-                const myUserInfoData: User = await myUserInfoRes.json();
-                setMyUserInfo(myUserInfoData);
+                // 2. Мой пользователь
+                const userRes = await authFetch('/api/v1/users/me');
+                const userData: User = await userRes.json();
+                setMyUserInfo(userData);
 
-                // 3. Получаем список преподавателей курса
-                const teachersRes = await fetch(`/api/v1/courses/${courseId}/teachers`, {
-                    headers: {
-                        'Authorization': authHeader,
-                        'Content-Type': 'application/json',
-                    },
-                });
-                if (!teachersRes.ok) throw new Error('Failed to fetch teachers');
-                const teachersData: CourseTeacher[] = await teachersRes.json();
-                const teachers = teachersData.map(ct => ct.user);
+                // 3. Преподаватели курса
+                const teachersRes = await authFetch(`/api/v1/courses/${courseId}/teachers`);
+                const teacherData: CourseTeacher[] = await teachersRes.json();
+                const teachers = teacherData.map(ct => ct.user);
                 setCourseTeachers(teachers);
 
-                // 4. Получаем список лабораторных работ
-                const labRes = await fetch(`/api/v1/courses/${courseId}/labs`, {
-                    headers: {
-                        'Authorization': authHeader,
-                        'Content-Type': 'application/json',
-                    },
-                });
-                if (!labRes.ok) throw new Error('Failed to fetch labs');
+                // 4. Лабораторные работы
+                const labRes = await authFetch(`/api/v1/courses/${courseId}/labs`);
                 const labData: Lab[] = await labRes.json();
                 setLabs(labData);
 
             } catch (error) {
-                console.error("Error fetching data:", error);
+                console.error("Ошибка при загрузке данных:", error);
             }
         };
 
         fetchData();
-
-    }, [courseId, credentials]);  // обновляем при изменении courseId или credentials
+    }, [courseId]);
 
     return (
         <>
@@ -143,14 +109,14 @@ function StudentCoursePerformance() {
 
             {isModalOpen && (
                 <Modal onClose={() => setIsModalOpen(false)}>
-                    {modalType === "addLab" && (
-                        <AddLabCard onClose={() => setIsModalOpen(false)} courseId={course?.id!} />
+                    {modalType === "addLab" && course?.id && (
+                        <AddLabCard onClose={() => setIsModalOpen(false)} courseId={course.id} />
                     )}
-                    {modalType === "courseParticipant" && (
+                    {modalType === "courseParticipant" && myUserInfo?.id && (
                         <CourseParticipant
                             onClose={() => setIsModalOpen(false)}
                             courseId={course?.id!}
-                            currentUserId={myUserInfo?.id!}
+                            currentUserId={myUserInfo.id}
                         />
                     )}
                 </Modal>
