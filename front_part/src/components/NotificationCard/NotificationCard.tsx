@@ -12,15 +12,29 @@ const NotificationCard: React.FC<NotificationCardProps> = ({ notificationId }) =
     const [senderInfo, setSenderInfo] = useState<User>();
 
     useEffect(() => {
-        authFetch(`/api/v1/notifications/${notificationId}`)
-            .then((notificationRes) => notificationRes.json())
-            .then((notificationData: Item) => setNotification(notificationData))
+        const fetchNotification = async () => {
+            try {
+                const notificationRes = await authFetch(`/api/v1/notifications/${notificationId}`);
+                if (!notificationRes.ok) throw new Error("Ошибка загрузки уведомления");
 
-        authFetch(`/api/v1/users/${notification?.userId}`)
-            .then((senderInfoRes) => senderInfoRes.json())
-            .then((senderInfoData: User) => setSenderInfo(senderInfoData))
+                const notificationData: Item = await notificationRes.json();
+                setNotification(notificationData);
 
-    })
+                if (notificationData.userId) {
+                    const senderInfoRes = await authFetch(`/api/v1/users/${notificationData.userId}`);
+                    if (!senderInfoRes.ok) throw new Error("Ошибка загрузки отправителя");
+
+                    const senderInfoData: User = await senderInfoRes.json();
+                    setSenderInfo(senderInfoData);
+                }
+            } catch (err) {
+                console.error("Ошибка загрузки данных уведомления:", err);
+            }
+        };
+
+        fetchNotification();
+    }, [notificationId]);
+
     return (
         <div className="notification-card">
             <div className="notification-title">{notification?.title}</div>

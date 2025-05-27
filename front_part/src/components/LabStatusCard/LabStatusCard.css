@@ -32,7 +32,7 @@
     flex-wrap: wrap;
 }
 
-.lab-buttons {
+.student-lab-buttons {
     display: flex;
     gap: 12px;
     margin-top: 12px;
@@ -111,4 +111,13 @@
 
 .row-info.status-approved-after-deadline {
     color: #ffc107;
+}
+
+.lab-refactor-button {
+    background-color: black;
+    color: white;
+    border-radius: 16px;
+    font-size: clamp(12px, 1.1vw, 18px);
+    padding: 0.4em 2em;
+    min-width: 120px;
 }

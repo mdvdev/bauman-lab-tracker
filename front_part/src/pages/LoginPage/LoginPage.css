@@ -52,3 +52,17 @@
     font-size: 40px;
     font-weight: bold;
 }
+
+.text-link {
+    color: black;
+    text-decoration: underline;
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0;
+    font: inherit;
+}
+
+.text-link:hover {
+    color: gray;
+}
