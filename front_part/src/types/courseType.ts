@@ -1,7 +1,8 @@
 export type Course = {
-    id: string | number;
-    name: string;
-    description?: string;
-    photo: string
-    teacherIds: (string | number)[];
+    id: string,
+    name: string,
+    description: string,
+    queueMode: string,
+    createdAt: string,
+    photoUri: string
 }

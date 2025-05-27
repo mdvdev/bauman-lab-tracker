@@ -1,11 +1,9 @@
 export type Lab = {
-
     id: string,
+    courseId: string,
     name: string,
-    description: string,
+    descriptionUri: string,
     deadline: string,
     score: number,
-    scoreAfterDeadline: number,
-    courseId: string,
-    createdAt: string
+    scoreAfterDeadline: number
 };

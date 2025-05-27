@@ -53,7 +53,6 @@ using Users.Web;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Error formatting
 builder.Services.AddProblemDetails(options =>
 {
     options.IncludeExceptionDetails = (ctx, ex) => builder.Environment.IsDevelopment();
@@ -67,7 +66,6 @@ builder.Services.AddProblemDetails(options =>
     options.MapToStatusCode<Exception>(StatusCodes.Status500InternalServerError);
 });
 
-// Auth
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
@@ -94,7 +92,7 @@ builder.Services.AddAuthorization(options =>
 
     options.AddPolicy("TeacherOrAdmin", policy =>
         policy.RequireRole(nameof(Role.Teacher), nameof(Role.Administrator)));
-
+    
     options.AddPolicy("CourseMemberOnly", policy =>
         policy.Requirements.Add(new CourseMemberRequirement()));
 
@@ -135,15 +133,12 @@ builder.Services.Configure<IdentityOptions>(options =>
     options.Password.RequireLowercase = true;
 });
 
-// Swagger
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// DB Context
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Identity
 builder.Services.AddIdentity<UserEntity, IdentityRole<Guid>>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
@@ -172,7 +167,6 @@ builder.Services.ConfigureApplicationCookie(options =>
     };
 });
 
-// Controllers
 builder.Services.AddControllers()
     .AddApplicationPart(typeof(AuthController).Assembly)
     .AddApplicationPart(typeof(CourseStudentController).Assembly)
@@ -188,7 +182,6 @@ builder.Services.AddControllers()
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
     });
 
-// Dependencies
 builder.Services.AddScoped<ICourseRepository, CourseRepository>();
 builder.Services.AddScoped<ICourseMemberRepository, CourseMemberRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
@@ -217,7 +210,6 @@ builder.Services.AddScoped<IAuthorizationHandler, CourseMemberHandler>();
 
 var app = builder.Build();
 
-// DB init
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
@@ -225,7 +217,6 @@ using (var scope = app.Services.CreateScope())
     // await IdentitySeeder.SeedAdminAsync(services);
 }
 
-// Dev tools
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -239,8 +230,8 @@ app.UseProblemDetails();
 app.UseRouting();
 
 app.UseAuthentication();
-app.UseAuthorization();
 app.UseMiddleware<CurrentUserMiddleware>();
+app.UseAuthorization();
 
 var staticFilesPath = Path.Combine(builder.Environment.ContentRootPath, "StaticFiles");
 if (!Directory.Exists(staticFilesPath))
@@ -248,22 +239,16 @@ if (!Directory.Exists(staticFilesPath))
     Directory.CreateDirectory(staticFilesPath);
 }
 
-// Middleware order
-app.UseProblemDetails();
-app.UseRouting();
-
-app.UseCors("AllowAll"); 
-
-app.UseAuthentication();
-app.UseAuthorization();
-app.UseMiddleware<CurrentUserMiddleware>();
-
-app.UseStaticFiles();
 app.UseStaticFiles(new StaticFileOptions
 {
     FileProvider = new PhysicalFileProvider(staticFilesPath),
     RequestPath = "/StaticFiles"
 });
+
+app.UseProblemDetails();
+app.UseRouting();
+
+app.UseCors("AllowAll"); 
 
 app.MapControllers();
 

@@ -23,23 +23,27 @@ const LabSelection: React.FC<LabSelectionProps> = ({ courseId, userId, slotId, o
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const labsRes = await fetch(`http://localhost:3001/labs?courseId=${courseId}`);
+                const labsRes = await fetch(`/api/v1/courses/${courseId}/labs`);
                 const labsData: Lab[] = await labsRes.json();
+                console.log(labsData)
                 setLabs(labsData);
 
-                const submissionsRes = await fetch(`http://localhost:3001/submissions`);
+                const submissionsRes = await fetch(`/api/v1/courses/${courseId}/submissions`);
                 const submissionsData: Submission[] = await submissionsRes.json();
                 setSubmissions(submissionsData);
 
                 // Фильтруем лабораторные, по которым уже есть "Approved" или "Approved after deadline"
                 const completedLabIds = submissionsData
                     .filter(sub =>
-                        sub.userId === userId &&
-                        (sub.status === 'Approved' || sub.status === 'Approved after deadline')
+                        sub.submissionStatus === 'Approved' ||
+                        sub.submissionStatus === 'Approved after deadline'
                     )
-                    .map(sub => sub.labId);
+                    .map(sub => sub.lab.id); // Теперь обращаемся к lab.id через объект lab
 
-                const filtered = labsData.filter(lab => !completedLabIds.includes(lab.id));
+                const filtered = labsData.filter(lab =>
+                    !completedLabIds.includes(lab.id) // Сравниваем id лабораторных работ
+                );
+
                 setFilteredLabs(filtered);
             } catch (err) {
                 console.error("Ошибка при загрузке данных", err);
@@ -50,25 +54,42 @@ const LabSelection: React.FC<LabSelectionProps> = ({ courseId, userId, slotId, o
     }, [courseId, userId]);
 
     const handleSubmit = async () => {
-        if (!selectedOption) return;
+        if (!selectedOption) {
+            setError('Выберите лабораторную работу');
+            return;
+        }
+
         setLoading(true);
         setError(null);
 
         try {
-            const response = await fetch(`http://localhost:3001/submissions`, {
+            const requestBody = {
+                studentId: userId,
+                labId: selectedOption,
+                slotId: slotId
+            };
+
+            const response = await fetch(`/api/v1/courses/${courseId}/submissions`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ slotId, selectedOption, userId }),
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                },
+                body: JSON.stringify(requestBody),
             });
 
-            if (!response.ok) throw new Error('Ошибка при записи на лабораторную');
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.message || 'Ошибка при записи на лабораторную');
+            }
 
             const data = await response.json();
             setSuccess(true);
             successSign(data.id);
             onClose();
         } catch (err) {
-            setError((err as Error).message);
+            console.error('Submission error:', err);
+            setError((err as Error).message || 'Произошла ошибка');
         } finally {
             setLoading(false);
         }

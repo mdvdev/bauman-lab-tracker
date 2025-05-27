@@ -32,17 +32,17 @@
     justify-content: center;
 }
 
-.role-badge.student {
+.role-badge.Студент {
     background-color: #e0e7ff;
     color: #4f46e5;
 }
 
-.role-badge.teacher {
+.role-badge.Преподаватель {
     background-color: #ffe0e0;
     color: #d32f2f;
 }
 
-.role-badge.admin {
+.role-badge.Администратор {
     background-color: #FFF4E5;
     color: #C77700;
 }

@@ -14,8 +14,10 @@ function formatTime(timeString: string): string {
         hour12: false
     });
 }
-function SlotCard(props: { slot: Slot }) {
+function SlotCard(props: { slot: Slot, courseId: string, userId: string }) {
     const { slot } = props;
+    const { courseId } = props;
+    const { userId } = props;
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalType, setModalType] = useState<'signSlot' | 'slotParticipant' | null>(null);
     const [signSuccess, setSignSuccess] = useState<boolean>(false);
@@ -25,7 +27,7 @@ function SlotCard(props: { slot: Slot }) {
     useEffect(() => {
         const checkSubmission = async () => {
             try {
-                const res = await fetch(`http://localhost:3001/submissions?userId=1&slotId=${slot.id}`);
+                const res = await fetch(`/api/v1/submissions?slotId=${slot.id}`);
                 const data = await res.json();
                 if (data.length > 0) {
                     setSignSuccess(true);
@@ -36,11 +38,12 @@ function SlotCard(props: { slot: Slot }) {
             }
         };
 
+
         checkSubmission();
     }, [slot.id]);
     const deleteRecord = async () => {
         try {
-            await fetch(`http://localhost:3001/submissions/${submissionId}`, {
+            await fetch(`/api/v1/courses/${courseId}/submissions/${submissionId}`, {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
@@ -97,7 +100,7 @@ function SlotCard(props: { slot: Slot }) {
             </div >
             {isModalOpen &&
                 <Modal onClose={() => setIsModalOpen(false)}>
-                    {modalType === 'signSlot' && <LabSelection courseId="1" userId="1" slotId={slot.id} onClose={() => setIsModalOpen(false)} successSign={(id) => { setSignSuccess(true); setSubmissionId(id) }}  ></LabSelection>}
+                    {modalType === 'signSlot' && <LabSelection courseId={courseId} userId={userId} slotId={slot.id} onClose={() => setIsModalOpen(false)} successSign={(id) => { setSignSuccess(true); setSubmissionId(id) }}  ></LabSelection>}
                     {modalType === 'slotParticipant'}
                 </Modal >
             }

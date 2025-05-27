@@ -192,3 +192,5 @@ obj/
 *.mdb
 *.cache
 *.log
+
+front_part/node_modules/*

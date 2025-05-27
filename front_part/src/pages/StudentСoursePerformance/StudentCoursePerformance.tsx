@@ -1,72 +1,162 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+
 import TeachersList from "../../components/TeachersList/TeachersList";
-import { useParams } from "react-router-dom";
-import { Course } from '../../types/courseType'
+import LabStatusCard from "../../components/LabStatusCard/LabStatusCard";
+import Modal from "../../components/Modal/Modal";
+import AddLabCard from "../../components/AddLabCard/AddLabCard";
+import CourseParticipant from "../../components/CourseParticipantCard/CourseParticipantCard";
+
+import { Course } from '../../types/courseType';
 import { User } from "../../types/userType";
 import { Lab } from "../../types/labType";
-import LabStatusCard from "../../components/LabStatusCard/LabStatusCard"
-import { Submission } from "../../types/submssionType"
+import { CourseTeacher } from "../../types/courseTeacherType";
 
-import "./StudentCoursePerformance.css"
+import { AuthContext } from '../../AuthContext';  // путь поправь, если нужно
+
+import { PlusIcon, Settings } from "lucide-react";
+
+import "./StudentCoursePerformance.css";
+
 function StudentCoursePerformance() {
     const { courseId } = useParams();
+    const { credentials } = useContext(AuthContext);
     const [course, setCourse] = useState<Course>();
     const [courseTeachers, setCourseTeachers] = useState<User[]>([]);
-    // const [notifications, setNotifications] = useState<Notification | null>(null);
     const [labs, setLabs] = useState<Lab[]>([]);
-    const [submissions, setSubmissions] = useState<Submission[]>([]);
+    const [myUserInfo, setMyUserInfo] = useState<User>();
+    const [modalType, setModalType] = useState<'addLab' | 'courseParticipant' | null>(null);
+    const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchData = async () => {
+            if (!credentials) {
+                console.warn("User is not authenticated yet");
+                return;
+            }
+
+            const authHeader = 'Basic ' + btoa(`${credentials.email}:${credentials.password}`);
+
             try {
-                const courseRes = await fetch(`http://localhost:3001/courses/${courseId}`);
+                // 1. Получаем данные курса
+                const courseRes = await fetch(`/api/v1/courses/${courseId}`, {
+                    headers: {
+                        'Authorization': authHeader,
+                        'Content-Type': 'application/json',
+                    },
+                });
+                if (!courseRes.ok) throw new Error('Failed to fetch course');
                 const courseData: Course = await courseRes.json();
                 setCourse(courseData);
 
-                const usersRes = await fetch(`http://localhost:3001/users`);
-                const allUsers: User[] = await usersRes.json();
+                // 2. Получаем информацию о текущем пользователе
+                const myUserInfoRes = await fetch(`/api/v1/users/me`, {
+                    headers: {
+                        'Authorization': authHeader,
+                        'Content-Type': 'application/json',
+                    },
+                });
+                if (!myUserInfoRes.ok) throw new Error('Failed to fetch user info');
+                const myUserInfoData: User = await myUserInfoRes.json();
+                setMyUserInfo(myUserInfoData);
 
-                const filteredTeachers = allUsers.filter(user =>
-                    courseData.teacherIds.includes(user.id));
-                setCourseTeachers(filteredTeachers);
+                // 3. Получаем список преподавателей курса
+                const teachersRes = await fetch(`/api/v1/courses/${courseId}/teachers`, {
+                    headers: {
+                        'Authorization': authHeader,
+                        'Content-Type': 'application/json',
+                    },
+                });
+                if (!teachersRes.ok) throw new Error('Failed to fetch teachers');
+                const teachersData: CourseTeacher[] = await teachersRes.json();
+                const teachers = teachersData.map(ct => ct.user);
+                setCourseTeachers(teachers);
 
-                const labRes = await fetch(`http://localhost:3001/labs`);
+                // 4. Получаем список лабораторных работ
+                const labRes = await fetch(`/api/v1/courses/${courseId}/labs`, {
+                    headers: {
+                        'Authorization': authHeader,
+                        'Content-Type': 'application/json',
+                    },
+                });
+                if (!labRes.ok) throw new Error('Failed to fetch labs');
                 const labData: Lab[] = await labRes.json();
-                const filteredLabs = labData.filter(lab => lab.courseId === courseId);
-                setLabs(filteredLabs);
-
-                const submissionsRes = await fetch(`http://localhost:3001/submissions`);
-                const submissionsData: Submission[] = await submissionsRes.json();
-                setSubmissions(submissionsData);
+                setLabs(labData);
 
             } catch (error) {
                 console.error("Error fetching data:", error);
             }
         };
+
         fetchData();
 
-    }, [courseId])
+    }, [courseId, credentials]);  // обновляем при изменении courseId или credentials
 
     return (
-        <div className="page">
-            <main className="course-detail">
-                <h2 className="course-title">{course?.name}</h2>
-                <TeachersList teachers={courseTeachers} />
-                <div className="lab-status-card-list">
-                    {labs.map((lab) => {
-                        const matchedSubmission = submissions.find(sub => sub.labId === lab.id) || null;
-                        return (
-                            <LabStatusCard
-                                key={lab.id}
-                                labId={lab.id}
-                                submission={matchedSubmission}
-                                courseId={courseId || ''}
-                            />
-                        );
-                    })}
-                </div>
-            </main>
-        </div>
-    )
+        <>
+            <div className="page">
+                <main className="course-detail">
+                    <div className="course-performance-header">
+                        <h2 className="course-title">{course?.name}</h2>
+
+                        {myUserInfo && (myUserInfo.roles.includes('Administrator') || myUserInfo.roles.includes('Teacher')) && (
+                            <div className="teacher-controls-button">
+                                <button
+                                    className="add-lab-button"
+                                    onClick={() => {
+                                        setIsModalOpen(true);
+                                        setModalType('addLab');
+                                    }}
+                                >
+                                    <PlusIcon className="plus-icon" />
+                                </button>
+                                <button className="admin-button">
+                                    <Settings stroke="white" className="settings-icon" />
+                                </button>
+                                <button className="slots-list" onClick={() => navigate(`/courses/${courseId}`)}>
+                                    Перейти к слотам
+                                </button>
+                            </div>
+                        )}
+
+                        <button
+                            className="course-students-button"
+                            onClick={() => {
+                                setIsModalOpen(true);
+                                setModalType('courseParticipant');
+                            }}
+                        >
+                            Список пользователей
+                        </button>
+                    </div>
+
+                    <TeachersList teachers={courseTeachers} />
+
+                    <div className="lab-status-card-list">
+                        {labs.map((lab) => (
+                            <LabStatusCard key={lab.id} labId={lab.id} courseId={courseId || ''} />
+                        ))}
+                    </div>
+                </main>
+            </div>
+
+            {isModalOpen && (
+                <Modal onClose={() => setIsModalOpen(false)}>
+                    {modalType === "addLab" && (
+                        <AddLabCard onClose={() => setIsModalOpen(false)} courseId={course?.id!} />
+                    )}
+                    {modalType === "courseParticipant" && (
+                        <CourseParticipant
+                            onClose={() => setIsModalOpen(false)}
+                            courseId={course?.id!}
+                            currentUserId={myUserInfo?.id!}
+                        />
+                    )}
+                </Modal>
+            )}
+        </>
+    );
 }
+
 export default StudentCoursePerformance;
