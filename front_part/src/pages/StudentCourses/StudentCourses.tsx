@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import './StudentCourses.css'
-import { User } from '../../types/userType'
+import './StudentCourses.css';
+import { User } from '../../types/userType';
 import { useNavigate } from 'react-router-dom';
 import TeachersList from '../../components/TeachersList/TeachersList';
 import { Course } from '../../types/courseType';
@@ -8,6 +8,8 @@ import { PlusIcon } from '@heroicons/react/24/solid';
 import Modal from '../../components/Modal/Modal';
 import AddCourseCard from '../../components/AddCourseCard/AddCourseCard';
 import { CourseTeacher } from '../../types/courseTeacherType';
+import { authFetch } from '../../utils/authFetch';
+
 function StudentCourses() {
     const [courses, setCourses] = useState<Course[]>([]);
     const [courseTeachers, setCourseTeachers] = useState<Record<string, User[]>>({});
@@ -16,40 +18,47 @@ function StudentCourses() {
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     useEffect(() => {
-        // Загрузка данных пользователя
-        fetch('api/v1/users/me')
-            .then(res => res.json())
-            .then((data: User) => setUser(data))
-            .catch(err => console.error("Ошибка загрузки пользователя:", err));
+        const fetchUser = async () => {
+            try {
+                const res = await authFetch('/api/v1/users/me');
+                const userData = await res.json();
+                setUser(userData);
+            } catch (err) {
+                console.error('Ошибка загрузки пользователя:', err);
+            }
+        };
 
-        // Загрузка курсов и преподавателей
-        fetch('api/v1/courses')
-            .then(res => res.json())
-            .then(async (courses: Course[]) => {
-                setCourses(courses);
+        const fetchCoursesAndTeachers = async () => {
+            try {
+                const res = await authFetch('/api/v1/courses');
+                const courseList: Course[] = await res.json();
+                setCourses(courseList);
 
-                // Загружаем преподавателей для каждого курса
                 const teachersData = await Promise.all(
-                    courses.map(course =>
-                        fetch(`api/v1/courses/${course.id}/teachers`)
-                            .then(res => res.json())
+                    courseList.map(course =>
+                        authFetch(`/api/v1/courses/${course.id}/teachers`)
+                            .then(res => res.ok ? res.json() : [])
                             .then((teachers: CourseTeacher[]) => ({
                                 courseId: course.id,
-                                teachers: teachers.map(t => t.user)
+                                teachers: teachers.map(t => t.user),
                             }))
                             .catch(() => ({ courseId: course.id, teachers: [] }))
                     )
                 );
 
-                // Преобразуем в объект { courseId: User[] }
                 const teachersMap = teachersData.reduce((acc, item) => {
                     acc[item.courseId] = item.teachers;
                     return acc;
                 }, {} as Record<string, User[]>);
 
                 setCourseTeachers(teachersMap);
-            })
-            .catch(err => console.error("Ошибка загрузки курсов:", err));
+            } catch (err) {
+                console.error('Ошибка загрузки курсов:', err);
+            }
+        };
+
+        fetchUser();
+        fetchCoursesAndTeachers();
     }, []);
 
     return (

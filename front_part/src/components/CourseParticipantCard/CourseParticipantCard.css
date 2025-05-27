@@ -1,0 +1,47 @@
+.student-list-container {
+    background-color: #fff;
+    border-radius: 8px;
+    padding: 1rem 1.5rem;
+    max-width: 500px;
+    margin: 0 auto;
+    font-family: sans-serif;
+    color: #111;
+}
+
+.student-list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 600;
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+}
+
+.close-btn {
+    background: #000;
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.student-list {
+    list-style-position: inside;
+    padding-left: 0;
+    margin: 0;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.student-item {
+    border-bottom: 1px solid #e0e0e0;
+    padding: 0.5rem 0;
+    font-size: 1rem;
+}
+
+.student-item:last-child {
+    border-bottom: none;
+}

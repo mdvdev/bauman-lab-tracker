@@ -6,6 +6,7 @@ import Modal from "../Modal/Modal";
 import { useState } from "react";
 import LabSelection from "../LabSelection/LabSelection"
 import { useEffect } from "react";
+import { authFetch } from "../../utils/authFetch";
 function formatTime(timeString: string): string {
     const date = new Date(timeString);
     return date.toLocaleTimeString([], {
@@ -27,7 +28,7 @@ function SlotCard(props: { slot: Slot, courseId: string, userId: string }) {
     useEffect(() => {
         const checkSubmission = async () => {
             try {
-                const res = await fetch(`/api/v1/submissions?slotId=${slot.id}`);
+                const res = await authFetch(`/api/v1/submissions?slotId=${slot.id}`);
                 const data = await res.json();
                 if (data.length > 0) {
                     setSignSuccess(true);
@@ -43,7 +44,7 @@ function SlotCard(props: { slot: Slot, courseId: string, userId: string }) {
     }, [slot.id]);
     const deleteRecord = async () => {
         try {
-            await fetch(`/api/v1/courses/${courseId}/submissions/${submissionId}`, {
+            await authFetch(`/api/v1/courses/${courseId}/submissions/${submissionId}`, {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',

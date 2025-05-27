@@ -5,6 +5,7 @@ import { translateRole } from '../../utils/roleUtils';
 import { Calendar, Mail } from 'lucide-react';
 import Modal from '../Modal/Modal';
 import EditProfile from '../EditProfile/EditProfile';
+import { authFetch } from '../../utils/authFetch';
 
 function UserCard() {
     const [user, setUser] = useState<User | null>(null);
@@ -12,9 +13,9 @@ function UserCard() {
 
     const loadUser = async () => {
         try {
-            const response = await fetch('/api/v1/users/me', {
+            const response = await authFetch('/api/v1/users/me', {
                 method: 'GET',
-                credentials: 'include', 
+                credentials: 'include',
             });
 
             if (!response.ok) {
@@ -78,9 +79,13 @@ function UserCard() {
                                 <span className="crated-at-info">{user.email}</span>
                             )}
                         </div>
-                        <div className="group-row">
-                            <img className="group-icon" src="/icons/gmail_groups.png" alt="group" />
-                        </div>
+                        {(!user.roles.includes('Administrator') && !user.roles.includes('Teacher')) &&
+                            <div className="group-row">
+                                <img className="group-icon" src="/icons/gmail_groups.png" alt="group" />
+                                {user.group && (
+                                    <span className="crated-at-info">{user.group}</span>
+                                )}
+                            </div>}
                     </div>
                 </div>
             </div>
