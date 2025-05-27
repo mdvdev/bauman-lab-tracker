@@ -41,40 +41,31 @@ public class SubmissionController : ControllerBase
     }
 
     [HttpGet]
-    [Authorize(Policy = "CourseMemberOnly")]
+    [Authorize(Policy = "StudentAndCourseMember")]
     public async Task<IActionResult> GetSubmissionsAsync(
         Guid courseId,
-        [FromQuery] SubmissionStatus? status = null,
-        [FromQuery] Guid? slotId = null)
+        [FromQuery] SubmissionStatus? status = null)
     {
-        var submissions = await _submissionService.GetCourseSubmissionsAsync(
-            courseId,
-            status is null
-                ? null
-                : submissionInfo =>
-                    submissionInfo.Submission.SubmissionStatus == status &&
-                    submissionInfo.SlotInfo.Slot.Id == slotId);
+        var submissions =
+            await _submissionService.GetCourseSubmissionsAsync(courseId,
+                status is not null ? s => s.Submission.SubmissionStatus == status : null);
 
         return Ok(submissions.Select(SubmissionResponse.Create));
     }
 
     [HttpGet("me")]
-    [Authorize(Policy = "CourseMemberOnly")]
+    [Authorize(Policy = "StudentAndCourseMember")]
     public async Task<IActionResult> GetMySubmissionsAsync(
         Guid courseId,
-        [FromQuery] SubmissionStatus? status = null,
-        [FromQuery] Guid? slotId = null)
+        [FromQuery] SubmissionStatus? status = null)
     {
         var user = _currentUserService.User;
-
-        var submissions = await _submissionService.GetCourseSubmissionsAsync(
-            courseId,
-            status is null
-                ? null
-                : submissionInfo =>
-                    submissionInfo.Submission.StudentId == user.Id &&
-                    submissionInfo.Submission.SubmissionStatus == status &&
-                    submissionInfo.SlotInfo.Slot.Id == slotId);
+        var submissions =
+            await _submissionService.GetCourseSubmissionsAsync(courseId,
+                s => s.Student.Id == user.Id);
+        
+        if (status is not null)
+            submissions = submissions.Where(s => s.Submission.SubmissionStatus == status);
 
         return Ok(submissions.Select(SubmissionResponse.Create));
     }
