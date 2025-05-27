@@ -8,4 +8,4 @@ export type Item = {
     createdAt: string,
     relatedEntityId: string,
     relatedEntityType: string
-}[];
+};

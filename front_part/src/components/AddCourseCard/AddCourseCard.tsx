@@ -32,7 +32,7 @@ const AddCourseCard: React.FC<AddCourseCardProps> = ({ onClose }) => {
                 }),
             });
 
-            if (!response.ok) throw new Error('Ошибка при записи на лабораторную');
+            if (!response.ok) throw new Error('Ошибка при создании курса');
 
             setSuccess(true);
             onClose();

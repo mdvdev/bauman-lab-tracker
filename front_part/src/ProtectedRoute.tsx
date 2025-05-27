@@ -1,14 +1,25 @@
-// src/router/ProtectedRoute.tsx
-import { Navigate } from 'react-router-dom'
-import { useAuth } from './AuthContext'
-import { JSX } from 'react'
+import { useContext } from 'react';
+import { Navigate } from 'react-router-dom';
+import { AuthContext } from './AuthContext';
+import { JSX } from 'react';
 
-export default function ProtectedRoute({ children }: { children: JSX.Element }) {
-    const { isAuthenticated } = useAuth()
+type ProtectedRouteProps = {
+    children: JSX.Element;
+};
 
-    if (!isAuthenticated) {
-        return <Navigate to="/login" replace />
+const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
+    const { isAuthenticated, isLoading } = useContext(AuthContext);
+
+    if (isLoading) {
+        // Показываем загрузку, пока не проверим авторизацию
+        return <div>Загрузка...</div>;
     }
 
-    return children
-}
+    if (!isAuthenticated) {
+        return <Navigate to="/login" replace />;
+    }
+
+    return children;
+};
+
+export default ProtectedRoute;

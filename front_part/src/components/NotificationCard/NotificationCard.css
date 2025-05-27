@@ -1,0 +1,28 @@
+.notification-card {
+    min-width: 220px;
+    border: 1px solid #ccc;
+    border-radius: 16px;
+    padding: 15px;
+}
+
+.notification-title {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.sender-photo {
+    width: 30px;
+    height: 30px
+}
+
+.notification-info {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.notification-sender-info {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+}

@@ -193,4 +193,4 @@ obj/
 *.cache
 *.log
 
-front_part/node_modules/
+front_part/node_modules/*
