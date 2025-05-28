@@ -85,15 +85,11 @@ function StudentCoursePerformance() {
                                 </button>
                             </div>
                         )}
-
                         <button
-                            className="course-students-button"
-                            onClick={() => {
-                                setIsModalOpen(true);
-                                setModalType('courseParticipant');
-                            }}
+                        className="course-students-button"
+                        onClick={() => navigate(`/courses/${courseId}/students`)}
                         >
-                            Список пользователей
+                        Список пользователей
                         </button>
                     </div>
 
