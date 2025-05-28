@@ -8,6 +8,7 @@ import LabSelection from "../LabSelection/LabSelection";
 import { authFetch } from "../../utils/authFetch";
 import { Submission } from "../../types/submssionType";
 import { User } from "../../types/userType";
+import { useNavigate } from "react-router-dom";
 
 function formatTime(timeString: string): string {
     const date = new Date(timeString);
@@ -26,7 +27,7 @@ function SlotCard({ slot, courseId, userId }: { slot: Slot; courseId: string; us
     const [submissionId, setSubmissionId] = useState<number | null>(null);
     const [slotSubmissions, setSlotSubmissions] = useState<Submission[]>([]);
     const [isAdmOrTeacher, setIsAdmOrTeacher] = useState<boolean>(false);
-
+    const navigate = useNavigate();
     useEffect(() => {
         const checkSubmission = async () => {
             try {
@@ -99,9 +100,12 @@ function SlotCard({ slot, courseId, userId }: { slot: Slot; courseId: string; us
                 </div>
 
                 {isAdmOrTeacher ? (
-                    <button className={`slot-teachers-button ${isFull ? 'full' : 'available'}`}>
-                        {isFull ? "Посмотреть итоги" : "Перейти к слоту"}
-                    </button>
+                    <button
+                    className={`slot-teachers-button ${isFull ? 'full' : 'available'}`}
+                    onClick={() => navigate(`/courses/${courseId}/slots/${slot.id}`)}
+                >
+                    {isFull ? "Посмотреть итоги" : "Перейти к слоту"}
+                </button>
                 ) : (
                     <div className="slot-students-buttons">
                         <button

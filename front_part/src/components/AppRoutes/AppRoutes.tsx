@@ -9,6 +9,8 @@ import Register from '../../pages/RegistrationPage/RegistrationPage';
 import NotificationPage from '../../pages/NotificationPage/NotificationPage';
 import Test from '../../pages/Test';
 import ProtectedRoute from '../../ProtectedRoute';
+import DetailedSlotPage from '../../pages/DetailedSlotPage/DetailedSlotPage';
+import CourseStudentsPage from '../../pages/CourseStudentsPage/CourseStudentsPage';
 
 function AppRoutes() {
     return (
@@ -66,6 +68,8 @@ function AppRoutes() {
                     </ProtectedRoute>
                 }
             />
+            <Route path="/courses/:courseId/slots/:slotId" element={<DetailedSlotPage />} />
+            <Route path="/courses/:courseId/students" element={<CourseStudentsPage />} />
         </Routes>
     );
 }
