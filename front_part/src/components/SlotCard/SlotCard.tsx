@@ -99,7 +99,8 @@ function SlotCard({ slot, courseId, userId }: { slot: Slot; courseId: string; us
                 </div>
 
                 {isAdmOrTeacher ? (
-                    <button className={`slot-teachers-button ${isFull ? 'full' : 'available'}`} onClick={() => navigate(`/courses/${courseId}/slots/${slot.id}`)}>
+                    <button className={`slot-teachers-button ${isFull ? 'full' : 'available'}`}
+                    onClick={() => navigate(`/courses/${courseId}/slots/${slot.id}`)}>
                         {isFull ? "Посмотреть итоги" : "Перейти к слоту"}
                     </button>
                 ) : (
