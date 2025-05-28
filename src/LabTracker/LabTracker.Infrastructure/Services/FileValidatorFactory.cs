@@ -1,6 +1,6 @@
-using LabTracker.Infrastructure.Helpers;
 using LabTracker.Shared.Contracts;
 using Microsoft.Extensions.DependencyInjection;
+using Shared;
 
 namespace LabTracker.Infrastructure.Services;
 
@@ -18,9 +18,10 @@ public class FileValidatorFactory : IFileValidatorFactory
         var extension = Path.GetExtension(fileName).ToLowerInvariant();
 
         if (FileExtensionsHelper.IsImageExtension(extension))
-        {
             return _provider.GetRequiredService<ImageFileValidator>();
-        }
+
+        if (FileExtensionsHelper.IsTextDocumentExtension(extension))
+            return _provider.GetRequiredService<TextFileValidator>();
 
         throw new NotSupportedException($"Unsupported file extension: {extension}.");
     }
