@@ -10,6 +10,7 @@ public class SubmissionEntity
     public Guid LabId { get; set; }
     public LabEntity Lab { get; set; }
     public SubmissionStatus SubmissionStatus { get; set; }
+    public int? Score { get; set; }
     public string? Comment { get; set; }
     public DateTimeOffset CreatedAt { get; set; }
     public DateTimeOffset? UpdatedAt { get; set; }
@@ -28,6 +29,7 @@ public class SubmissionEntity
             slotId: SlotId,
             courseId: CourseId,
             submissionStatus: SubmissionStatus,
+            score: Score,
             comment: Comment,
             createdAt: CreatedAt,
             updatedAt: UpdatedAt,
@@ -42,6 +44,7 @@ public class SubmissionEntity
             StudentId = domain.StudentId,
             LabId = domain.LabId,
             SubmissionStatus = domain.SubmissionStatus,
+            Score = domain.Score,
             Comment = domain.Comment,
             CreatedAt = domain.CreatedAt,
             UpdatedAt = domain.UpdatedAt,

@@ -8,6 +8,7 @@ public class Submission
     public Guid SlotId { get; }
     public Guid CourseId { get; }
     public SubmissionStatus SubmissionStatus { get; private set; }
+    public int? Score { get; private set; }
     public string? Comment { get; private set; }
     public DateTimeOffset CreatedAt { get; }
     public DateTimeOffset? UpdatedAt { get; private set; }
@@ -20,6 +21,7 @@ public class Submission
         Guid slotId,
         Guid courseId,
         SubmissionStatus submissionStatus,
+        int? score,
         string? comment,
         DateTimeOffset createdAt,
         DateTimeOffset? updatedAt,
@@ -37,6 +39,7 @@ public class Submission
         SlotId = slotId;
         CourseId = courseId;
         SubmissionStatus = submissionStatus;
+        Score = score;
         Comment = comment;
         CreatedAt = createdAt;
         UpdatedAt = updatedAt;
@@ -58,6 +61,7 @@ public class Submission
             courseId,
             SubmissionStatus.Pending,
             null,
+            null,
             DateTimeOffset.UtcNow,
             null,
             priority
@@ -71,6 +75,7 @@ public class Submission
         Guid slotId,
         Guid courseId,
         SubmissionStatus submissionStatus,
+        int? score,
         string? comment,
         DateTimeOffset createdAt,
         DateTimeOffset? updatedAt,
@@ -83,6 +88,7 @@ public class Submission
             slotId,
             courseId,
             submissionStatus,
+            score,
             comment,
             createdAt,
             updatedAt,
@@ -90,9 +96,10 @@ public class Submission
         );
     }
 
-    public void UpdateStatus(SubmissionStatus newSubmissionStatus, string? comment = null)
+    public void UpdateStatus(SubmissionStatus newSubmissionStatus, int? score = null, string? comment = null)
     {
         SubmissionStatus = newSubmissionStatus;
+        Score = score;
         Comment = comment;
         UpdatedAt = DateTimeOffset.UtcNow;
     }

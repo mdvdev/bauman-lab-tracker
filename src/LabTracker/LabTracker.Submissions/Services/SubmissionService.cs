@@ -115,7 +115,8 @@ public class SubmissionService : ISubmissionService
 
         submission.UpdateStatus(
             newSubmissionStatus: request.SubmissionStatus,
-            comment: request.Comment);
+            comment: request.Comment,
+            score: request.Score);
 
         if (request.SubmissionStatus is SubmissionStatus.Approved or SubmissionStatus.ApprovedAfterDeadline)
         {
