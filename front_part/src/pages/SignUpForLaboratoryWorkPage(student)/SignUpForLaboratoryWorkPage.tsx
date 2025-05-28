@@ -9,8 +9,11 @@ import { User } from "../../types/userType";
 import { Slot } from "../../types/slotType";
 import { Course } from "../../types/courseType";
 import { CourseTeacher } from "../../types/courseTeacherType";
+import { PlusIcon } from '@heroicons/react/24/solid';
 
 import { authFetch } from "../../utils/authFetch";
+import Modal from "../../components/Modal/Modal";
+import AddSlotCard from "../../components/AddSlotCard/AddSlotCard";
 
 function SignUpForLaboratoryWorkPage() {
     const { courseId } = useParams();
@@ -19,6 +22,8 @@ function SignUpForLaboratoryWorkPage() {
     const [courseSlots, setCourseSlots] = useState<Slot[]>([]);
     const [user, setUser] = useState<User | null>(null);
     const [isAdmOrTeacher, setIsAdmOrTeacher] = useState<boolean>();
+    const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -52,25 +57,40 @@ function SignUpForLaboratoryWorkPage() {
     }, [courseId]);
 
     return (
-        <div className="page">
-            <main className="course-detail">
-                <h2 className="course-title">{course?.name}</h2>
+        <>
+            <div className="page">
+                <main className="course-detail">
+                    <div className="sign-lab-page-header">
+                        <h2 className="course-title">{course?.name}</h2>
+                        {isAdmOrTeacher && (
+                            <button
+                                className="add-slot-button"
+                                onClick={() => setIsModalOpen(true)}
+                            >
+                                <PlusIcon className="plus-icon" />
+                            </button>
+                        )}
+                    </div>
 
-                <TeachersList teachers={courseTeachers} />
+                    <TeachersList teachers={courseTeachers} />
 
-                <h3>{isAdmOrTeacher ? "Слоты:" : "Слоты для записи"}</h3>
-                <div className="course-slots">
-                    {courseSlots.map((slot) => (
-                        <SlotCard
-                            key={slot.id}
-                            slot={slot}
-                            courseId={courseId!}
-                            userId={user?.id!}
-                        />
-                    ))}
-                </div>
-            </main>
-        </div>
+                    <h3>{isAdmOrTeacher ? "Слоты:" : "Слоты для записи"}</h3>
+                    <div className="course-slots">
+                        {courseSlots.map((slot) => (
+                            <SlotCard
+                                key={slot.id}
+                                slot={slot}
+                                courseId={courseId!}
+                                userId={user?.id!}
+                            />
+                        ))}
+                    </div>
+                </main>
+            </div>
+            {isModalOpen && <Modal onClose={() => setIsModalOpen(false)}>
+                <AddSlotCard onClose={() => setIsModalOpen(false)} courseId={courseId!} teacherId={user?.id!}></AddSlotCard>
+            </Modal>}
+        </>
     );
 }
 

@@ -7,6 +7,8 @@ import { LabStatus } from "../../types/labStatusType";
 import { useNavigate } from 'react-router-dom';
 import { authFetch } from "../../utils/authFetch";
 import { User } from "../../types/userType";
+import Modal from "../Modal/Modal";
+import LabFormCard from "../LabFormCard/LabFormCard";
 interface LabStatusCardProps {
     labId: string;
     courseId: string | null;
@@ -31,6 +33,7 @@ function LabStatusCard({ labId, courseId }: LabStatusCardProps) {
     const [submission, setSubmission] = useState<Submission | null>(null);
     const [myUserInfo, setMyUserInfo] = useState<User>();
     const [isAdmOrTeacher, setIsAdmOrTeacher] = useState<boolean>();
+    const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
     useEffect(() => {
         const fetchLab = async () => {
             try {
@@ -63,35 +66,40 @@ function LabStatusCard({ labId, courseId }: LabStatusCardProps) {
     }, []);
     const labStatus: LabStatus = getSubmissionStatusClass(submission?.submissionStatus || "")
     return (
-        <div className={`lab-status-card ${labStatus.status}`}>
-            <div className="lab-name">{lab?.name} {lab?.descriptionUri}</div>
-            <div className="lab-status-card-info">
-                <div className="lab-info-row">
-                    <label>Срок сдачи: </label>
-                    <span className={`row-info ${labStatus.status}`}>{formatIsoString(lab?.deadline || "")}</span>
+        <>
+            <div className={`lab-status-card ${labStatus.status}`}>
+                <div className="lab-name">{lab?.name} {lab?.descriptionUri}</div>
+                <div className="lab-status-card-info">
+                    <div className="lab-info-row">
+                        <label>Срок сдачи: </label>
+                        <span className={`row-info ${labStatus.status}`}>{formatIsoString(lab?.deadline || "")}</span>
+                    </div>
+                    <div className="lab-info-row">
+                        <label>Баллы(в срок): </label>
+                        <span className={`row-info ${labStatus.status}`}>{lab?.score}</span>
+                    </div>
+                    <div className="lab-info-row">
+                        <label>Баллы(не в срок): </label>
+                        <span className={`row-info ${labStatus.status}`}>{lab?.scoreAfterDeadline}</span>
+                    </div>
+                    <div className="lab-info-row">
+                        <label>Статус: </label>
+                        <span className={`row-info ${labStatus.status}`}>{labStatus.statusName}</span>
+                    </div>
+                    {isAdmOrTeacher
+                        ? <button className="lab-refactor-button" onClick={() => setIsModalOpen(true)}>Редактировать</button>
+                        : (<div className="student-lab-buttons">
+                            <button className="downoload-button">Скачать условие</button>
+                            <button className={`sign-button ${labStatus.status}`} onClick={() => navigate(`/courses/${courseId}`)} disabled={labStatus.statusName === 'Сдана не в срок' || labStatus.statusName === 'Сдана'} >
+                                {(labStatus.statusName === 'Сдана не в срок' || labStatus.statusName === 'Сдана') ? 'Запись недоступна' : 'Записаться'}
+                            </button>
+                        </div>)}
                 </div>
-                <div className="lab-info-row">
-                    <label>Баллы(в срок): </label>
-                    <span className={`row-info ${labStatus.status}`}>{lab?.score}</span>
-                </div>
-                <div className="lab-info-row">
-                    <label>Баллы(не в срок): </label>
-                    <span className={`row-info ${labStatus.status}`}>{lab?.scoreAfterDeadline}</span>
-                </div>
-                <div className="lab-info-row">
-                    <label>Статус: </label>
-                    <span className={`row-info ${labStatus.status}`}>{labStatus.statusName}</span>
-                </div>
-                {isAdmOrTeacher
-                    ? <button className="lab-refactor-button">Редактировать</button>
-                    : (<div className="student-lab-buttons">
-                        <button className="downoload-button">Скачать условие</button>
-                        <button className={`sign-button ${labStatus.status}`} onClick={() => navigate(`/courses/${courseId}`)} disabled={labStatus.statusName === 'Сдана не в срок' || labStatus.statusName === 'Сдана'} >
-                            {(labStatus.statusName === 'Сдана не в срок' || labStatus.statusName === 'Сдана') ? 'Запись недоступна' : 'Записаться'}
-                        </button>
-                    </div>)}
             </div>
-        </div>
+            {isModalOpen && <Modal onClose={() => setIsModalOpen(false)}>
+                <LabFormCard onClose={() => setIsModalOpen(false)} courseId={courseId!} mode="edit"></LabFormCard>
+            </Modal>}
+        </>
     )
 }
 export default LabStatusCard;

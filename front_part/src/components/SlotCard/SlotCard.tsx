@@ -30,7 +30,7 @@ function SlotCard({ slot, courseId, userId }: { slot: Slot; courseId: string; us
     useEffect(() => {
         const checkSubmission = async () => {
             try {
-                const mySubRes = await authFetch(`/api/v1/courses/${courseId}/submissions/me`);
+                const mySubRes = await authFetch(`/api/v1/courses/${courseId}/submissions/me/?slotId=${slot.id}`);
                 const mySubData = await mySubRes.json();
 
                 if (mySubData.length > 0) {
