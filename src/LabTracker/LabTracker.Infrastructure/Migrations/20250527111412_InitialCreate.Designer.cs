@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace LabTracker.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250518163431_InitialCreate")]
+    [Migration("20250527111412_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -270,6 +270,9 @@ namespace LabTracker.Infrastructure.Migrations
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
+
+                    b.Property<string>("Group")
+                        .HasColumnType("text");
 
                     b.Property<string>("LastName")
                         .IsRequired()
