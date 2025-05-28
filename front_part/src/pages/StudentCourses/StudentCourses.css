@@ -6,7 +6,8 @@
     padding-left: 30px;
     display: flex;
     flex-direction: column;
-    gap: 12px
+    gap: 12px;
+    width: 100%;
 }
 
 .course-grid {
@@ -100,4 +101,12 @@ h2 {
     width: 32px;
     height: 32px;
     color: white;
+}
+
+.course-header {
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
 }
