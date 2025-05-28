@@ -66,11 +66,12 @@ public class UserController : ControllerBase
     }
     
     [HttpGet("groups")]
-    [Authorize(nameof(Role.Administrator))]
+    [Authorize("TeacherOrAdmin")]
     public async Task<IActionResult> GetGroupsWithStudentsAsync()
     {
         var groups = await _userService.GetGroupsWithStudentsAsync();
-        var response = groups.Select(g => GroupWithStudentsResponse.Create(g.Key, g.Value));
+        var response = groups
+            .Select(g => GroupWithStudentsResponse.Create(g.Key, g.Value));
         return Ok(response);
     }
 }
