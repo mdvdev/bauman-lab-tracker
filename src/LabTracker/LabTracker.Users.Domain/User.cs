@@ -7,7 +7,7 @@ public class User
     public Guid Id { get; }
     public string FirstName { get; private set; }
     public string LastName { get; private set; }
-    public string? Group  { get; private set; }
+    public string? Group { get; private set; }
     public string Patronymic { get; private set; }
     public string Email { get; private set; }
     public IReadOnlyCollection<Role> Roles => _roles.AsReadOnly();
@@ -103,11 +103,11 @@ public class User
     public void UpdateProfile(
         string? firstName = null,
         string? lastName = null,
-        string? group = null,
         string? patronymic = null,
         string? email = null,
         string? telegramUsername = null,
-        string? photoUri = null)
+        string? photoUri = null,
+        string? group = null)
     {
         if (firstName is not null)
         {

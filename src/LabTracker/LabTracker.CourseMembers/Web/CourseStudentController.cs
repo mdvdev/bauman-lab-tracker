@@ -42,9 +42,15 @@ public class CourseStudentController : ControllerBase
 
         var students = await _courseMemberService
             .GetCourseMembersAsync(courseId, m => m.User.IsStudent);
+        
+        var result = new List<CourseMemberResponse>();
+        foreach (var s in students)
+        {
+            var isOligarch = await _oligarchStudentRepository.IsOligarchAsync(s.User.Id, courseId);
+            result.Add(CourseMemberResponse.Create(s.CourseMember, course, s.User, isOligarch));
+        }
 
-        return Ok(students
-            .Select(s => CourseMemberResponse.Create(s.CourseMember, course, s.User)));
+        return Ok(result);
     }
 
     [HttpPost("{studentId}")]

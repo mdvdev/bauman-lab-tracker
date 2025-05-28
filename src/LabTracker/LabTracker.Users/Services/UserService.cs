@@ -1,7 +1,7 @@
 using LabTracker.Shared.Contracts;
-using LabTracker.User.Abstractions.Dtos;
 using LabTracker.User.Abstractions.Repositories;
 using LabTracker.User.Abstractions.Services;
+using LabTracker.User.Abstractions.Services.Dtos;
 using LabTracker.Users.Domain;
 
 namespace Users.Services;
@@ -36,7 +36,11 @@ public class UserService : IUserService
             throw new KeyNotFoundException($"User with id '{userId}' not found.");
 
         user.UpdateProfile(
-            request.FirstName, request.LastName, request.Patronymic, request.Email, request.TelegramUsername);
+            firstName: request.FirstName,
+            lastName: request.LastName,
+            patronymic: request.Patronymic,
+            email: request.Email,
+            telegramUsername: request.TelegramUsername);
 
         await _userRepository.UpdateAsync(user);
     }

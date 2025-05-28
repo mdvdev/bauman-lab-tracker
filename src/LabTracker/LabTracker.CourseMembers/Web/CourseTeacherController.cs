@@ -38,7 +38,7 @@ public class CourseTeacherController : ControllerBase
             .GetCourseMembersAsync(courseId, m => m.User.IsTeacher);
 
         return Ok(teachers
-            .Select(t => CourseMemberResponse.Create(t.CourseMember, course, t.User)));
+            .Select(t => CourseMemberResponse.Create(t.CourseMember, course, t.User, isOligarch: false)));
     }
 
     [HttpPost]

@@ -1,6 +1,6 @@
 using LabTracker.Shared.Contracts;
-using LabTracker.User.Abstractions.Dtos;
 using LabTracker.User.Abstractions.Services;
+using LabTracker.User.Abstractions.Services.Dtos;
 using LabTracker.Users.Domain;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;

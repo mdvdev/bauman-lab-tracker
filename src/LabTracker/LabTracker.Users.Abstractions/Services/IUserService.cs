@@ -1,4 +1,4 @@
-using LabTracker.User.Abstractions.Dtos;
+using LabTracker.User.Abstractions.Services.Dtos;
 
 namespace LabTracker.User.Abstractions.Services;
 
