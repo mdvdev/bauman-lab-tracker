@@ -9,7 +9,6 @@ import { authFetch } from "../../utils/authFetch";
 import { Submission } from "../../types/submssionType";
 import { User } from "../../types/userType";
 import { useNavigate } from "react-router-dom";
-
 function formatTime(timeString: string): string {
     const date = new Date(timeString);
     return date.toLocaleTimeString([], {
@@ -31,7 +30,7 @@ function SlotCard({ slot, courseId, userId }: { slot: Slot; courseId: string; us
     useEffect(() => {
         const checkSubmission = async () => {
             try {
-                const mySubRes = await authFetch(`/api/v1/courses/${courseId}/submissions/me`);
+                const mySubRes = await authFetch(`/api/v1/courses/${courseId}/submissions/me/?slotId=${slot.id}`);
                 const mySubData = await mySubRes.json();
 
                 if (mySubData.length > 0) {
@@ -100,12 +99,9 @@ function SlotCard({ slot, courseId, userId }: { slot: Slot; courseId: string; us
                 </div>
 
                 {isAdmOrTeacher ? (
-                    <button
-                    className={`slot-teachers-button ${isFull ? 'full' : 'available'}`}
-                    onClick={() => navigate(`/courses/${courseId}/slots/${slot.id}`)}
-                >
-                    {isFull ? "Посмотреть итоги" : "Перейти к слоту"}
-                </button>
+                    <button className={`slot-teachers-button ${isFull ? 'full' : 'available'}`} onClick={() => navigate(`/courses/${courseId}/slots/${slot.id}`)}>
+                        {isFull ? "Посмотреть итоги" : "Перейти к слоту"}
+                    </button>
                 ) : (
                     <div className="slot-students-buttons">
                         <button

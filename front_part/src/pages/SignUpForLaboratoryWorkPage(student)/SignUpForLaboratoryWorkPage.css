@@ -14,3 +14,26 @@
     flex-wrap: wrap;
     padding-left: 40px;
 }
+
+.sign-lab-page-header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding-right: 25px;
+}
+
+.add-slot-button {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background-color: black;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    font-size: 0;
+    line-height: 0;
+}

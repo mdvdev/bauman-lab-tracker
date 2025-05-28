@@ -73,6 +73,7 @@
     height: auto;
     border-radius: 8px;
     min-height: 56px;
+    border: 1px solid #000000
 }
 
 .accept-btn,

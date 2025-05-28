@@ -208,7 +208,19 @@ function DetailedSlotPage() {
                             <div>{s.fullName}</div>
                             <div>{s.labName}</div>
                             <div>
-                                <div>{s.status}</div>
+                                <div
+                                    className={`lab-status ${
+                                        s.statusRaw === 'approved'
+                                            ? 'approved'
+                                            : s.statusRaw === 'rejected'
+                                            ? 'rejected'
+                                            : s.statusRaw === 'approved after deadline'
+                                            ? 'approved-after-deadline'
+                                            : ''
+                                    }`}
+                                >
+                                    {s.status}
+                                </div>
                             </div>
                             <div className="actions">
                                 <button

@@ -20,6 +20,7 @@ const LabSelection: React.FC<LabSelectionProps> = ({ courseId, userId, slotId, o
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState(false);
+    console.log(slotId);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -69,12 +70,10 @@ const LabSelection: React.FC<LabSelectionProps> = ({ courseId, userId, slotId, o
                 labId: selectedOption,
                 slotId: slotId
             };
-
             const response = await fetch(`/api/v1/courses/${courseId}/submissions`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
                 },
                 body: JSON.stringify(requestBody),
             });

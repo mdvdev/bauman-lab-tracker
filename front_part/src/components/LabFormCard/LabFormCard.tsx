@@ -2,14 +2,15 @@ import { useState, useEffect } from "react";
 import "react-datepicker/dist/react-datepicker.css";
 import DatePicker from 'react-datepicker';
 import { authFetch } from "../../utils/authFetch";
-import "./AddLabCard.css"
-type AddLabProps = {
+import "./LabFormCard.css"
+type AddFormCardProps = {
     // onSave: () => void;
     onClose: () => void;
     courseId: string;
+    mode: "add" | "edit";
 }
 
-const AddLabCard: React.FC<AddLabProps> = ({ onClose, courseId }) => {
+const AddFormCard: React.FC<AddFormCardProps> = ({ onClose, courseId, mode }) => {
     const [labScore, setLabScore] = useState<string>('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -51,7 +52,7 @@ const AddLabCard: React.FC<AddLabProps> = ({ onClose, courseId }) => {
     return (
         <form onSubmit={handleSubmit} className="add-lab-form">
             <div className="student-list-header">
-                <span>Cоздание лабороторной работы</span>
+                <span>{mode === "add" ? "Cоздание лабороторной работы" : "Редактирование"}</span>
             </div>
             <label>
                 Название лабораторной работы
@@ -94,10 +95,10 @@ const AddLabCard: React.FC<AddLabProps> = ({ onClose, courseId }) => {
             </label>
 
 
-            <button type="submit" className="create-lab-button">Создать</button>
+            <button type="submit" className="create-lab-button">{mode === "add" ? "Создать" : "Обновить"}</button>
 
         </form>
     );
 }
 
-export default AddLabCard;
+export default AddFormCard;

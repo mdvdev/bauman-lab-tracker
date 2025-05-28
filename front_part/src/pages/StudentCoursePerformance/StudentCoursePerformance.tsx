@@ -4,7 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import TeachersList from "../../components/TeachersList/TeachersList";
 import LabStatusCard from "../../components/LabStatusCard/LabStatusCard";
 import Modal from "../../components/Modal/Modal";
-import AddLabCard from "../../components/AddLabCard/AddLabCard";
+import LabFormCard from "../../components/LabFormCard/LabFormCard";
 import CourseParticipant from "../../components/CourseParticipantCard/CourseParticipantCard";
 
 import { Course } from '../../types/courseType';
@@ -85,11 +85,14 @@ function StudentCoursePerformance() {
                                 </button>
                             </div>
                         )}
+
                         <button
-                        className="course-students-button"
-                        onClick={() => navigate(`/courses/${courseId}/students`)}
+                            className="course-students-button"
+                            onClick={() => {
+                                navigate(`/courses/${courseId}/students`)
+                            }}
                         >
-                        Список пользователей
+                            Список пользователей
                         </button>
                     </div>
 
@@ -106,15 +109,15 @@ function StudentCoursePerformance() {
             {isModalOpen && (
                 <Modal onClose={() => setIsModalOpen(false)}>
                     {modalType === "addLab" && course?.id && (
-                        <AddLabCard onClose={() => setIsModalOpen(false)} courseId={course.id} />
+                        <LabFormCard onClose={() => setIsModalOpen(false)} courseId={course.id} mode="add" />
                     )}
-                    {modalType === "courseParticipant" && myUserInfo?.id && (
+                    {/* {modalType === "courseParticipant" && myUserInfo?.id && (
                         <CourseParticipant
                             onClose={() => setIsModalOpen(false)}
                             courseId={course?.id!}
                             currentUserId={myUserInfo.id}
                         />
-                    )}
+                    )} */}
                 </Modal>
             )}
         </>

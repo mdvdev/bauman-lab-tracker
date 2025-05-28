@@ -1,9 +1,8 @@
 import { Routes, Route } from 'react-router-dom';
 import StudentProfile from '../../pages/StudentProfile/StudentProfile';
-import Home from '../../pages/Home';
 import CoursesOfStudent from '../../pages/StudentCourses/StudentCourses';
 import SignUpForLaboratoryWorkPage from '../../pages/SignUpForLaboratoryWorkPage(student)/SignUpForLaboratoryWorkPage';
-import StudentCoursePerformance from '../../pages/StudentСoursePerformance/StudentCoursePerformance';
+import StudentCoursePerformance from '../../pages/StudentCoursePerformance/StudentCoursePerformance';
 import Login from '../../pages/LoginPage/LoginPage';
 import Register from '../../pages/RegistrationPage/RegistrationPage';
 import NotificationPage from '../../pages/NotificationPage/NotificationPage';
@@ -68,8 +67,24 @@ function AppRoutes() {
                     </ProtectedRoute>
                 }
             />
-            <Route path="/courses/:courseId/slots/:slotId" element={<DetailedSlotPage />} />
-            <Route path="/courses/:courseId/students" element={<CourseStudentsPage />} />
+
+            <Route
+                path="/courses/:courseId/students"
+                element={
+                    <ProtectedRoute>
+                        <CourseStudentsPage />
+                    </ProtectedRoute>
+                }
+            />
+
+            <Route
+                path="/courses/:courseId/slots/:slotId"
+                element={
+                    <ProtectedRoute>
+                        <DetailedSlotPage />
+                    </ProtectedRoute>
+                }
+            />
         </Routes>
     );
 }
