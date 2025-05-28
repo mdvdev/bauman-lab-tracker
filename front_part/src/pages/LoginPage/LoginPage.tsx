@@ -1,6 +1,8 @@
 import { useContext, useState } from 'react';
 import { AuthContext } from '../../AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+
 import "./LoginPage.css"
 const Login = () => {
     const { login } = useContext(AuthContext);
@@ -41,6 +43,7 @@ const Login = () => {
                     />
                 </label>
                 <button type="submit">Войти</button>
+                <Link to="/register" className="text-link">Зарегистрироваться</Link>
             </form>
         </div>
     );

@@ -16,13 +16,18 @@ function StudentCourses() {
     const [user, setUser] = useState<User>();
     const navigate = useNavigate();
     const [isModalOpen, setIsModalOpen] = useState(false);
-
+    const [isAdmOrTeacher, setIsAdmOrTeacher] = useState<boolean>();
     useEffect(() => {
         const fetchUser = async () => {
             try {
                 const res = await authFetch('/api/v1/users/me');
                 const userData = await res.json();
                 setUser(userData);
+                if (userData.roles.includes('Administrator') || userData.roles.includes('Teacher')) {
+                    setIsAdmOrTeacher(true);
+                } else {
+                    setIsAdmOrTeacher(false);
+                }
             } catch (err) {
                 console.error('Ошибка загрузки пользователя:', err);
             }
@@ -30,7 +35,7 @@ function StudentCourses() {
 
         const fetchCoursesAndTeachers = async () => {
             try {
-                const res = await authFetch('/api/v1/courses');
+                const res = await authFetch('/api/v1/courses/me');
                 const courseList: Course[] = await res.json();
                 setCourses(courseList);
 
@@ -60,7 +65,6 @@ function StudentCourses() {
         fetchUser();
         fetchCoursesAndTeachers();
     }, []);
-
     return (
         <>
             <div className='page'>
@@ -76,38 +80,44 @@ function StudentCourses() {
                     )}
                 </div>
                 <div className='course-grid'>
-                    {courses.map(course => {
-                        const teachers = courseTeachers[course.id] || [];
-                        return (
-                            <div key={course.id} className="course-card">
-                                <div className="course">
-                                    <img
-                                        className="course-photo"
-                                        src={`http://localhost:5272${course.photoUri}`}
-                                        alt={course.name}
-                                    />
-                                    <div className='course-info'>
-                                        <span className='course-name'>{course.name}</span>
-                                        <TeachersList teachers={teachers} />
-                                        <div className='buttons'>
-                                            <button
-                                                className='labarotory-work-record'
-                                                onClick={() => navigate(`/courses/${course.id}`)}
-                                            >
-                                                Записаться на лабораторную работу
-                                            </button>
-                                            <button
-                                                className='view-progress'
-                                                onClick={() => navigate(`/courses/${course.id}/notifications`)}
-                                            >
-                                                Перейти к успеваемости
-                                            </button>
+                    {courses.length === 0 ? (
+                        <div className="no-courses-message">
+                            Вы пока не записаны ни на какой из курсов.
+                        </div>
+                    ) : (
+                        courses.map(course => {
+                            const teachers = courseTeachers[course.id] || [];
+                            return (
+                                <div key={course.id} className="course-card">
+                                    <div className="course">
+                                        <img
+                                            className="course-photo"
+                                            src={`http://localhost:5272${course.photoUri}`}
+                                            alt={course.name}
+                                        />
+                                        <div className='course-info'>
+                                            <span className='course-name'>{course.name}</span>
+                                            <TeachersList teachers={teachers} />
+                                            <div className='buttons'>
+                                                <button
+                                                    className='labarotory-work-record'
+                                                    onClick={() => navigate(`/courses/${course.id}`)}
+                                                >
+                                                    {isAdmOrTeacher ? "Перейти к слотам" : "Записаться на лабораторную работу"}
+                                                </button>
+                                                <button
+                                                    className='view-progress'
+                                                    onClick={() => navigate(`/courses/${course.id}/notifications`)}
+                                                >
+                                                    {isAdmOrTeacher ? "Перейти к успеваемости студентов" : "Перейти к успеваемости"}
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        );
-                    })}
+                            );
+                        })
+                    )}
                 </div>
             </div>
 

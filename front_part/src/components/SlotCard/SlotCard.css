@@ -33,7 +33,7 @@
     min-width: 30px;
 }
 
-.slot-buttons {
+.slot-students-buttons {
     display: flex;
     flex-direction: row;
     gap: 12px;
@@ -83,4 +83,22 @@
     padding: 0.4em 1em;
     /* меньше горизонтальный отступ */
     min-width: 40px;
+}
+
+.slot-teachers-button.full {
+    background-color: #757575;
+    color: white;
+    border-radius: 16px;
+    font-size: clamp(12px, 1.1vw, 18px);
+    padding: 0.4em 2em;
+    min-width: 120px;
+}
+
+.slot-teachers-button.available {
+    background-color: black;
+    color: white;
+    border-radius: 16px;
+    font-size: clamp(12px, 1.1vw, 18px);
+    padding: 0.4em 2em;
+    min-width: 120px;
 }

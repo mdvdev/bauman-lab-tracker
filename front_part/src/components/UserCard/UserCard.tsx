@@ -42,7 +42,11 @@ function UserCard() {
             <div className="card-wrapper">
                 <div className="card-content">
                     <div className="user-info">
-                        <img className="avatar" src={`http://localhost:5272${user.photoUri}`} alt="avatar" />
+                        <img
+                            className="avatar"
+                            src={user.photoUri ? `http://localhost:5272${user.photoUri}` : '/icons/generic_avatar.png'}
+                            alt="avatar"
+                        />
                         {user.firstName && user.lastName && (
                             <span className="user-name">
                                 {user.firstName} {user.lastName} {user.patronymic}

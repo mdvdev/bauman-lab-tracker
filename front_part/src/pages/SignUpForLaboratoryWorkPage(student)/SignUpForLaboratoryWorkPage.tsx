@@ -18,14 +18,18 @@ function SignUpForLaboratoryWorkPage() {
     const [course, setCourse] = useState<Course | null>(null);
     const [courseSlots, setCourseSlots] = useState<Slot[]>([]);
     const [user, setUser] = useState<User | null>(null);
-
+    const [isAdmOrTeacher, setIsAdmOrTeacher] = useState<boolean>();
     useEffect(() => {
         const fetchData = async () => {
             try {
                 const userRes = await authFetch(`/api/v1/users/me`);
                 const userData: User = await userRes.json();
                 setUser(userData);
-
+                if (userData.roles.includes('Administrator') || userData.roles.includes('Teacher')) {
+                    setIsAdmOrTeacher(true);
+                } else {
+                    setIsAdmOrTeacher(false);
+                }
                 const courseRes = await authFetch(`/api/v1/courses/${courseId}`);
                 const courseData: Course = await courseRes.json();
                 setCourse(courseData);
@@ -54,7 +58,7 @@ function SignUpForLaboratoryWorkPage() {
 
                 <TeachersList teachers={courseTeachers} />
 
-                <h3>Слоты для записи:</h3>
+                <h3>{isAdmOrTeacher ? "Слоты:" : "Слоты для записи"}</h3>
                 <div className="course-slots">
                     {courseSlots.map((slot) => (
                         <SlotCard

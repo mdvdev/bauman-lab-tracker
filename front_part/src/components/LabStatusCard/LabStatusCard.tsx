@@ -6,6 +6,7 @@ import { Submission } from "../../types/submssionType"
 import { LabStatus } from "../../types/labStatusType";
 import { useNavigate } from 'react-router-dom';
 import { authFetch } from "../../utils/authFetch";
+import { User } from "../../types/userType";
 interface LabStatusCardProps {
     labId: string;
     courseId: string | null;
@@ -28,11 +29,8 @@ function LabStatusCard({ labId, courseId }: LabStatusCardProps) {
     const [lab, setLab] = useState<Lab>();
     const navigate = useNavigate();
     const [submission, setSubmission] = useState<Submission | null>(null);
-
-    // console.log("КУРС ID " + courseId)
-    // console.log("ЛАБ ID " + labId)
-    // console.log("SUUUUUUB" + submission)
-
+    const [myUserInfo, setMyUserInfo] = useState<User>();
+    const [isAdmOrTeacher, setIsAdmOrTeacher] = useState<boolean>();
     useEffect(() => {
         const fetchLab = async () => {
             try {
@@ -45,7 +43,13 @@ function LabStatusCard({ labId, courseId }: LabStatusCardProps) {
                 if (!submissionsRes.ok) throw new Error("Не удалось загрузить данные о сдачах");
                 const submissionsData: Submission[] = await submissionsRes.json();
                 console.log(submissionsData)
-                // Находим submission для текущей lab
+
+                const myUserInfoRes = await authFetch(`/api/v1/users/me`);
+                const myUserInfoData: User = await myUserInfoRes.json();
+                setMyUserInfo(myUserInfo)
+                myUserInfoData && setIsAdmOrTeacher(myUserInfoData.roles.includes('Administrator') || myUserInfoData.roles.includes('Teacher'));
+
+                console.log(isAdmOrTeacher);
                 const labSubmission = submissionsData.find(sub => sub.lab.id === labId);
                 setSubmission(labSubmission || null);
 
@@ -78,12 +82,14 @@ function LabStatusCard({ labId, courseId }: LabStatusCardProps) {
                     <label>Статус: </label>
                     <span className={`row-info ${labStatus.status}`}>{labStatus.statusName}</span>
                 </div>
-                <div className="lab-buttons">
-                    <button className="downoload-button">Скачать условие</button>
-                    <button className={`sign-button ${labStatus.status}`} onClick={() => navigate(`/courses/${courseId}`)} disabled={labStatus.statusName === 'Сдана не в срок' || labStatus.statusName === 'Сдана'} >
-                        {(labStatus.statusName === 'Сдана не в срок' || labStatus.statusName === 'Сдана') ? 'Запись недоступна' : 'Записаться'}
-                    </button>
-                </div>
+                {isAdmOrTeacher
+                    ? <button className="lab-refactor-button">Редактировать</button>
+                    : (<div className="student-lab-buttons">
+                        <button className="downoload-button">Скачать условие</button>
+                        <button className={`sign-button ${labStatus.status}`} onClick={() => navigate(`/courses/${courseId}`)} disabled={labStatus.statusName === 'Сдана не в срок' || labStatus.statusName === 'Сдана'} >
+                            {(labStatus.statusName === 'Сдана не в срок' || labStatus.statusName === 'Сдана') ? 'Запись недоступна' : 'Записаться'}
+                        </button>
+                    </div>)}
             </div>
         </div>
     )
