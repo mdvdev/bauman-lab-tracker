@@ -3,30 +3,31 @@ namespace LabTracker.Notifications.Domain;
 public class Notification
 {
     public Guid Id { get; }
-    public Guid UserId { get; }
+    public Guid SenderId { get; }
+    public Guid ReceiverId { get; }
     public string Title { get; private set; }
     public string Message { get; private set; }
     public NotificationType Type { get; private set; }
     public bool IsRead { get; private set; }
     public DateTimeOffset CreatedAt { get; }
     public DateTimeOffset? ReadAt { get; private set; }
-    public string? RelatedEntityId { get; private set; }
-    public string? RelatedEntityType { get; private set; }
 
     private Notification(
         Guid id,
-        Guid userId,
+        Guid senderId,
+        Guid receiverId,
         string title,
         string message,
         NotificationType type,
         bool isRead,
         DateTimeOffset createdAt,
-        DateTimeOffset? readAt,
-        string? relatedEntityId,
-        string? relatedEntityType)
+        DateTimeOffset? readAt)
     {
-        if (userId == Guid.Empty)
-            throw new ArgumentException("UserId cannot be empty.", nameof(userId));
+        if (senderId == Guid.Empty)
+            throw new ArgumentException("UserId cannot be empty.", nameof(senderId));
+
+        if (receiverId == Guid.Empty)
+            throw new ArgumentException("UserId cannot be empty.", nameof(receiverId));
 
         if (string.IsNullOrWhiteSpace(title))
             throw new ArgumentException("Title cannot be null or whitespace.", nameof(title));
@@ -35,62 +36,57 @@ public class Notification
             throw new ArgumentException("Message cannot be null or whitespace.", nameof(message));
 
         Id = id;
-        UserId = userId;
+        SenderId = senderId;
+        ReceiverId = receiverId;
         Title = title;
         Message = message;
         Type = type;
         IsRead = isRead;
         CreatedAt = createdAt;
         ReadAt = readAt;
-        RelatedEntityId = relatedEntityId;
-        RelatedEntityType = relatedEntityType;
     }
 
     public static Notification CreateNew(
-        Guid userId,
+        Guid senderId,
+        Guid receiverId,
         string title,
         string message,
-        NotificationType type,
-        string? relatedEntityId = null,
-        string? relatedEntityType = null)
+        NotificationType type)
     {
         return new Notification(
             id: Guid.NewGuid(),
-            userId: userId,
+            senderId: senderId,
+            receiverId: receiverId,
             title: title,
             message: message,
             type: type,
             isRead: false,
             createdAt: DateTimeOffset.UtcNow,
-            readAt: null,
-            relatedEntityId: relatedEntityId,
-            relatedEntityType: relatedEntityType
+            readAt: null
         );
     }
 
     public static Notification Restore(
         Guid id,
-        Guid userId,
+        Guid senderId,
+        Guid receiverId,
         string title,
         string message,
         NotificationType type,
         bool isRead,
         DateTimeOffset createdAt,
-        DateTimeOffset? readAt,
-        string? relatedEntityId,
-        string? relatedEntityType)
+        DateTimeOffset? readAt)
     {
         return new Notification(
             id: id,
-            userId: userId,
+            senderId: senderId,
+            receiverId: receiverId,
             title: title,
             message: message,
             type: type,
             isRead: isRead,
             createdAt: createdAt,
-            readAt: readAt,
-            relatedEntityId: relatedEntityId,
-            relatedEntityType: relatedEntityType
+            readAt: readAt
         );
     }
 
@@ -112,11 +108,5 @@ public class Notification
 
         Title = title;
         Message = message;
-    }
-
-    public void SetRelatedEntity(string? entityId, string? entityType)
-    {
-        RelatedEntityId = entityId;
-        RelatedEntityType = entityType;
     }
 }

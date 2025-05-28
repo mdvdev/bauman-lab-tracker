@@ -5,11 +5,7 @@ namespace LabTracker.Notifications.Abstractions.Services;
 
 public interface INotificationService
 {
-    Task CreateNotificationAsync(CreateNotificationRequest request);
-
-    Task CreateNotificationsBatchAsync(
-        IEnumerable<(Guid userId, string title, string message, NotificationType type, string? relatedEntityId, string?
-            relatedEntityType)> notifications);
+    Task CreateNotificationAsync(Guid senderId, CreateNotificationRequest request);
 
     Task<(IEnumerable<Notification> Items, int TotalCount, int UnreadCount)> GetUserNotificationsAsync(
         Guid userId,
@@ -18,5 +14,5 @@ public interface INotificationService
         bool unreadOnly = false);
 
     Task MarkNotificationsAsReadAsync(Guid userId, IEnumerable<Guid> notificationIds, bool markAllAsRead = false);
-    Task<Notification> GetNotificationAsync(Guid notificationId); 
+    Task<Notification?> GetNotificationAsync(Guid notificationId);
 }

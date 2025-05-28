@@ -10,6 +10,7 @@
     <ItemGroup>
       <ProjectReference Include="..\LabTracker.Notifications.Abstractions\LabTracker.Notifications.Abstractions.csproj" />
       <ProjectReference Include="..\LabTracker.Notifications.Domain\LabTracker.Notifications.Domain.csproj" />
+      <ProjectReference Include="..\LabTracker.Users.Abstractions\LabTracker.Users.Abstractions.csproj" />
     </ItemGroup>
 
     <ItemGroup>

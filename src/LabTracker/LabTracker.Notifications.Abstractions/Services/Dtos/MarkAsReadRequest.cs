@@ -1,5 +1,6 @@
-namespace LabTracker.Presentation.Dtos.Requests;
+namespace LabTracker.Notifications.Abstractions.Services.Dtos;
 
 public record MarkAsReadRequest(
     IEnumerable<Guid>? Ids,
-    bool MarkAllAsRead = false);
+    bool MarkAllAsRead = false
+);

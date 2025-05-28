@@ -5,30 +5,29 @@ namespace LabTracker.Infrastructure.Persistence.Entities;
 public class NotificationEntity
 {
     public Guid Id { get; set; }
-    public Guid UserId { get; set; }
-    public UserEntity User { get; set; }
+    public Guid SenderId { get; set; }
+    public Guid ReceiverId { get; set; }
+    public UserEntity Sender { get; set; }
+    public UserEntity Receiver { get; set; }
     public string Title { get; set; }
     public string Message { get; set; }
     public NotificationType Type { get; set; }
     public bool IsRead { get; set; }
     public DateTimeOffset CreatedAt { get; set; }
     public DateTimeOffset? ReadAt { get; set; }
-    public string? RelatedEntityId { get; set; }
-    public string? RelatedEntityType { get; set; }
 
     public Notification ToDomain()
     {
         return Notification.Restore(
             id: Id,
-            userId: UserId,
+            senderId: SenderId,
+            receiverId: ReceiverId,
             title: Title,
             message: Message,
             type: Type,
             isRead: IsRead,
             createdAt: CreatedAt,
-            readAt: ReadAt,
-            relatedEntityId: RelatedEntityId,
-            relatedEntityType: RelatedEntityType);
+            readAt: ReadAt);
     }
 
     public static NotificationEntity FromDomain(Notification domain)
@@ -36,15 +35,14 @@ public class NotificationEntity
         return new NotificationEntity
         {
             Id = domain.Id,
-            UserId = domain.UserId,
+            SenderId = domain.SenderId,
+            ReceiverId = domain.ReceiverId,
             Title = domain.Title,
             Message = domain.Message,
             Type = domain.Type,
             IsRead = domain.IsRead,
             CreatedAt = domain.CreatedAt,
             ReadAt = domain.ReadAt,
-            RelatedEntityId = domain.RelatedEntityId,
-            RelatedEntityType = domain.RelatedEntityType
         };
     }
 }

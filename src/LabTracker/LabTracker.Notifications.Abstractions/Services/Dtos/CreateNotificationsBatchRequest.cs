@@ -8,11 +8,10 @@ public class CreateNotificationsBatchRequest
 
     public class NotificationItem
     {
-        public Guid UserId { get; set; }
+        public Guid SenderId { get; set; }
+        public Guid ReceiverId { get; set; }
         public string Title { get; set; }
         public string Message { get; set; }
         public NotificationType Type { get; set; }
-        public string? RelatedEntityId { get; set; }
-        public string? RelatedEntityType { get; set; }
     }
 }
