@@ -81,9 +81,18 @@ public class SubmissionController : ControllerBase
     }
 
     [HttpDelete("{submissionId}")]
-    [Authorize(Policy = "TeacherAndCourseMember")]
+    [Authorize(Policy = "CourseMemberOnly")]
     public async Task<IActionResult> DeleteSubmissionAsync(Guid courseId, Guid submissionId)
     {
+        var submission = await _submissionService.GetSubmissionAsync(submissionId);
+        if (submission is null)
+            return NotFound($"Submission with id '{submissionId}' not found.");
+        
+        var user = _currentUserService.User;
+        var submissionOwnerId = submission.Submission.StudentId;
+        if (user.IsStudent && user.Id != submissionOwnerId)
+            return StatusCode(403, "You are not allowed to delete this submission.");
+        
         await _submissionService.DeleteSubmissionAsync(submissionId);
         return Ok();
     }

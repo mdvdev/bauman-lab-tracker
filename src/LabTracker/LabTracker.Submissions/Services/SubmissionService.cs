@@ -117,6 +117,8 @@ public class SubmissionService : ISubmissionService
             comment: request.Comment);
 
         await _submissionRepository.UpdateAsync(submission);
+        
+        // TODO: Add notification sending.
 
         return await CreateSubmissionInfoAsync(submission);
     }
