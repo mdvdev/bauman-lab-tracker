@@ -89,8 +89,7 @@ function StudentCoursePerformance() {
                         <button
                             className="course-students-button"
                             onClick={() => {
-                                setIsModalOpen(true);
-                                setModalType('courseParticipant');
+                                navigate(`/courses/${courseId}/students`)
                             }}
                         >
                             Список пользователей
@@ -112,13 +111,13 @@ function StudentCoursePerformance() {
                     {modalType === "addLab" && course?.id && (
                         <LabFormCard onClose={() => setIsModalOpen(false)} courseId={course.id} mode="add" />
                     )}
-                    {modalType === "courseParticipant" && myUserInfo?.id && (
+                    {/* {modalType === "courseParticipant" && myUserInfo?.id && (
                         <CourseParticipant
                             onClose={() => setIsModalOpen(false)}
                             courseId={course?.id!}
                             currentUserId={myUserInfo.id}
                         />
-                    )}
+                    )} */}
                 </Modal>
             )}
         </>

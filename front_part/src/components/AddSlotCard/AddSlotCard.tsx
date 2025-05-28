@@ -47,7 +47,7 @@ const AddSlotCard: React.FC<AddSlotCardProps> = ({ onClose, courseId, teacherId 
         }
     };
     return (
-        <form onSubmit={handleSubmit} className="add-course-form">
+        <form onSubmit={handleSubmit} className="add-slot-form">
             <label>
                 Дата начала
                 <DatePicker

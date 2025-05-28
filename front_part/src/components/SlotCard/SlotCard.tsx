@@ -9,7 +9,6 @@ import { authFetch } from "../../utils/authFetch";
 import { Submission } from "../../types/submssionType";
 import { User } from "../../types/userType";
 import { useNavigate } from "react-router-dom";
-
 function formatTime(timeString: string): string {
     const date = new Date(timeString);
     return date.toLocaleTimeString([], {
@@ -28,7 +27,6 @@ function SlotCard({ slot, courseId, userId }: { slot: Slot; courseId: string; us
     const [slotSubmissions, setSlotSubmissions] = useState<Submission[]>([]);
     const [isAdmOrTeacher, setIsAdmOrTeacher] = useState<boolean>(false);
     const navigate = useNavigate();
-
     useEffect(() => {
         const checkSubmission = async () => {
             try {
@@ -101,7 +99,7 @@ function SlotCard({ slot, courseId, userId }: { slot: Slot; courseId: string; us
                 </div>
 
                 {isAdmOrTeacher ? (
-                    <button className={`slot-teachers-button ${isFull ? 'full' : 'available'}`}>
+                    <button className={`slot-teachers-button ${isFull ? 'full' : 'available'}`} onClick={() => navigate(`/courses/${courseId}/slots/${slot.id}`)}>
                         {isFull ? "Посмотреть итоги" : "Перейти к слоту"}
                     </button>
                 ) : (
@@ -109,7 +107,15 @@ function SlotCard({ slot, courseId, userId }: { slot: Slot; courseId: string; us
                         <button
                             className={`slot-button-sign ${signSuccess ? 'remove' : ''} ${isFull && !signSuccess ? 'disabled' : ''}`}
                             disabled={!signSuccess && isFull}
-                            onClick={() => navigate(`/courses/${courseId}/slots/${slot.id}`)}
+                            onClick={() => {
+                                setIsModalOpen(true);
+                                if (signSuccess) {
+                                    deleteRecord();
+                                    setIsModalOpen(false);
+                                } else {
+                                    setModalType("signSlot");
+                                }
+                            }}
                         >
                             {isFull && !signSuccess
                                 ? "Запись недоступна"

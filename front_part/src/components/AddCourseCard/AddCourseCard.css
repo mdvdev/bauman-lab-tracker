@@ -19,6 +19,8 @@
     border-radius: 6px;
     border: 1px solid #ccc;
     margin-top: 4px;
+    max-width: 333px;
+
 }
 
 .add-course-form select {

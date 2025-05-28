@@ -1,4 +1,4 @@
-.add-course-form {
+.add-slot-form {
     display: flex;
     flex-direction: column;
     gap: 12px;
@@ -6,7 +6,7 @@
     max-width: 400px;
 }
 
-.add-course-form label {
+.add-slot-form label {
     display: flex;
     flex-direction: column;
     font-weight: 500;
@@ -14,14 +14,16 @@
 }
 
 
-.add-course-form input {
+.add-slot-form input {
     padding: 8px;
     border-radius: 6px;
     border: 1px solid #ccc;
     margin-top: 4px;
+    max-width: 333px;
+
 }
 
-.add-course-form select {
+.add-slot-form select {
     font-size: 25px;
     margin-top: 4px;
     appearance: none;

@@ -76,7 +76,7 @@
 }
 
 .student-lab-card {
-  width: 220px;
+  min-width: 220px;
   background-color: #ffffff;
   border-radius: 12px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.07);
