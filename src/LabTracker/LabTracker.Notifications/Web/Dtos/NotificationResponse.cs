@@ -5,7 +5,8 @@ namespace Notifications.Web.Dtos;
 public class NotificationResponse
 {
     public Guid Id { get; set; }
-    public Guid UserId { get; set; }
+    public Guid SenderId { get; set; }
+    public Guid ReceiverId { get; set; }
     public string Title { get; set; }
     public string Message { get; set; }
     public NotificationType Type { get; set; }
@@ -18,14 +19,13 @@ public class NotificationResponse
     public static NotificationResponse Create(Notification notification) => new()
     {
         Id = notification.Id,
-        UserId = notification.UserId,
+        SenderId = notification.SenderId,
+        ReceiverId = notification.ReceiverId,
         Title = notification.Title,
         Message = notification.Message,
         Type = notification.Type,
         IsRead = notification.IsRead,
         CreatedAt = notification.CreatedAt,
         ReadAt = notification.ReadAt,
-        RelatedEntityId = notification.RelatedEntityId,
-        RelatedEntityType = notification.RelatedEntityType
     };
 }

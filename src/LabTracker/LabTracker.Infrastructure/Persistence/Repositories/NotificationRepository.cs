@@ -48,8 +48,6 @@ public class NotificationRepository : INotificationRepository
         entity.Type = notification.Type;
         entity.IsRead = notification.IsRead;
         entity.ReadAt = notification.ReadAt;
-        entity.RelatedEntityId = notification.RelatedEntityId;
-        entity.RelatedEntityType = notification.RelatedEntityType;
 
         _context.Notifications.Update(entity);
         await _context.SaveChangesAsync();
@@ -82,8 +80,8 @@ public class NotificationRepository : INotificationRepository
         bool unreadOnly)
     {
         var query = _context.Notifications
-            .Include(n => n.User)
-            .Where(n => n.UserId == userId)
+            .Include(n => n.Sender)
+            .Where(n => n.SenderId == userId)
             .OrderByDescending(n => n.CreatedAt);
 
         if (unreadOnly)
@@ -93,7 +91,7 @@ public class NotificationRepository : INotificationRepository
 
         var totalCount = await query.CountAsync();
         var unreadCount = await _context.Notifications
-            .Where(n => n.UserId == userId && !n.IsRead)
+            .Where(n => n.SenderId == userId && !n.IsRead)
             .CountAsync();
 
         var entities = await query
@@ -109,7 +107,7 @@ public class NotificationRepository : INotificationRepository
     public async Task MarkAsReadAsync(Guid userId, IEnumerable<Guid> notificationIds)
     {
         var notifications = await _context.Notifications
-            .Where(n => n.UserId == userId && notificationIds.Contains(n.Id))
+            .Where(n => n.SenderId == userId && notificationIds.Contains(n.Id))
             .ToListAsync();
 
         await UpdateNotificationsAsReadAsync(notifications);
@@ -118,7 +116,7 @@ public class NotificationRepository : INotificationRepository
     public async Task MarkAllAsReadAsync(Guid userId)
     {
         var notifications = await _context.Notifications
-            .Where(n => n.UserId == userId && !n.IsRead)
+            .Where(n => n.SenderId == userId && !n.IsRead)
             .ToListAsync();
 
         await UpdateNotificationsAsReadAsync(notifications);

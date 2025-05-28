@@ -14,32 +14,16 @@ public class NotificationService : INotificationService
         _notificationRepository = notificationRepository;
     }
 
-    public async Task CreateNotificationAsync(CreateNotificationRequest request)
+    public async Task CreateNotificationAsync(Guid senderId, CreateNotificationRequest request)
     {
         var notification = Notification.CreateNew(
-            userId: request.UserId,
+            senderId: senderId,
+            receiverId: request.ReceiverId,
             title: request.Title,
             message: request.Message,
-            type: request.Type,
-            relatedEntityId: request.RelatedEntityId,
-            relatedEntityType: request.RelatedEntityType);
+            type: request.Type);
 
         await _notificationRepository.CreateAsync(notification);
-    }
-
-    public async Task CreateNotificationsBatchAsync(
-        IEnumerable<(Guid userId, string title, string message, NotificationType type, string? relatedEntityId, string?
-            relatedEntityType)> notifications)
-    {
-        var notificationEntities = notifications.Select(n => Notification.CreateNew(
-            userId: n.userId,
-            title: n.title,
-            message: n.message,
-            type: n.type,
-            relatedEntityId: n.relatedEntityId,
-            relatedEntityType: n.relatedEntityType));
-
-        await _notificationRepository.CreateBatchAsync(notificationEntities);
     }
 
     public async Task<(IEnumerable<Notification> Items, int TotalCount, int UnreadCount)> GetUserNotificationsAsync(
@@ -67,13 +51,9 @@ public class NotificationService : INotificationService
             await _notificationRepository.MarkAsReadAsync(userId, notificationIds);
         }
     }
- 
-    public async Task<Notification> GetNotificationAsync(Guid notificationId) 
+
+    public async Task<Notification?> GetNotificationAsync(Guid notificationId)
     {
-        var notification = await _notificationRepository.GetByIdAsync(notificationId);
-        if (notification is null)
-            return null;
-        
-        return notification;
+        return await _notificationRepository.GetByIdAsync(notificationId);
     }
-}  
+}

@@ -40,31 +40,24 @@ public class NotificationController : ControllerBase
 
         return Ok(response);
     }
-    
+
     [HttpGet("{notificationId}")]
     public async Task<IActionResult> GetNotificationAsync(Guid notificationId)
     {
         var notification = await _notificationService.GetNotificationAsync(notificationId);
+        if (notification is null)
+            return NotFound();
 
         return Ok(NotificationResponse.Create(notification));
-    } 
+    }
 
     [HttpPost]
     [Authorize(Policy = "TeacherOrAdmin")]
     public async Task<IActionResult> CreateNotificationAsync(CreateNotificationRequest request)
     {
-        await _notificationService.CreateNotificationAsync(request);
-        return Ok();
-    }
-
-    [HttpPost("batch")]
-    [Authorize(Policy = "TeacherOrAdmin")]
-    public async Task<IActionResult> CreateNotificationsBatchAsync(CreateNotificationsBatchRequest request)
-    {
-        var notificationsData = request.Notifications.Select(n =>
-            (n.UserId, n.Title, n.Message, n.Type, n.RelatedEntityId, n.RelatedEntityType));
-
-        await _notificationService.CreateNotificationsBatchAsync(notificationsData);
+        var user = _currentUserService.User;
+        var senderId = user.Id;
+        await _notificationService.CreateNotificationAsync(senderId, request);
         return Ok();
     }
 

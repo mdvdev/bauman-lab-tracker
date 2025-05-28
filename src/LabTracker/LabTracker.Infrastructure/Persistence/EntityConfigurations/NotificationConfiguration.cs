@@ -31,12 +31,18 @@ public class NotificationConfiguration : IEntityTypeConfiguration<NotificationEn
             .IsRequired()
             .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
-        builder.HasOne(n => n.User)
+        builder.HasOne(n => n.Sender)
             .WithMany()
-            .HasForeignKey(n => n.UserId)
+            .HasForeignKey(n => n.SenderId)
             .OnDelete(DeleteBehavior.Cascade)
-            .HasConstraintName("FK_Notifications_Users_UserId");
+            .HasConstraintName("FK_Notifications_Users_SenderId");
 
-        builder.HasIndex(n => n.UserId);
+        builder.HasOne(n => n.Receiver)
+            .WithMany()
+            .HasForeignKey(n => n.ReceiverId)
+            .OnDelete(DeleteBehavior.Cascade)
+            .HasConstraintName("FK_Notifications_Users_ReceiverId");
+
+        builder.HasIndex(n => n.SenderId);
     }
 }

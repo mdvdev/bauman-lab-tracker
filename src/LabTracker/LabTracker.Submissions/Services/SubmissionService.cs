@@ -1,6 +1,7 @@
 using LabTracker.CourseMembers.Abstractions.Services;
 using LabTracker.Courses.Abstractions.Repositories;
 using LabTracker.Labs.Abstractions.Repositories;
+using LabTracker.Notifications.Abstractions.Services;
 using LabTracker.Slots.Abstractions.Services;
 using LabTracker.Submissions.Abstractions;
 using LabTracker.Submissions.Abstractions.Repositories;
@@ -20,6 +21,8 @@ public class SubmissionService : ISubmissionService
     private readonly ICourseMemberService _courseMemberService;
     private readonly ISlotService _slotService;
     private readonly IPriorityCalculatorFactory _priorityCalculatorFactory;
+    private readonly INotificationService _notificationService;
+    
 
     public SubmissionService(
         ISubmissionRepository submissionRepository,
@@ -28,7 +31,8 @@ public class SubmissionService : ISubmissionService
         IUserRepository userRepository,
         ICourseMemberService courseMemberService,
         ISlotService slotService,
-        IPriorityCalculatorFactory priorityCalculatorFactory)
+        IPriorityCalculatorFactory priorityCalculatorFactory,
+        INotificationService notificationService)
     {
         _submissionRepository = submissionRepository;
         _labRepository = labRepository;
@@ -37,6 +41,7 @@ public class SubmissionService : ISubmissionService
         _courseMemberService = courseMemberService;
         _slotService = slotService;
         _priorityCalculatorFactory = priorityCalculatorFactory;
+        _notificationService = notificationService;
     }
 
     public async Task<SubmissionInfo> CreateSubmissionAsync(Guid courseId, CreateSubmissionRequest request)
@@ -118,8 +123,6 @@ public class SubmissionService : ISubmissionService
 
         await _submissionRepository.UpdateAsync(submission);
         
-        // TODO: Add notification sending.
-
         return await CreateSubmissionInfoAsync(submission);
     }
 
