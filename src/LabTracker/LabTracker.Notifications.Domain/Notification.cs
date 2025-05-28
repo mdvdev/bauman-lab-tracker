@@ -37,6 +37,7 @@ public class Notification
 
         Id = id;
         SenderId = senderId;
+        ReceiverId = receiverId;
         Title = title;
         Message = message;
         Type = type;
