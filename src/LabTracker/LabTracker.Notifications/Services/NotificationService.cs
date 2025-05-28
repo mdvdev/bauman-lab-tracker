@@ -2,44 +2,40 @@ using LabTracker.Notifications.Abstractions.Repositories;
 using LabTracker.Notifications.Abstractions.Services;
 using LabTracker.Notifications.Abstractions.Services.Dtos;
 using LabTracker.Notifications.Domain;
+using LabTracker.User.Abstractions.Services;
 
 namespace Notifications.Services;
 
 public class NotificationService : INotificationService
 {
     private readonly INotificationRepository _notificationRepository;
+    private readonly IUserService _userService;
 
-    public NotificationService(INotificationRepository notificationRepository)
+    public NotificationService(INotificationRepository notificationRepository, IUserService userService)
     {
         _notificationRepository = notificationRepository;
+        _userService = userService;
     }
 
-    public async Task CreateNotificationAsync(CreateNotificationRequest request)
+    public async Task CreateNotificationAsync(Guid senderId, CreateNotificationRequest request)
     {
+        if (await _userService.GetUserByIdAsync(senderId) is null)
+            throw new ArgumentException($"Sender with id {senderId} not found.");
+
+        if (await _userService.GetUserByIdAsync(request.ReceiverId) is null)
+            throw new ArgumentException($"Receiver with id {request.ReceiverId} not found.");
+
+        if (senderId == request.ReceiverId)
+            throw new ArgumentException("Sender and receiver cannot be the same.");
+
         var notification = Notification.CreateNew(
-            userId: request.UserId,
+            senderId: senderId,
+            receiverId: request.ReceiverId,
             title: request.Title,
             message: request.Message,
-            type: request.Type,
-            relatedEntityId: request.RelatedEntityId,
-            relatedEntityType: request.RelatedEntityType);
+            type: request.Type);
 
         await _notificationRepository.CreateAsync(notification);
-    }
-
-    public async Task CreateNotificationsBatchAsync(
-        IEnumerable<(Guid userId, string title, string message, NotificationType type, string? relatedEntityId, string?
-            relatedEntityType)> notifications)
-    {
-        var notificationEntities = notifications.Select(n => Notification.CreateNew(
-            userId: n.userId,
-            title: n.title,
-            message: n.message,
-            type: n.type,
-            relatedEntityId: n.relatedEntityId,
-            relatedEntityType: n.relatedEntityType));
-
-        await _notificationRepository.CreateBatchAsync(notificationEntities);
     }
 
     public async Task<(IEnumerable<Notification> Items, int TotalCount, int UnreadCount)> GetUserNotificationsAsync(
@@ -67,13 +63,9 @@ public class NotificationService : INotificationService
             await _notificationRepository.MarkAsReadAsync(userId, notificationIds);
         }
     }
- 
-    public async Task<Notification> GetNotificationAsync(Guid notificationId) 
+
+    public async Task<Notification?> GetNotificationAsync(Guid notificationId)
     {
-        var notification = await _notificationRepository.GetByIdAsync(notificationId);
-        if (notification is null)
-            return null;
-        
-        return notification;
+        return await _notificationRepository.GetByIdAsync(notificationId);
     }
-}  
+}
