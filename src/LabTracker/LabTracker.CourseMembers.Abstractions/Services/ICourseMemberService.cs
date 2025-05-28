@@ -13,4 +13,6 @@ public interface ICourseMemberService
 
     Task<CourseMember> AddMemberAsync(CourseMemberKey key);
     Task RemoveMemberAsync(CourseMemberKey key);
+    
+    Task AddScoreToStudent(CourseMemberKey key, int score);
 }

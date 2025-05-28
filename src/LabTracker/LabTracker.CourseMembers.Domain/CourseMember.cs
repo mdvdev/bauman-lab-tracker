@@ -1,5 +1,3 @@
-using LabTracker.Users.Domain;
-
 namespace LabTracker.CourseMembers.Domain;
 
 public class CourseMember
@@ -25,11 +23,9 @@ public class CourseMember
         return new CourseMember(id, assignedAt, score);
     }
 
-    public void AddScore(int score, User user)
+    public void AddScore(int score)
     {
         if (score < 0) throw new ArgumentOutOfRangeException(nameof(score), "Score must be positive.");
-        if (!user.IsStudent) throw new InvalidOperationException("Only students can add score.");
-
         Score ??= 0;
         Score += score;
     }

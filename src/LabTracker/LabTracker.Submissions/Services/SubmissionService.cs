@@ -1,7 +1,7 @@
 using LabTracker.CourseMembers.Abstractions.Services;
+using LabTracker.CourseMembers.Domain;
 using LabTracker.Courses.Abstractions.Repositories;
 using LabTracker.Labs.Abstractions.Repositories;
-using LabTracker.Notifications.Abstractions.Services;
 using LabTracker.Slots.Abstractions.Services;
 using LabTracker.Submissions.Abstractions;
 using LabTracker.Submissions.Abstractions.Repositories;
@@ -21,8 +21,6 @@ public class SubmissionService : ISubmissionService
     private readonly ICourseMemberService _courseMemberService;
     private readonly ISlotService _slotService;
     private readonly IPriorityCalculatorFactory _priorityCalculatorFactory;
-    private readonly INotificationService _notificationService;
-    
 
     public SubmissionService(
         ISubmissionRepository submissionRepository,
@@ -31,8 +29,7 @@ public class SubmissionService : ISubmissionService
         IUserRepository userRepository,
         ICourseMemberService courseMemberService,
         ISlotService slotService,
-        IPriorityCalculatorFactory priorityCalculatorFactory,
-        INotificationService notificationService)
+        IPriorityCalculatorFactory priorityCalculatorFactory)
     {
         _submissionRepository = submissionRepository;
         _labRepository = labRepository;
@@ -41,17 +38,16 @@ public class SubmissionService : ISubmissionService
         _courseMemberService = courseMemberService;
         _slotService = slotService;
         _priorityCalculatorFactory = priorityCalculatorFactory;
-        _notificationService = notificationService;
     }
 
     public async Task<SubmissionInfo> CreateSubmissionAsync(Guid courseId, CreateSubmissionRequest request)
     {
         var course = await _courseRepository.GetByIdAsync(courseId)
                      ?? throw new ArgumentException($"Course with id '{courseId}' does not exist.", nameof(courseId));
-        
+
         var priorityCalculator = _priorityCalculatorFactory.GetPriorityCalculator(course.QueueMode);
         var priority = await priorityCalculator.CalculatePriorityAsync(request.StudentId, courseId, request.SlotId);
-        
+
         var submission = Submission.CreateNew(
             studentId: request.StudentId,
             labId: request.LabId,
@@ -82,14 +78,15 @@ public class SubmissionService : ISubmissionService
         foreach (var s in submissions)
         {
             var submissionInfo = await CreateSubmissionInfoAsync(s);
-            
+
             if (predicate is null || predicate(submissionInfo))
                 result.Add(submissionInfo);
         }
 
         return result
             .OrderByDescending(s => s.Submission.Priority)
-            .ThenBy(s => s.Submission.CreatedAt);;
+            .ThenBy(s => s.Submission.CreatedAt);
+        ;
     }
 
     public async Task<SubmissionInfo?> GetSubmissionAsync(Guid submissionId)
@@ -118,11 +115,20 @@ public class SubmissionService : ISubmissionService
 
         submission.UpdateStatus(
             newSubmissionStatus: request.SubmissionStatus,
-            score: request.Score,
             comment: request.Comment);
 
+        if (request.SubmissionStatus is SubmissionStatus.Approved or SubmissionStatus.ApprovedAfterDeadline)
+        {
+            var lab = await _labRepository.GetByIdAsync(submission.LabId);
+            if (lab is null)
+                throw new KeyNotFoundException($"Lab with id '{submission.LabId}' not found.");
+
+            await _courseMemberService.AddScoreToStudent(new CourseMemberKey(submission.CourseId, submission.StudentId),
+                request.SubmissionStatus == SubmissionStatus.Approved ? lab.Score : lab.ScoreAfterDeadline);
+        }
+
         await _submissionRepository.UpdateAsync(submission);
-        
+
         return await CreateSubmissionInfoAsync(submission);
     }
 

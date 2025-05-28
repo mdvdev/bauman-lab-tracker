@@ -16,8 +16,6 @@ public class SubmissionConfiguration : IEntityTypeConfiguration<SubmissionEntity
             .IsRequired()
             .HasConversion<string>();
 
-        builder.Property(s => s.Score);
-
         builder.Property(s => s.CreatedAt)
             .IsRequired();
 
