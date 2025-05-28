@@ -36,7 +36,7 @@ public class CourseMemberService : ICourseMemberService
         var user = await _userRepository.GetByIdAsync(member.Id.UserId);
         if (user is null)
             throw new InvalidOperationException($"User with id {member.Id.UserId} not found.");
-        
+
         return new CourseMemberInfo(member, user);
     }
 
@@ -74,6 +74,22 @@ public class CourseMemberService : ICourseMemberService
             throw new KeyNotFoundException($"User with id {key.UserId} not found.");
 
         await _courseMemberRepository.DeleteAsync(key);
+    }
+
+    public async Task AddScoreToStudent(CourseMemberKey key, int score)
+    {
+        var member = await _courseMemberRepository.GetByIdAsync(key);
+        if (member is null)
+            throw new KeyNotFoundException($"Course with '{key.CourseId}' not found.");
+
+        var user = await _userRepository.GetByIdAsync(member.Id.UserId);
+        if (user is null)
+            throw new InvalidOperationException($"User with id {member.Id.UserId} not found.");
+
+        if (!user.IsStudent)
+            throw new InvalidOperationException($"User with id {member.Id.UserId} is not student.");
+
+        member.AddScore(score);
     }
 
     public async Task<CourseMember> AddMemberAsync(CourseMemberKey key)

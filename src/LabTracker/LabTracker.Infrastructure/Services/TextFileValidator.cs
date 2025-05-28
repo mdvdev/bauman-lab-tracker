@@ -4,7 +4,7 @@ using Shared;
 
 namespace LabTracker.Infrastructure.Services;
 
-public class ImageFileValidator : IFileValidator
+public class TextFileValidator : IFileValidator
 {
     private const int MaxFileSizeBytes = 50 * 1024 * 1024; // 50 MB.
 
@@ -15,13 +15,14 @@ public class ImageFileValidator : IFileValidator
                 $"Invalid file size: size must be between 1 and {MaxFileSizeBytes} bytes.");
 
         var mimeType = MimeTypes.GetMimeType(fileName);
+        var extension = Path.GetExtension(fileName).ToLowerInvariant();
 
-        if (!FileExtensionsHelper.IsImageExtension(fileName))
+        if (!FileExtensionsHelper.IsTextDocumentExtension(extension))
         {
             throw new NotSupportedException("Unsupported file extension.");
         }
 
-        if (!FileExtensionsHelper.IsSupportedImageMimeType(mimeType))
+        if (!FileExtensionsHelper.IsSupportedTextDocumentMimeType(mimeType))
         {
             throw new NotSupportedException("Unsupported MIME type.");
         }

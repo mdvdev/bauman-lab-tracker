@@ -56,7 +56,6 @@ public class SubmissionRepository : ISubmissionRepository
         entity.LabId = submission.LabId;
         entity.SlotId = submission.SlotId;
         entity.SubmissionStatus = submission.SubmissionStatus;
-        entity.Score = submission.Score;
         entity.Comment = submission.Comment;
         entity.UpdatedAt = submission.UpdatedAt;
         entity.CreatedAt = submission.CreatedAt;

@@ -89,12 +89,12 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy(nameof(Role.Administrator), policy => policy.RequireRole(nameof(Role.Administrator)));
-    
+
     options.AddPolicy(nameof(Role.Teacher), policy => policy.RequireRole(nameof(Role.Teacher)));
 
     options.AddPolicy("TeacherOrAdmin", policy =>
         policy.RequireRole(nameof(Role.Teacher), nameof(Role.Administrator)));
-    
+
     options.AddPolicy("CourseMemberOnly", policy =>
         policy.Requirements.Add(new CourseMemberRequirement()));
 
@@ -121,8 +121,8 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowAll", policy =>
     {
         policy.AllowAnyOrigin()
-              .AllowAnyMethod()
-              .AllowAnyHeader();
+            .AllowAnyMethod()
+            .AllowAnyHeader();
     });
 });
 
@@ -153,6 +153,7 @@ builder.Services.ConfigureApplicationCookie(options =>
             context.Response.StatusCode = StatusCodes.Status401Unauthorized;
             return Task.CompletedTask;
         }
+
         context.Response.Redirect(context.RedirectUri);
         return Task.CompletedTask;
     };
@@ -164,6 +165,7 @@ builder.Services.ConfigureApplicationCookie(options =>
             context.Response.StatusCode = StatusCodes.Status403Forbidden;
             return Task.CompletedTask;
         }
+
         context.Response.Redirect(context.RedirectUri);
         return Task.CompletedTask;
     };
@@ -179,10 +181,7 @@ builder.Services.AddControllers()
     .AddApplicationPart(typeof(SlotController).Assembly)
     .AddApplicationPart(typeof(SubmissionController).Assembly)
     .AddApplicationPart(typeof(UserController).Assembly)
-    .AddJsonOptions(options =>
-    {
-        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-    });
+    .AddJsonOptions(options => { options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()); });
 
 builder.Services.AddScoped<ICourseRepository, CourseRepository>();
 builder.Services.AddScoped<ICourseMemberRepository, CourseMemberRepository>();
@@ -204,8 +203,8 @@ builder.Services.AddScoped<ISlotService, SlotService>();
 
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 builder.Services.AddHttpContextAccessor();
-builder.Services.AddScoped<IFileValidator, ImageFileValidator>();
 builder.Services.AddScoped<ImageFileValidator>();
+builder.Services.AddScoped<TextFileValidator>();
 builder.Services.AddScoped<IFileValidatorFactory, FileValidatorFactory>();
 builder.Services.AddScoped<IFileService, FileService>();
 builder.Services.AddScoped<IPriorityCalculatorFactory, PriorityCalculatorFactory>();
@@ -252,7 +251,7 @@ app.UseStaticFiles(new StaticFileOptions
 app.UseProblemDetails();
 app.UseRouting();
 
-app.UseCors("AllowAll"); 
+app.UseCors("AllowAll");
 
 app.MapControllers();
 

@@ -1,4 +1,4 @@
-namespace LabTracker.Infrastructure.Helpers;
+namespace Shared;
 
 public static class FileExtensionsHelper
 {
@@ -14,6 +14,20 @@ public static class FileExtensionsHelper
             "image/jpeg", "image/png", "image/gif", "image/webp"
         };
 
+    private static readonly HashSet<string> SupportedTextDocumentExtensions =
+        new(StringComparer.OrdinalIgnoreCase)
+        {
+            ".txt", ".pdf", ".docx"
+        };
+
+    private static readonly HashSet<string> SupportedTextDocumentMimeTypes =
+        new(StringComparer.OrdinalIgnoreCase)
+        {
+            "text/plain",
+            "application/pdf",
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        };
+
     public static bool IsImageExtension(string fileName)
     {
         var extension = Path.GetExtension(fileName);
@@ -23,5 +37,16 @@ public static class FileExtensionsHelper
     public static bool IsSupportedImageMimeType(string mimeType)
     {
         return SupportedImageMimeTypes.Contains(mimeType);
+    }
+
+    public static bool IsTextDocumentExtension(string fileName)
+    {
+        var extension = Path.GetExtension(fileName);
+        return SupportedTextDocumentExtensions.Contains(extension);
+    }
+
+    public static bool IsSupportedTextDocumentMimeType(string mimeType)
+    {
+        return SupportedTextDocumentMimeTypes.Contains(mimeType);
     }
 }

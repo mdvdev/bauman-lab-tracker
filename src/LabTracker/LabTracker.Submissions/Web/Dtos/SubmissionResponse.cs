@@ -13,7 +13,6 @@ public record SubmissionResponse(
     SlotResponse Slot,
     CourseResponse Course,
     SubmissionStatus SubmissionStatus,
-    int? Score,
     string? Comment,
     DateTimeOffset CreatedAt,
     DateTimeOffset? UpdatedAt)
@@ -26,7 +25,6 @@ public record SubmissionResponse(
             Slot: SlotResponse.Create(submissionInfo.SlotInfo),
             Course: CourseResponse.Create(submissionInfo.Course),
             SubmissionStatus: submissionInfo.Submission.SubmissionStatus,
-            Score: submissionInfo.Submission.Score,
             Comment: submissionInfo.Submission.Comment,
             CreatedAt: submissionInfo.Submission.CreatedAt,
             UpdatedAt: submissionInfo.Submission.UpdatedAt
