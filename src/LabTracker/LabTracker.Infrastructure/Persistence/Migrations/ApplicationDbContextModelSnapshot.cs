@@ -3,7 +3,6 @@ using System;
 using LabTracker.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -12,11 +11,9 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace LabTracker.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250525124806_AddOligarchs")]
-    partial class AddOligarchs
+    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -140,11 +137,11 @@ namespace LabTracker.Infrastructure.Persistence.Migrations
                     b.Property<DateTimeOffset?>("ReadAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("RelatedEntityId")
-                        .HasColumnType("text");
+                    b.Property<Guid>("ReceiverId")
+                        .HasColumnType("uuid");
 
-                    b.Property<string>("RelatedEntityType")
-                        .HasColumnType("text");
+                    b.Property<Guid>("SenderId")
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -154,12 +151,11 @@ namespace LabTracker.Infrastructure.Persistence.Migrations
                     b.Property<int>("Type")
                         .HasColumnType("integer");
 
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("ReceiverId");
+
+                    b.HasIndex("SenderId");
 
                     b.ToTable("Notifications", (string)null);
                 });
@@ -522,14 +518,23 @@ namespace LabTracker.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("LabTracker.Infrastructure.Persistence.Entities.NotificationEntity", b =>
                 {
-                    b.HasOne("LabTracker.Infrastructure.Persistence.Entities.UserEntity", "User")
+                    b.HasOne("LabTracker.Infrastructure.Persistence.Entities.UserEntity", "Receiver")
                         .WithMany()
-                        .HasForeignKey("UserId")
+                        .HasForeignKey("ReceiverId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("FK_Notifications_Users_UserId");
+                        .HasConstraintName("FK_Notifications_Users_ReceiverId");
 
-                    b.Navigation("User");
+                    b.HasOne("LabTracker.Infrastructure.Persistence.Entities.UserEntity", "Sender")
+                        .WithMany()
+                        .HasForeignKey("SenderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_Notifications_Users_SenderId");
+
+                    b.Navigation("Receiver");
+
+                    b.Navigation("Sender");
                 });
 
             modelBuilder.Entity("LabTracker.Infrastructure.Persistence.Entities.OligarchStudentEntity", b =>
