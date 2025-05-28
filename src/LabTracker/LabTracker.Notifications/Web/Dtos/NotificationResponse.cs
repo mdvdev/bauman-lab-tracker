@@ -13,8 +13,6 @@ public class NotificationResponse
     public bool IsRead { get; set; }
     public DateTimeOffset CreatedAt { get; set; }
     public DateTimeOffset? ReadAt { get; set; }
-    public string? RelatedEntityId { get; set; }
-    public string? RelatedEntityType { get; set; }
 
     public static NotificationResponse Create(Notification notification) => new()
     {

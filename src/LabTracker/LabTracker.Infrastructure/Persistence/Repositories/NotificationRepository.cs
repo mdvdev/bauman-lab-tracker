@@ -80,8 +80,7 @@ public class NotificationRepository : INotificationRepository
         bool unreadOnly)
     {
         var query = _context.Notifications
-            .Include(n => n.Sender)
-            .Where(n => n.SenderId == userId)
+            .Where(n => n.ReceiverId == userId)
             .OrderByDescending(n => n.CreatedAt);
 
         if (unreadOnly)
@@ -91,7 +90,7 @@ public class NotificationRepository : INotificationRepository
 
         var totalCount = await query.CountAsync();
         var unreadCount = await _context.Notifications
-            .Where(n => n.SenderId == userId && !n.IsRead)
+            .Where(n => n.ReceiverId == userId && !n.IsRead)
             .CountAsync();
 
         var entities = await query
