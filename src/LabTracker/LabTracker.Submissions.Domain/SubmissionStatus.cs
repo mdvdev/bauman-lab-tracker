@@ -6,5 +6,5 @@ public enum SubmissionStatus
     Approved,
     Rejected,
     NeedsRevision,
-    InProgress
+    ApprovedAfterDeadline
 }
