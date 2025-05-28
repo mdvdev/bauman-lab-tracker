@@ -28,10 +28,11 @@ function SlotCard({ slot, courseId, userId }: { slot: Slot; courseId: string; us
     const [slotSubmissions, setSlotSubmissions] = useState<Submission[]>([]);
     const [isAdmOrTeacher, setIsAdmOrTeacher] = useState<boolean>(false);
     const navigate = useNavigate();
+
     useEffect(() => {
         const checkSubmission = async () => {
             try {
-                const mySubRes = await authFetch(`/api/v1/courses/${courseId}/submissions/me`);
+                const mySubRes = await authFetch(`/api/v1/courses/${courseId}/submissions/me/?slotId=${slot.id}`);
                 const mySubData = await mySubRes.json();
 
                 if (mySubData.length > 0) {
@@ -100,26 +101,15 @@ function SlotCard({ slot, courseId, userId }: { slot: Slot; courseId: string; us
                 </div>
 
                 {isAdmOrTeacher ? (
-                    <button
-                    className={`slot-teachers-button ${isFull ? 'full' : 'available'}`}
-                    onClick={() => navigate(`/courses/${courseId}/slots/${slot.id}`)}
-                >
-                    {isFull ? "Посмотреть итоги" : "Перейти к слоту"}
-                </button>
+                    <button className={`slot-teachers-button ${isFull ? 'full' : 'available'}`}>
+                        {isFull ? "Посмотреть итоги" : "Перейти к слоту"}
+                    </button>
                 ) : (
                     <div className="slot-students-buttons">
                         <button
                             className={`slot-button-sign ${signSuccess ? 'remove' : ''} ${isFull && !signSuccess ? 'disabled' : ''}`}
                             disabled={!signSuccess && isFull}
-                            onClick={() => {
-                                setIsModalOpen(true);
-                                if (signSuccess) {
-                                    deleteRecord();
-                                    setIsModalOpen(false);
-                                } else {
-                                    setModalType("signSlot");
-                                }
-                            }}
+                            onClick={() => navigate(`/courses/${courseId}/slots/${slot.id}`)}
                         >
                             {isFull && !signSuccess
                                 ? "Запись недоступна"
