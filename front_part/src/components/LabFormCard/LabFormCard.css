@@ -10,7 +10,7 @@
 .add-lab-form label {
     display: flex;
     flex-direction: column;
-    font-weight: 500;
+    font-weight: 200;
     color: #333;
 }
 
@@ -35,4 +35,8 @@
     padding: 5px;
     background-color: black;
     color: white;
+}
+
+.student-list-header {
+    font-size: 20px;
 }

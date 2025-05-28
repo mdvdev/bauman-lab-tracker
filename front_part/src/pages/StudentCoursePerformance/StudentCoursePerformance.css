@@ -59,3 +59,14 @@
     font-size: 0;
     line-height: 0;
 }
+
+.queuemode-field {
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+    color: #757575
+}
+
+.queuemode {
+    color: #3772E7
+}

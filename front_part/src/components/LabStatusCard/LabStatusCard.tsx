@@ -97,7 +97,7 @@ function LabStatusCard({ labId, courseId }: LabStatusCardProps) {
                 </div>
             </div>
             {isModalOpen && <Modal onClose={() => setIsModalOpen(false)}>
-                <LabFormCard onClose={() => setIsModalOpen(false)} courseId={courseId!} mode="edit"></LabFormCard>
+                <LabFormCard onClose={() => setIsModalOpen(false)} courseId={courseId!} mode="edit" labId={lab?.id!}></LabFormCard>
             </Modal>}
         </>
     )

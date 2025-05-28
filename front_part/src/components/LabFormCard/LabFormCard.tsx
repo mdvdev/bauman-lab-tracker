@@ -8,9 +8,10 @@ type AddFormCardProps = {
     onClose: () => void;
     courseId: string;
     mode: "add" | "edit";
+    labId: string,
 }
 
-const AddFormCard: React.FC<AddFormCardProps> = ({ onClose, courseId, mode }) => {
+const AddFormCard: React.FC<AddFormCardProps> = ({ onClose, courseId, mode, labId }) => {
     const [labScore, setLabScore] = useState<string>('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -28,18 +29,34 @@ const AddFormCard: React.FC<AddFormCardProps> = ({ onClose, courseId, mode }) =>
         setError(null);
 
         try {
-            const response = await authFetch(`/api/v1/courses/${courseId}/labs`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    name: labName,
-                    deadline: selectedDate?.toISOString(),
-                    score: labScore,
-                    scoreAfterDeadline: labScoreAfterDeadline
-                }),
-            });
+            if (mode === "add") {
+                const response = await authFetch(`/api/v1/courses/${courseId}/labs`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        name: labName,
+                        deadline: selectedDate?.toISOString(),
+                        score: labScore,
+                        scoreAfterDeadline: labScoreAfterDeadline
+                    }),
+                });
 
-            if (!response.ok) throw new Error('Ошибка при создании  лабораторной работы');
+                if (!response.ok) throw new Error('Ошибка при создании  лабораторной работы');
+            } else if (mode === "edit") {
+                const response = await authFetch(`/api/v1/courses/${courseId}/labs/${labId}`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        name: labName,
+                        deadline: selectedDate?.toISOString(),
+                        score: labScore,
+                        scoreAfterDeadline: labScoreAfterDeadline
+                    }),
+                });
+
+                if (!response.ok) throw new Error('Ошибка при редактировании лабораторной работы');
+            }
+
 
             setSuccess(true);
             onClose();

@@ -9,7 +9,7 @@ import Modal from '../../components/Modal/Modal';
 import AddCourseCard from '../../components/AddCourseCard/AddCourseCard';
 import { CourseTeacher } from '../../types/courseTeacherType';
 import { authFetch } from '../../utils/authFetch';
-
+import { Settings } from 'lucide-react';
 function StudentCourses() {
     const [courses, setCourses] = useState<Course[]>([]);
     const [courseTeachers, setCourseTeachers] = useState<Record<string, User[]>>({});
@@ -17,6 +17,9 @@ function StudentCourses() {
     const navigate = useNavigate();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isAdmOrTeacher, setIsAdmOrTeacher] = useState<boolean>();
+    const [modalType, setModalType] = useState<'addCourse' | 'updateCourse'>();
+    const [selectedCourseId, setSelectedCourseId] = useState<string>('');
+
     useEffect(() => {
         const fetchUser = async () => {
             try {
@@ -71,10 +74,7 @@ function StudentCourses() {
                 <div className='course-page-header'>
                     <h2>Ваши курсы</h2>
                     {user && (user.roles.includes('Administrator') || user.roles.includes('Teacher')) && (
-                        <button
-                            className="add-course-button"
-                            onClick={() => setIsModalOpen(true)}
-                        >
+                        <button className="add-course-button" onClick={() => { setIsModalOpen(true), setModalType("addCourse") }}>
                             <PlusIcon className="plus-icon" />
                         </button>
                     )}
@@ -96,7 +96,16 @@ function StudentCourses() {
                                             alt={course.name}
                                         />
                                         <div className='course-info'>
-                                            <span className='course-name'>{course.name}</span>
+                                            <div className='course-header'>
+                                                <span className='course-name'>{course.name}</span>
+                                                <button className="admin-button" onClick={() => {
+                                                    setIsModalOpen(true);
+                                                    setModalType('updateCourse');
+                                                    setSelectedCourseId(course.id);
+                                                }}>
+                                                    <Settings stroke="white" className="settings-icon" />
+                                                </button>
+                                            </div>
                                             <TeachersList teachers={teachers} />
                                             <div className='buttons'>
                                                 <button
@@ -123,7 +132,15 @@ function StudentCourses() {
 
             {isModalOpen && (
                 <Modal onClose={() => setIsModalOpen(false)}>
-                    <AddCourseCard onClose={() => setIsModalOpen(false)} />
+                    {modalType === 'addCourse' &&
+                        <AddCourseCard
+                            onClose={() => setIsModalOpen(false)}
+                            courseId='' mode={modalType} />}
+                    {modalType === 'updateCourse' && selectedCourseId &&
+                        <AddCourseCard
+                            onClose={() => setIsModalOpen(false)}
+                            courseId={selectedCourseId}
+                            mode={modalType} />}
                 </Modal>
             )}
         </>

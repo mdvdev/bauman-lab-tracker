@@ -6,13 +6,13 @@ import LabStatusCard from "../../components/LabStatusCard/LabStatusCard";
 import Modal from "../../components/Modal/Modal";
 import LabFormCard from "../../components/LabFormCard/LabFormCard";
 import CourseParticipant from "../../components/CourseParticipantCard/CourseParticipantCard";
-
+import { getCourseQueueMode } from "../../utils/queueModeUtil"
 import { Course } from '../../types/courseType';
 import { User } from "../../types/userType";
 import { Lab } from "../../types/labType";
 import { CourseTeacher } from "../../types/courseTeacherType";
 
-import { PlusIcon, Settings } from "lucide-react";
+import { PlusIcon } from "lucide-react";
 import { authFetch } from "../../utils/authFetch";
 
 import "./StudentCoursePerformance.css";
@@ -77,9 +77,6 @@ function StudentCoursePerformance() {
                                 >
                                     <PlusIcon className="plus-icon" />
                                 </button>
-                                <button className="admin-button">
-                                    <Settings stroke="white" className="settings-icon" />
-                                </button>
                                 <button className="slots-list" onClick={() => navigate(`/courses/${courseId}`)}>
                                     Перейти к слотам
                                 </button>
@@ -97,7 +94,9 @@ function StudentCoursePerformance() {
                     </div>
 
                     <TeachersList teachers={courseTeachers} />
-
+                    <div className="queuemode-field">Режим работы:
+                        <div className="queuemode">{getCourseQueueMode(course?.queueMode!)}</div>
+                    </div>
                     <div className="lab-status-card-list">
                         {labs.map((lab) => (
                             <LabStatusCard key={lab.id} labId={lab.id} courseId={courseId || ''} />
@@ -109,7 +108,7 @@ function StudentCoursePerformance() {
             {isModalOpen && (
                 <Modal onClose={() => setIsModalOpen(false)}>
                     {modalType === "addLab" && course?.id && (
-                        <LabFormCard onClose={() => setIsModalOpen(false)} courseId={course.id} mode="add" />
+                        <LabFormCard onClose={() => setIsModalOpen(false)} courseId={course.id} mode="add" labId="" />
                     )}
                     {/* {modalType === "courseParticipant" && myUserInfo?.id && (
                         <CourseParticipant
