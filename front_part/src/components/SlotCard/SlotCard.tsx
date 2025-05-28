@@ -8,6 +8,7 @@ import LabSelection from "../LabSelection/LabSelection";
 import { authFetch } from "../../utils/authFetch";
 import { Submission } from "../../types/submssionType";
 import { User } from "../../types/userType";
+import { useNavigate } from "react-router-dom";
 
 function formatTime(timeString: string): string {
     const date = new Date(timeString);
@@ -26,6 +27,7 @@ function SlotCard({ slot, courseId, userId }: { slot: Slot; courseId: string; us
     const [submissionId, setSubmissionId] = useState<number | null>(null);
     const [slotSubmissions, setSlotSubmissions] = useState<Submission[]>([]);
     const [isAdmOrTeacher, setIsAdmOrTeacher] = useState<boolean>(false);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const checkSubmission = async () => {
@@ -107,15 +109,7 @@ function SlotCard({ slot, courseId, userId }: { slot: Slot; courseId: string; us
                         <button
                             className={`slot-button-sign ${signSuccess ? 'remove' : ''} ${isFull && !signSuccess ? 'disabled' : ''}`}
                             disabled={!signSuccess && isFull}
-                            onClick={() => {
-                                setIsModalOpen(true);
-                                if (signSuccess) {
-                                    deleteRecord();
-                                    setIsModalOpen(false);
-                                } else {
-                                    setModalType("signSlot");
-                                }
-                            }}
+                            onClick={() => navigate(`/courses/${courseId}/slots/${slot.id}`)}
                         >
                             {isFull && !signSuccess
                                 ? "Запись недоступна"
