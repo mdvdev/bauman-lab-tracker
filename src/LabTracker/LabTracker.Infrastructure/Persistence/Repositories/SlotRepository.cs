@@ -55,9 +55,9 @@ public class SlotRepository : ISlotRepository
         return entity.ToDomain();
     }
 
-    public async Task DeleteAsync(Guid key)
+    public async Task DeleteAsync(Guid id)
     {
-        var entity = await _context.Slots.FindAsync(key);
+        var entity = await _context.Slots.FindAsync(id);
         if (entity is not null)
         {
             _context.Slots.Remove(entity);

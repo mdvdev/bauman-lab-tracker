@@ -7,5 +7,5 @@ public interface ICrudRepository<TEntity, in TKey>
     Task<IEnumerable<TEntity>> GetAllAsync();
     Task<TEntity> CreateAsync(TEntity course);
     Task<TEntity> UpdateAsync(TEntity course);
-    Task DeleteAsync(TKey key);
+    Task DeleteAsync(TKey id);
 }

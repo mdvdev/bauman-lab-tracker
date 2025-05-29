@@ -33,6 +33,8 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\LabTracker.Admin.Abstractions\LabTracker.Admin.Abstractions.csproj" />
+      <ProjectReference Include="..\LabTracker.Admin\LabTracker.Admin.csproj" />
       <ProjectReference Include="..\LabTracker.Auth\LabTracker.Auth.csproj" />
       <ProjectReference Include="..\LabTracker.CourseMembers\LabTracker.CourseMembers.csproj" />
       <ProjectReference Include="..\LabTracker.Courses\LabTracker.Courses.csproj" />
