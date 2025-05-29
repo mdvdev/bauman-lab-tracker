@@ -6,6 +6,9 @@ using Courses.Web;
 using Hellang.Middleware.ProblemDetails;
 using Labs.Services;
 using Labs.Web;
+using LabTracker.Admin.Abstractions.Services;
+using LabTracker.Admin.Services;
+using LabTracker.Admin.Web;
 using LabTracker.Auth.Abstractions.Services;
 using LabTracker.CourseMembers.Abstractions.Repositories;
 using LabTracker.CourseMembers.Abstractions.Services;
@@ -173,6 +176,7 @@ builder.Services.ConfigureApplicationCookie(options =>
 
 builder.Services.AddControllers()
     .AddApplicationPart(typeof(AuthController).Assembly)
+    .AddApplicationPart(typeof(AdminController).Assembly)
     .AddApplicationPart(typeof(CourseStudentController).Assembly)
     .AddApplicationPart(typeof(CourseTeacherController).Assembly)
     .AddApplicationPart(typeof(CourseController).Assembly)
@@ -200,6 +204,7 @@ builder.Services.AddScoped<ILabService, LabService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<ISubmissionService, SubmissionService>();
 builder.Services.AddScoped<ISlotService, SlotService>();
+builder.Services.AddScoped<IAdminService, AdminService>();
 
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 builder.Services.AddHttpContextAccessor();

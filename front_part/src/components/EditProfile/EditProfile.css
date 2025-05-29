@@ -11,6 +11,8 @@
     flex-direction: column;
     font-weight: 500;
     color: #333;
+    max-width: 333px;
+
 }
 
 

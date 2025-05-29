@@ -103,10 +103,10 @@ public class CourseMemberRepository : ICourseMemberRepository
         return courseMember;
     }
 
-    public async Task DeleteAsync(CourseMemberKey key)
+    public async Task DeleteAsync(CourseMemberKey id)
     {
         var entity = await _context.CourseMembers
-            .FirstOrDefaultAsync(cm => cm.CourseId == key.CourseId && cm.MemberId == key.UserId);
+            .FirstOrDefaultAsync(cm => cm.CourseId == id.CourseId && cm.MemberId == id.UserId);
 
         if (entity is not null)
         {

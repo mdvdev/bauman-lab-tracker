@@ -5,7 +5,6 @@ export async function authFetch(input: RequestInfo, init?: RequestInit): Promise
         credentials: 'include', // важно для Cookie-based Auth (Basic/Cookie)
         headers: {
             ...(init?.headers || {}),
-            'Content-Type': 'application/json',
         },
     });
 

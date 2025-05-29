@@ -54,6 +54,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LabTracker.Auth.Abstraction
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LabTracker.CourseMembers.Abstractions", "LabTracker.CourseMembers.Abstractions\LabTracker.CourseMembers.Abstractions.csproj", "{623129A7-04C9-49A6-9E3D-B14C7D280C14}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LabTracker.Admin", "LabTracker.Admin\LabTracker.Admin.csproj", "{8E2B8400-6122-47E8-9E29-546D29E606A9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LabTracker.Admin.Abstractions", "LabTracker.Admin.Abstractions\LabTracker.Admin.Abstractions.csproj", "{075B730A-0460-4F6F-8383-9272A1B29487}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -168,6 +172,14 @@ Global
 		{623129A7-04C9-49A6-9E3D-B14C7D280C14}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{623129A7-04C9-49A6-9E3D-B14C7D280C14}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{623129A7-04C9-49A6-9E3D-B14C7D280C14}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8E2B8400-6122-47E8-9E29-546D29E606A9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8E2B8400-6122-47E8-9E29-546D29E606A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8E2B8400-6122-47E8-9E29-546D29E606A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8E2B8400-6122-47E8-9E29-546D29E606A9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{075B730A-0460-4F6F-8383-9272A1B29487}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{075B730A-0460-4F6F-8383-9272A1B29487}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{075B730A-0460-4F6F-8383-9272A1B29487}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{075B730A-0460-4F6F-8383-9272A1B29487}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 	EndGlobalSection

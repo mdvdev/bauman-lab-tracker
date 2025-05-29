@@ -68,7 +68,7 @@ function LabStatusCard({ labId, courseId }: LabStatusCardProps) {
     return (
         <>
             <div className={`lab-status-card ${labStatus.status}`}>
-                <div className="lab-name">{lab?.name} {lab?.descriptionUri}</div>
+                <div className="lab-name">{lab?.name}</div>
                 <div className="lab-status-card-info">
                     <div className="lab-info-row">
                         <label>Срок сдачи: </label>
@@ -89,7 +89,13 @@ function LabStatusCard({ labId, courseId }: LabStatusCardProps) {
                     {isAdmOrTeacher
                         ? <button className="lab-refactor-button" onClick={() => setIsModalOpen(true)}>Редактировать</button>
                         : (<div className="student-lab-buttons">
-                            <button className="downoload-button">Скачать условие</button>
+                            <a
+                                href={`http://localhost:5272${lab?.descriptionUri!}`}
+                                download
+                                className="download-button"
+                            >
+                                Скачать условие
+                            </a>
                             <button className={`sign-button ${labStatus.status}`} onClick={() => navigate(`/courses/${courseId}`)} disabled={labStatus.statusName === 'Сдана не в срок' || labStatus.statusName === 'Сдана'} >
                                 {(labStatus.statusName === 'Сдана не в срок' || labStatus.statusName === 'Сдана') ? 'Запись недоступна' : 'Записаться'}
                             </button>
