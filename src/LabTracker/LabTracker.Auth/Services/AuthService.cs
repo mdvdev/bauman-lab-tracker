@@ -45,7 +45,7 @@ public class AuthService : IAuthService
     {
         var userEntity = await _userManager.FindByEmailAsync(request.Email);
         if (userEntity is null)
-            throw new InvalidOperationException($"User with email '{request.Email}' does not exist");
+            throw new ArgumentException($"User with email '{request.Email}' does not exist");
 
         var result = await _signInManager.PasswordSignInAsync(userEntity, request.Password, isPersistent: false,
             lockoutOnFailure: false);

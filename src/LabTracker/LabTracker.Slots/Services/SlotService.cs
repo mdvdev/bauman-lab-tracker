@@ -45,7 +45,7 @@ public class SlotService : ISlotService
             maxStudents: request.MaxStudents
         );
 
-        if (_slotRepository.IsIntervalsOverlapping(slot))
+        if (_slotRepository.IsIntervalsOverlapping(courseId, slot))
             throw new ArgumentException("Invalid slot interval: intervals overlap.");
 
         await _slotRepository.CreateAsync(slot);

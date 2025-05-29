@@ -65,10 +65,11 @@ public class SlotRepository : ISlotRepository
         }
     }
 
-    public bool IsIntervalsOverlapping(Slot slot)
+    public bool IsIntervalsOverlapping(Guid courseId, Slot slot)
     {
         return Enumerable.Any(
-            _context.Slots, s => s.StartTime <= slot.EndTime && s.EndTime >= slot.StartTime
+            _context.Slots, s =>
+                slot.CourseId == courseId && s.StartTime <= slot.EndTime && s.EndTime >= slot.StartTime
         );
     }
 
