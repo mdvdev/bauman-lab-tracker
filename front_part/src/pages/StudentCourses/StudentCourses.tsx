@@ -98,13 +98,14 @@ function StudentCourses() {
                                         <div className='course-info'>
                                             <div className='course-header'>
                                                 <span className='course-name'>{course.name}</span>
-                                                <button className="admin-button" onClick={() => {
-                                                    setIsModalOpen(true);
-                                                    setModalType('updateCourse');
-                                                    setSelectedCourseId(course.id);
-                                                }}>
-                                                    <Settings stroke="white" className="settings-icon" />
-                                                </button>
+                                                {user && (user.roles.includes('Administrator') || user.roles.includes('Teacher')) &&
+                                                    <button className="admin-button" onClick={() => {
+                                                        setIsModalOpen(true);
+                                                        setModalType('updateCourse');
+                                                        setSelectedCourseId(course.id);
+                                                    }}>
+                                                        <Settings stroke="white" className="settings-icon" />
+                                                    </button>}
                                             </div>
                                             <TeachersList teachers={teachers} />
                                             <div className='buttons'>

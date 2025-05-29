@@ -38,7 +38,7 @@
     margin-top: 12px;
 }
 
-.downoload-button,
+.download-button,
 .sign-button {
     padding: 8px 16px;
     border-radius: 20px;
@@ -53,7 +53,7 @@
 
 }
 
-.downoload-button {
+.download-button {
     background-color: #1c1c1c;
     color: white;
 }

@@ -5,7 +5,6 @@ import TeachersList from "../../components/TeachersList/TeachersList";
 import LabStatusCard from "../../components/LabStatusCard/LabStatusCard";
 import Modal from "../../components/Modal/Modal";
 import LabFormCard from "../../components/LabFormCard/LabFormCard";
-import CourseParticipant from "../../components/CourseParticipantCard/CourseParticipantCard";
 import { getCourseQueueMode } from "../../utils/queueModeUtil"
 import { Course } from '../../types/courseType';
 import { User } from "../../types/userType";
