@@ -1,3 +1,14 @@
+html, body {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+.course-students-page {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
 .course-students-page {
   padding: calc(96px + 46px) 50px 20px 50px;
   font-family: 'Inter', sans-serif;
@@ -6,7 +17,7 @@
 }
 
 .course-students-title {
-  font-size: 48px;
+  font-size: 32px;
   font-weight: 700;
   margin-bottom: 12px;
   color: #1a1a1a;
@@ -27,6 +38,8 @@
 }
 
 .student-card {
+  max-width: 100%;
+  overflow-x: hidden;
   display: flex;
   gap: 32px;
   background-color: #ffffff;
@@ -146,13 +159,6 @@
   gap: 10px;
 }
 
-.student-actions button {
-  background-color: #f0f0f0;
-  padding: 6px 12px;
-  border: 1px solid #ccc;
-  cursor: pointer;
-  border-radius: 4px;
-}
 
 .modal-buttons {
   display: flex;
@@ -203,8 +209,28 @@
   width: 40px;
   height: 40px;
   background-color: #1A1B22;
-  color: white;
+  color: white; 
   font-size: 24px;
   border: none;
   cursor: pointer;
+}
+
+.add-student-btn:hover {
+  background-color: #000000;
+}
+
+.oligarch-toggle {
+  background-color: #007bff;
+  width: 170px;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.3s ease;
+}
+
+.oligarch-toggle:hover {
+  background-color: #0056b3;
 }

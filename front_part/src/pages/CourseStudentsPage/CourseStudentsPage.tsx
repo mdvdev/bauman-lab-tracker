@@ -25,6 +25,7 @@ interface StudentWithLabData {
   labsStatus: LabStatus[];
   totalScore: number;
   passedLabsCount: number;
+  isOligarch: boolean;
 }
 
 interface GroupData {
@@ -54,6 +55,7 @@ function CourseStudentsPage() {
   const [courseName, setCourseName] = useState('');
   const [isTeacher, setIsTeacher] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [queueMode, setQueueMode] = useState<string>('');
 
   const [selectedStudent, setSelectedStudent] = useState<StudentWithLabData | null>(null);
   const [showConfirmDelete, setShowConfirmDelete] = useState(false);
@@ -83,6 +85,7 @@ function CourseStudentsPage() {
       const studentsData = await studentsRes.json();
       const submissionsData: Submission[] = await submissionsRes.json();
       const courseData = await courseRes.json();
+      setQueueMode(courseData.queueMode);
       const teachersData = await teachersRes.json();
       const me = await meRes.json();
 
@@ -121,7 +124,8 @@ function CourseStudentsPage() {
           submissions: studentSubmissions,
           labsStatus,
           passedLabsCount,
-          totalScore
+          totalScore,
+          isOligarch: s.isOligarch
         };
       });
 
@@ -188,13 +192,32 @@ function CourseStudentsPage() {
     setSelectedStudent(null);
   };
 
+  const toggleOligarch = async (studentId: string, currentStatus: boolean) => {
+    if (!courseId) return;
+  
+    try {
+      await authFetch(`/api/v1/courses/${courseId}/students/${studentId}?isOligarch=${!currentStatus}`, {
+        method: 'PATCH',
+      });
+  
+      // Обновить локальный стейт, чтобы изменить кнопку и статус студента
+      setStudents((prevStudents) =>
+        prevStudents.map((student) =>
+          student.id === studentId ? { ...student, isOligarch: !currentStatus } : student
+        )
+      );
+    } catch (error) {
+      console.error('Ошибка при смене статуса олигарха:', error);
+    }
+  };
+
   if (loading) return <div>Загрузка...</div>;
 
   return (
     <div className="course-students-page">
       <div className="course-students-header">
         <h1 className="course-students-title">{courseName}</h1>
-        {isTeacher && <button onClick={() => setShowAddStudentModal(true)}>+ Добавить студента</button>}
+        {isTeacher && <button onClick={() => setShowAddStudentModal(true)}>Добавить студента</button>}
       </div>
 
       <TeachersList teachers={teachers} />
@@ -218,6 +241,14 @@ function CourseStudentsPage() {
                     setSelectedStudent(student);
                     setShowNotificationModal(true);
                   }}>Отправить уведомление</button>
+                  {isTeacher && queueMode === 'Oligarchic' && (
+                  <button
+                    className="oligarch-toggle"
+                    onClick={() => toggleOligarch(student.id, student.isOligarch)}
+                  >
+                    {student.isOligarch ? 'Разжаловать' : 'Сделать олигархом'}
+                  </button>
+                )}
                 </div>
               )}
             </div>
@@ -258,7 +289,7 @@ function CourseStudentsPage() {
         <Modal onClose={() => setShowNotificationModal(false)}>
           <h2>Уведомление студенту {selectedStudent.fullName}</h2>
           <input placeholder="Заголовок" value={notificationTitle} onChange={(e) => setNotificationTitle(e.target.value)} />
-          <textarea placeholder="Сообщение" value={notificationMessage} onChange={(e) => setNotificationMessage(e.target.value)} />
+          <input placeholder="Сообщение" value={notificationMessage} onChange={(e) => setNotificationMessage(e.target.value)} />
           <div className="modal-buttons">
             <button onClick={handleSendNotification}>Отправить</button>
             <button onClick={() => setShowNotificationModal(false)}>Отмена</button>

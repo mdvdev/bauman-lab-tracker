@@ -10,7 +10,7 @@
 }
 
 .slot-header h2 {
-    font-size: 48px;
+    font-size: 32px;
     font-weight: bold;
     margin: 0;
     padding-left: 0;
@@ -76,12 +76,35 @@
     border: 1px solid #000000
 }
 
+.student-row > div {
+    font-family: 'Inter', sans-serif;
+    font-size: 20px;
+    overflow-wrap: break-word;
+}
+
+.lab-status {
+    font-weight: bold;
+    font-size: 20px;
+}
+
+.lab-status.approved {
+    color: green;
+}
+
+.lab-status.rejected {
+    color: red;
+}
+
+.lab-status.approved-after-deadline {
+    color: #FFA500;
+}
+
 .accept-btn,
 .remove-btn {
-    width: 100px;
+    width: 120px;
     height: 40px;
     padding: 0 16px;
-    font-size: 14px;
+    font-size: 16px;
     border: none;
     cursor: pointer;
     border-radius: 16px;

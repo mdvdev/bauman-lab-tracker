@@ -11,7 +11,8 @@ interface SubmissionDisplay {
     fullName: string;
     labName: string;
     statusRaw: string;
-    status: string; 
+    status: string;
+    statusClass: string;
     score?: number;
     scoreRegular?: number;
     scoreAfterDeadline?: number;
@@ -19,11 +20,15 @@ interface SubmissionDisplay {
 
 function getStatusLabel(status: string) {
     switch (status) {
-        case 'approved': return 'Принято';
-        case 'approved after deadline': return 'Принято не в срок';
-        case 'rejected': return 'Отклонено';
+        case 'Approved': return 'Принято';
+        case 'ApprovedAfterDeadline': return 'Принято не в срок';
+        case 'Rejected': return 'Отклонено';
         default: return status;
     }
+}
+
+function getStatusClass(status: string): string {
+    return status.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
 }
 
 function DetailedSlotPage() {
@@ -35,7 +40,7 @@ function DetailedSlotPage() {
     const [showModal, setShowModal] = useState(false);
     const [selectedSubmission, setSelectedSubmission] = useState<SubmissionDisplay | null>(null);
     const [comment, setComment] = useState('');
-    const [status, setStatus] = useState<'approved' | 'rejected' | 'approved after deadline'>('approved');
+    const [status, setStatus] = useState<'Approved' | 'Rejected' | 'ApprovedAfterDeadline'>('Approved');
 
     useEffect(() => {
         const loadData = async () => {
@@ -55,9 +60,14 @@ function DetailedSlotPage() {
 
                 const result: SubmissionDisplay[] = filtered.map(sub => {
                     const fullName = `${sub.student?.lastName ?? ''} ${sub.student?.firstName ?? ''} ${sub.student?.patronymic ?? ''}`.trim();
-                    // Заменяем статус в объектах Submission, если там "approved_after_deadline", меняем на "approved after deadline"
-                    let rawStatus = sub.submissionStatus === 'approved_after_deadline' ? 'approved after deadline' : sub.submissionStatus;
+
+                    const rawStatus =
+                        sub.submissionStatus === 'approved_after_deadline'
+                            ? 'ApprovedAfterDeadline'
+                            : sub.submissionStatus;
+
                     const statusLabel = getStatusLabel(rawStatus);
+                    const statusClass = getStatusClass(rawStatus)
 
                     return {
                         submissionId: sub.id,
@@ -65,6 +75,7 @@ function DetailedSlotPage() {
                         labName: sub.lab?.name ?? '',
                         statusRaw: rawStatus,
                         status: statusLabel,
+                        statusClass,
                         scoreRegular: sub.lab?.score,
                         scoreAfterDeadline: sub.lab?.scoreAfterDeadline,
                     };
@@ -90,18 +101,19 @@ function DetailedSlotPage() {
         if (!target) return;
         setSelectedSubmission(target);
         setComment('');
-        setStatus('approved');
+        setStatus('Approved');
         setShowModal(true);
     };
 
     const handleConfirmAccept = async () => {
         if (!selectedSubmission || !courseId) return;
 
-        const chosenScore = status === 'approved'
-            ? selectedSubmission.scoreRegular
-            : status === 'approved after deadline'
-                ? selectedSubmission.scoreAfterDeadline
-                : 0;
+        const chosenScore =
+            status === 'Approved'
+                ? selectedSubmission.scoreRegular
+                : status === 'ApprovedAfterDeadline'
+                    ? selectedSubmission.scoreAfterDeadline
+                    : 0;
 
         try {
             const res = await authFetch(
@@ -126,6 +138,7 @@ function DetailedSlotPage() {
                               ...s,
                               statusRaw: status,
                               status: getStatusLabel(status),
+                              statusClass: getStatusClass(status),
                               score: chosenScore,
                           }
                         : s
@@ -135,7 +148,7 @@ function DetailedSlotPage() {
             setShowModal(false);
             setSelectedSubmission(null);
             setComment('');
-            setStatus('approved');
+            setStatus('Approved');
         } catch (err) {
             console.error('Ошибка при подтверждении:', (err as Error).message);
         }
@@ -200,7 +213,7 @@ function DetailedSlotPage() {
             <div className="students-list">
                 {submissions.map((s, index) => {
                     const isAccepted =
-                        s.statusRaw === 'approved' || s.statusRaw === 'approved after deadline';
+                        s.statusRaw === 'Approved' || s.statusRaw === 'ApprovedAfterDeadline';
 
                     return (
                         <div key={s.submissionId} className="student-row">
@@ -208,17 +221,7 @@ function DetailedSlotPage() {
                             <div>{s.fullName}</div>
                             <div>{s.labName}</div>
                             <div>
-                                <div
-                                    className={`lab-status ${
-                                        s.statusRaw === 'approved'
-                                            ? 'approved'
-                                            : s.statusRaw === 'rejected'
-                                            ? 'rejected'
-                                            : s.statusRaw === 'approved after deadline'
-                                            ? 'approved-after-deadline'
-                                            : ''
-                                    }`}
-                                >
+                                <div className={`lab-status ${s.statusClass}`}>
                                     {s.status}
                                 </div>
                             </div>
@@ -245,7 +248,7 @@ function DetailedSlotPage() {
                         <h3>Подтверждение заявки</h3>
 
                         <label>Комментарий:</label>
-                        <textarea
+                        <input
                             value={comment}
                             onChange={e => setComment(e.target.value)}
                         />
@@ -255,9 +258,9 @@ function DetailedSlotPage() {
                             value={status}
                             onChange={e => setStatus(e.target.value as typeof status)}
                         >
-                            <option value="approved">Принято</option>
-                            <option value="approved after deadline">Принято не в срок</option>
-                            <option value="rejected">Отклонено</option>
+                            <option value="Approved">Принято</option>
+                            <option value="ApprovedAfterDeadline">Принято не в срок</option>
+                            <option value="Rejected">Отклонено</option>
                         </select>
 
                         <div className="modal-buttons">
