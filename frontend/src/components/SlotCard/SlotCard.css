@@ -1,0 +1,104 @@
+.slot-card {
+    max-width: 250px;
+    background-color: #F5F5F5;
+    border-radius: 10px;
+    border: 1px solid black;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+
+}
+
+.slot-date {
+    text-align: center;
+    font-size: 1.2rem;
+    margin-bottom: 8px;
+}
+
+.slot-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 6px;
+}
+
+.slot-label {
+    min-width: 140px;
+    text-align: left;
+    font-weight: 600;
+}
+
+.slot-value {
+    text-align: right;
+    min-width: 30px;
+}
+
+.slot-students-buttons {
+    display: flex;
+    flex-direction: row;
+    gap: 12px;
+}
+
+.slot-button-sign {
+    background-color: #33CF69;
+    color: white;
+    border-radius: 16px;
+    font-size: clamp(12px, 1.1vw, 18px);
+    padding: 0.4em 2em;
+    min-width: 120px;
+}
+
+.slot-button-sign.remove {
+    background-color: #D24949;
+    color: white;
+    border-radius: 16px;
+    font-size: clamp(12px, 1.1vw, 18px);
+    padding: 0.4em 2em;
+    min-width: 120px;
+}
+
+.slot-button-sign.disabled {
+    background-color: #757575;
+    color: white;
+    border-radius: 16px;
+    font-size: clamp(12px, 1.1vw, 18px);
+    padding: 0.4em 0.5em;
+    min-width: 120px;
+}
+
+.slot-button-sign.remove.disabled {
+    background-color: #D24949;
+    color: white;
+    border-radius: 16px;
+    font-size: clamp(12px, 1.1vw, 18px);
+    padding: 0.4em 2em;
+    min-width: 120px;
+}
+
+.slot-button-participant {
+    background-color: black;
+    color: white;
+    border-radius: 16px;
+    font-size: clamp(12px, 1.1vw, 18px);
+    padding: 0.4em 1em;
+    /* меньше горизонтальный отступ */
+    min-width: 40px;
+}
+
+.slot-teachers-button.full {
+    background-color: #757575;
+    color: white;
+    border-radius: 16px;
+    font-size: clamp(12px, 1.1vw, 18px);
+    padding: 0.4em 2em;
+    min-width: 120px;
+}
+
+.slot-teachers-button.available {
+    background-color: black;
+    color: white;
+    border-radius: 16px;
+    font-size: clamp(12px, 1.1vw, 18px);
+    padding: 0.4em 2em;
+    min-width: 120px;
+}

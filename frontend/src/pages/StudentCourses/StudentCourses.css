@@ -1,0 +1,112 @@
+.course {
+    display: flex;
+}
+
+.course-info {
+    padding-left: 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+}
+
+.course-grid {
+    padding-left: 45px;
+    padding-right: 45px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding-bottom: 20px;
+}
+
+.course-photo {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+}
+
+ul {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+.course-card {
+    border: 0.5px solid grey;
+    max-width: 1350px;
+    height: auto;
+    border-radius: 10px;
+    padding: 20px;
+    background: white;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+
+}
+
+.list-of-teachers {
+    display: flex;
+    flex-direction: row;
+    gap: 5px;
+
+}
+
+.course-name {
+    font-weight: bold;
+    font-size: 20px;
+}
+
+
+h2 {
+    padding-left: 30px;
+}
+
+.labarotory-work-record {
+    background-color: #D24949;
+    color: white
+}
+
+.view-progress {
+    background-color: #1A1B22;
+    color: white;
+}
+
+.buttons {
+    display: flex;
+    flex-direction: row;
+    gap: 12px;
+}
+
+.course-page-header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding-right: 25px;
+}
+
+.add-course-button {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background-color: black;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    font-size: 0;
+    line-height: 0;
+}
+
+.plus-icon {
+    width: 32px;
+    height: 32px;
+    color: white;
+}
+
+.course-header {
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+}

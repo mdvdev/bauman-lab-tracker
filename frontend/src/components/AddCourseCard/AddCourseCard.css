@@ -1,0 +1,45 @@
+.add-course-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+    max-width: 400px;
+}
+
+.add-course-form label {
+    display: flex;
+    flex-direction: column;
+    font-weight: 200;
+    color: #333;
+}
+
+
+.add-course-form input {
+    padding: 8px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    margin-top: 4px;
+    max-width: 333px;
+
+}
+
+.add-course-form select {
+    font-size: 25px;
+    margin-top: 4px;
+    appearance: none;
+    padding-left: 10px;
+    -webkit-appearance: none;
+    font-weight: normal;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23333'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 1.5rem;
+    padding-right: 2.5rem;
+}
+
+.create-course-button {
+    padding: 5px;
+    background-color: black;
+    color: white;
+}
