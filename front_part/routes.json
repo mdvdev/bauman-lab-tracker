@@ -1,3 +1,0 @@
-{
-    "/courses/:id/slots": "/slots?courseId=:id"
-}

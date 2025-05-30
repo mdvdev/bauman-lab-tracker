@@ -193,4 +193,6 @@ obj/
 *.cache
 *.log
 
-front_part/node_modules/*
+frontend/node_modules/
+
+backend/LabTracker/LabTracker.App/StaticFiles/
