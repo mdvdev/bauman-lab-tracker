@@ -1,2 +1,0 @@
-*.cs linguist-detectable=true
-parser/** linguist-detectable=false
