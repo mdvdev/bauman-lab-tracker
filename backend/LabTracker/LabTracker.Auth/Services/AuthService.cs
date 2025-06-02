@@ -33,7 +33,7 @@ public class AuthService : IAuthService
         if (!result.Succeeded)
         {
             var errors = string.Join("; ", result.Errors.Select(e => e.Description));
-            throw new ApplicationException($"Failed to create user: {errors}");
+            throw new ArgumentException($"Failed to create user: {errors}");
         }
 
         await _userManager.AddToRoleAsync(userEntity, nameof(Role.Student));
