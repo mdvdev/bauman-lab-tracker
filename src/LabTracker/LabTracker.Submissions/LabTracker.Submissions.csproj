@@ -1,0 +1,32 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\LabTracker.Courses.Abstractions\LabTracker.Courses.Abstractions.csproj" />
+      <ProjectReference Include="..\LabTracker.Labs.Abstractions\LabTracker.Labs.Abstractions.csproj" />
+      <ProjectReference Include="..\LabTracker.Labs\LabTracker.Labs.csproj" />
+      <ProjectReference Include="..\LabTracker.Slots.Abstractions\LabTracker.Slots.Abstractions.csproj" />
+      <ProjectReference Include="..\LabTracker.Slots\LabTracker.Slots.csproj" />
+      <ProjectReference Include="..\LabTracker.Submissions.Abstractions\LabTracker.Submissions.Abstractions.csproj" />
+      <ProjectReference Include="..\LabTracker.Users.Abstractions\LabTracker.Users.Abstractions.csproj" />
+      <ProjectReference Include="..\LabTracker.Users\LabTracker.Users.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Reference Include="Microsoft.AspNetCore.Authorization">
+        <HintPath>..\..\..\..\..\..\..\opt\homebrew\Cellar\dotnet\9.0.4\libexec\shared\Microsoft.AspNetCore.App\9.0.4\Microsoft.AspNetCore.Authorization.dll</HintPath>
+      </Reference>
+      <Reference Include="Microsoft.AspNetCore.Mvc.Abstractions">
+        <HintPath>..\..\..\..\..\..\..\opt\homebrew\Cellar\dotnet\9.0.4\libexec\shared\Microsoft.AspNetCore.App\9.0.4\Microsoft.AspNetCore.Mvc.Abstractions.dll</HintPath>
+      </Reference>
+      <Reference Include="Microsoft.AspNetCore.Mvc.Core">
+        <HintPath>..\..\..\..\..\..\..\opt\homebrew\Cellar\dotnet\9.0.4\libexec\shared\Microsoft.AspNetCore.App\9.0.4\Microsoft.AspNetCore.Mvc.Core.dll</HintPath>
+      </Reference>
+    </ItemGroup>
+
+</Project>

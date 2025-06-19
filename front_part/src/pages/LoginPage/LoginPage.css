@@ -1,0 +1,54 @@
+/* src/pages/Login/Login.css и Register.css */
+.auth-page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px;
+    gap: 30px;
+    /* padding-top:  */
+}
+
+.auth-form {
+    padding: 24px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+    max-width: 300px;
+    border: 1px solid #D9D9D9;
+    border-radius: 8px;
+}
+
+.auth-form label {
+    display: flex;
+    flex-direction: column;
+    font-weight: 500;
+    color: #333;
+}
+
+.auth-form input {
+    padding: 8px;
+    font-size: 16px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    margin-top: 4px;
+}
+
+.auth-form button {
+    padding: 10px;
+    font-size: 16px;
+    border: none;
+    border-radius: 6px;
+    background-color: black;
+    color: white;
+    cursor: pointer;
+}
+
+.auth-form button:hover {
+    background-color: black;
+}
+
+.login-tittle {
+    font-size: 40px;
+    font-weight: bold;
+}

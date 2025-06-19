@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\LabTracker.Shared\LabTracker.Shared.csproj" />
+      <ProjectReference Include="..\LabTracker.Slots.Domain\LabTracker.Slots.Domain.csproj" />
+    </ItemGroup>
+
+</Project>

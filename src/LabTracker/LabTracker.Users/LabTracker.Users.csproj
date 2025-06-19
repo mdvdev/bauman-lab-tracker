@@ -1,0 +1,41 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <RootNamespace>Users</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <Reference Include="Microsoft.AspNetCore.Authorization">
+        <HintPath>..\..\..\..\..\..\..\opt\homebrew\Cellar\dotnet\9.0.4\libexec\shared\Microsoft.AspNetCore.App\9.0.4\Microsoft.AspNetCore.Authorization.dll</HintPath>
+      </Reference>
+      <Reference Include="Microsoft.AspNetCore.Http.Features">
+        <HintPath>..\..\..\..\..\..\..\opt\homebrew\Cellar\dotnet\9.0.4\libexec\shared\Microsoft.AspNetCore.App\9.0.4\Microsoft.AspNetCore.Http.Features.dll</HintPath>
+      </Reference>
+      <Reference Include="Microsoft.AspNetCore.Mvc.Abstractions">
+        <HintPath>..\..\..\..\..\..\..\opt\homebrew\Cellar\dotnet\9.0.4\libexec\shared\Microsoft.AspNetCore.App\9.0.4\Microsoft.AspNetCore.Mvc.Abstractions.dll</HintPath>
+      </Reference>
+      <Reference Include="Microsoft.AspNetCore.Mvc.Core">
+        <HintPath>..\..\..\..\..\..\..\opt\homebrew\Cellar\dotnet\9.0.4\libexec\shared\Microsoft.AspNetCore.App\9.0.4\Microsoft.AspNetCore.Mvc.Core.dll</HintPath>
+      </Reference>
+      <Reference Include="Microsoft.Extensions.Identity.Core">
+        <HintPath>..\..\..\..\..\..\..\opt\homebrew\Cellar\dotnet\9.0.4\libexec\shared\Microsoft.AspNetCore.App\9.0.4\Microsoft.Extensions.Identity.Core.dll</HintPath>
+      </Reference>
+      <Reference Include="Microsoft.Extensions.Identity.Stores">
+        <HintPath>..\..\..\..\..\..\..\opt\homebrew\Cellar\dotnet\9.0.4\libexec\shared\Microsoft.AspNetCore.App\9.0.4\Microsoft.Extensions.Identity.Stores.dll</HintPath>
+      </Reference>
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\LabTracker.Shared\LabTracker.Shared.csproj" />
+      <ProjectReference Include="..\LabTracker.Users.Abstractions\LabTracker.Users.Abstractions.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.3.0" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.4" />
+    </ItemGroup>
+
+</Project>

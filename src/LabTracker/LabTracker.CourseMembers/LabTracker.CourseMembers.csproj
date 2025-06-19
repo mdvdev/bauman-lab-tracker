@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\LabTracker.Courses.Abstractions\LabTracker.Courses.Abstractions.csproj" />
+      <ProjectReference Include="..\LabTracker.Courses\LabTracker.Courses.csproj" />
+      <ProjectReference Include="..\LabTracker.Infrastructure\LabTracker.Infrastructure.csproj" />
+      <ProjectReference Include="..\LabTracker.Users.Abstractions\LabTracker.Users.Abstractions.csproj" />
+    </ItemGroup>
+
+</Project>

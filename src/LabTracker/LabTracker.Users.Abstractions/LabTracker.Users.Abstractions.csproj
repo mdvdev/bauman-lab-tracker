@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <RootNamespace>LabTracker.User.Abstractions</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\LabTracker.Shared\LabTracker.Shared.csproj" />
+      <ProjectReference Include="..\LabTracker.Users.Domain\LabTracker.Users.Domain.csproj" />
+    </ItemGroup>
+
+</Project>

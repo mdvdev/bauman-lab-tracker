@@ -1,0 +1,105 @@
+.card-wrapper {
+    background-color: #ECEDEE;
+    border-radius: 16px;
+    width: 450px;
+    min-height: 550px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+.card-content {
+    background-color: white;
+    min-height: 476px;
+    width: 380px;
+}
+
+.avatar {
+    padding-top: 40px;
+    width: 100px;
+    height: 100px;
+}
+
+.role-badge {
+    border-radius: 16px;
+    padding: 6px 16px;
+    border-radius: 999px;
+    font-weight: 500;
+    font-size: 14px;
+    width: 100px;
+    display: flex;
+    justify-content: center;
+}
+
+.role-badge.Студент {
+    background-color: #e0e7ff;
+    color: #4f46e5;
+}
+
+.role-badge.Преподаватель {
+    background-color: #ffe0e0;
+    color: #d32f2f;
+}
+
+.role-badge.Администратор {
+    background-color: #FFF4E5;
+    color: #C77700;
+}
+
+.user-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+.contact-info {
+    padding-left: 30px;
+    padding-top: 50px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+
+}
+
+.telegram-icon {
+    height: 20px;
+    width: 20px;
+}
+
+.telegram-row {
+    display: flex;
+    flex-direction: row;
+    gap: 12px;
+}
+
+.created-at-row {
+    display: flex;
+    flex-direction: row;
+    gap: 12px;
+}
+
+.email-row {
+    display: flex;
+    flex-direction: row;
+    gap: 12px;
+}
+
+.group-row {
+    display: flex;
+    flex-direction: row;
+    gap: 12px;
+}
+
+.group-icon {
+    height: 20px;
+    width: 20px;
+}
+
+.edit-button {
+    border-radius: 14px;
+    width: 250px;
+    background-color: #6366F1;
+    color: white
+}

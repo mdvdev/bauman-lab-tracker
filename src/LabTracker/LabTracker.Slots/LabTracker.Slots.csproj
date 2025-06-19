@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <RootNamespace>Slots</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\LabTracker.Courses\LabTracker.Courses.csproj" />
+      <ProjectReference Include="..\LabTracker.Slots.Abstractions\LabTracker.Slots.Abstractions.csproj" />
+    </ItemGroup>
+
+</Project>
