@@ -1,0 +1,25 @@
+.edit-profile-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+    max-width: 400px;
+}
+
+.edit-profile-form label {
+    display: flex;
+    flex-direction: column;
+    font-weight: 500;
+    color: #333;
+    max-width: 333px;
+
+}
+
+
+.edit-profile-form input {
+    padding: 8px;
+    font-size: 16px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    margin-top: 4px;
+}

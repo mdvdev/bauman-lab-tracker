@@ -1,0 +1,11 @@
+.notification-list {
+    display: flex;
+    flex-direction: row;
+    gap: 15px;
+    padding-left: 45px;
+    padding-right: 45px;
+}
+
+.notification-grid {
+    padding-left: 30px;
+}

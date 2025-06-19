@@ -1,0 +1,44 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\LabTracker.CourseMembers.Abstractions\LabTracker.CourseMembers.Abstractions.csproj" />
+      <ProjectReference Include="..\LabTracker.Courses.Abstractions\LabTracker.Courses.Abstractions.csproj" />
+      <ProjectReference Include="..\LabTracker.Courses.Domain\LabTracker.Courses.Domain.csproj" />
+      <ProjectReference Include="..\LabTracker.Labs.Abstractions\LabTracker.Labs.Abstractions.csproj" />
+      <ProjectReference Include="..\LabTracker.Labs.Domain\LabTracker.Labs.Domain.csproj" />
+      <ProjectReference Include="..\LabTracker.Notifications.Abstractions\LabTracker.Notifications.Abstractions.csproj" />
+      <ProjectReference Include="..\LabTracker.Notifications.Domain\LabTracker.Notifications.Domain.csproj" />
+      <ProjectReference Include="..\LabTracker.Slots.Abstractions\LabTracker.Slots.Abstractions.csproj" />
+      <ProjectReference Include="..\LabTracker.Slots.Domain\LabTracker.Slots.Domain.csproj" />
+      <ProjectReference Include="..\LabTracker.Submissions.Abstractions\LabTracker.Submissions.Abstractions.csproj" />
+      <ProjectReference Include="..\LabTracker.Users.Domain\LabTracker.Users.Domain.csproj" />
+      <ProjectReference Include="..\LabTracker.Users\LabTracker.Users.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="FluentAssertions" Version="8.2.0" />
+      <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.4" />
+      <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.4" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.4" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.4">
+        <PrivateAssets>all</PrivateAssets>
+        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      </PackageReference>
+      <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="9.0.4" />
+      <PackageReference Include="Microsoft.Extensions.Configuration" Version="10.0.0-preview.3.25171.5" />
+      <PackageReference Include="MimeKit" Version="4.12.0" />
+      <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
+      <PackageReference Include="System.Configuration.ConfigurationManager" Version="10.0.0-preview.3.25171.5" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Migrations\" />
+    </ItemGroup>
+
+</Project>
